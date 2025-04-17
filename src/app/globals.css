@@ -44,6 +44,10 @@
 }
 
 :root {
+  /* CUSTOM */
+  --text-primary: oklch(0.57 0.2129 278.13);
+  --text-primary-foreground: oklch(0.98 0 0);
+
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -118,5 +122,15 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .--text-primary {
+    color: var(--text-primary);
+  }
+
+  .--bg-primary {
+    background-color: var(--text-primary);
   }
 }
