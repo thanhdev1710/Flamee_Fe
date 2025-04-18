@@ -1,8 +1,7 @@
-import FormLogin from "@/components/shared/FormLogin";
 import { Logo } from "@/components/shared/Logo";
-import React from "react";
+import React, { ReactNode } from "react";
 
-export default function page() {
+export default function layout({ children }: { children: ReactNode }) {
   return (
     <main className=" h-svh">
       <div className="w-full h-full mx-auto flex justify-center">
@@ -11,11 +10,8 @@ export default function page() {
         </div>
         <div className="max-w-[400px] w-full shrink-0 h-full p-10">
           <Logo size={30} />
-          <p className="font-semibold mb-6 mt-12 text-2xl">
-            Rất vui được gặp lại bạn
-          </p>
 
-          <FormLogin />
+          {children}
         </div>
       </div>
     </main>
