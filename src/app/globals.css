@@ -45,8 +45,8 @@
 
 :root {
   /* CUSTOM */
-  --text-primary: oklch(0.57 0.2129 278.13);
-  --text-primary-foreground: oklch(0.98 0 0);
+  --color-primary: oklch(0.57 0.2129 278.13);
+  --color-primary-foreground: oklch(0.98 0 0);
 
   --radius: 0.625rem;
   --background: oklch(1 0 0);
@@ -125,12 +125,10 @@
   }
 }
 
-@layer utilities {
-  .--text-primary {
-    color: var(--text-primary);
-  }
+@utility text-flamee-primary {
+  color: var(--color-primary);
+}
 
-  .--bg-primary {
-    background-color: var(--text-primary);
-  }
+@utility bg-flamee-primary {
+  background-color: var(--color-primary);
 }

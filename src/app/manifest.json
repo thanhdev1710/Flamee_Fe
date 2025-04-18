@@ -1,0 +1,42 @@
+{
+  "name": "Flamee - Mạng xã hội kết nối và tương tác",
+  "short_name": "Flamee",
+  "description": "Flamee là nền tảng mạng xã hội giúp bạn kết nối, chia sẻ hình ảnh và tương tác với bạn bè một cách dễ dàng và nhanh chóng.",
+  "lang": "vi-VN",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/home.png",
+      "sizes": "640x1136",
+      "type": "image/png",
+      "label": "Trang chủ Flamee"
+    },
+    {
+      "src": "/screenshots/profile.png",
+      "sizes": "640x1136",
+      "type": "image/png",
+      "label": "Trang cá nhân"
+    }
+  ],
+  "categories": ["social", "photo", "communication"],
+  "dir": "ltr"
+}
