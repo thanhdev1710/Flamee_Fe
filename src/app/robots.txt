@@ -5,4 +5,4 @@ Disallow: /private/
 Disallow: /api/
 Disallow: /admin/
 
-Sitemap: https://flamee.com/sitemap.xml
+Sitemap: https://flamee.vn/sitemap.xml
