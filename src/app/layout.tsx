@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import "./globals.css";
 
+import type { Viewport } from "next";
+import { ThemeProvider } from "next-themes";
+import { Toaster } from "sonner";
+
 const geistRoboto = Roboto({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -133,9 +137,6 @@ export const metadata: Metadata = {
   },
 };
 
-import type { Viewport } from "next";
-import { ThemeProvider } from "next-themes";
-
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
@@ -167,6 +168,7 @@ export default function RootLayout({
         >
           {children}
         </ThemeProvider>
+        <Toaster />
       </body>
     </html>
   );
