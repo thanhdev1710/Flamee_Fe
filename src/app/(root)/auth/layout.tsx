@@ -1,27 +1,27 @@
 import { Logo } from "@/components/shared/Logo";
-import Image from "next/image";
+import { ModeToggle } from "@/components/shared/ModeToggle";
 import React, { ReactNode } from "react";
 
 export default function layout({ children }: { children: ReactNode }) {
   return (
-    <main className=" h-svh">
-      <div className="w-full h-full mx-auto flex justify-center ">
-        <div className="max-md:hidden w-full h-full flex items-center justify-center relative">
-          <Image
-            alt="Ảnh chính trang đăng nhập"
-            src="/assets/images/bg-login.avif"
-            priority
-            fill
-            className="w-full h-full object-cover -scale-x-100"
-            sizes="66vw"
-          />
-        </div>
-        <div className="max-w-[400px] w-full shrink-0 h-full p-10">
-          <Logo size={30} />
+    <div className="min-h-svh h-full container mx-auto flex items-center justify-center">
+      <main className="w-full">
+        <div className="w-full h-full mx-auto flex justify-center">
+          <div className="max-md:hidden md:w-2/5 flex items-center justify-center">
+            <Logo isText={false} size={360} />
+          </div>
 
-          {children}
+          <div className="md:w-3/5 w-full h-full flex items-center justify-center">
+            <div className="w-full h-full md:p-6 p-3">
+              <Logo size={52} />
+              {children}
+            </div>
+          </div>
         </div>
+      </main>
+      <div className="fixed bottom-3 right-3">
+        <ModeToggle />
       </div>
-    </main>
+    </div>
   );
 }
