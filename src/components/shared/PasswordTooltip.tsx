@@ -21,10 +21,10 @@ export const PasswordTooltip = ({ password }: { password: string }) => {
   return (
     <TooltipProvider>
       <Tooltip>
-        <TooltipTrigger>
-          <Info className="text-gray-400 size-5 cursor-help" />
+        <TooltipTrigger onClick={(e) => e.preventDefault()}>
+          <Info className="text-gray-400 size-6 cursor-help" />
         </TooltipTrigger>
-        <TooltipContent className="bg-white text-sm text-gray-800 p-4 rounded-xl shadow-xl border -translate-x-10">
+        <TooltipContent className="bg-white text-sm text-gray-800 p-4 rounded-xl shadow-xl border -translate-x-10 z-10">
           <p className="font-semibold mb-3 text-gray-900">Yêu cầu mật khẩu:</p>
           <div className="space-y-2">
             {checklist.map(({ label, key }) => {

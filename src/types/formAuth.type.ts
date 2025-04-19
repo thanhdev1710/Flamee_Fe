@@ -21,24 +21,33 @@ export const authSchema = z
           message: "Vui lòng nhập email",
           code: z.ZodIssueCode.custom,
         });
-      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        ctx.addIssue({
-          path: ["email"],
-          message: "Email không hợp lệ",
-          code: z.ZodIssueCode.custom,
-        });
+      } else {
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          ctx.addIssue({
+            path: ["email"],
+            message: "Email không hợp lệ",
+            code: z.ZodIssueCode.custom,
+          });
+        }
       }
     }
 
     // 🎯 Các loại cần password
     if (["signin", "signup", "reset-password"].includes(type)) {
-      if (!password || password.length < 13) {
+      if (!password) {
         ctx.addIssue({
           path: ["password"],
-          message: "Mật khẩu không đúng định dạng",
+          message: "Vui lòng nhập mật khẩu",
           code: z.ZodIssueCode.custom,
         });
       } else {
+        if (password.length < 13) {
+          ctx.addIssue({
+            path: ["password"],
+            message: "Mật khẩu phải chứa ít nhất 13 ký tự",
+            code: z.ZodIssueCode.custom,
+          });
+        }
         if (!/[a-z]/.test(password))
           ctx.addIssue({
             path: ["password"],
