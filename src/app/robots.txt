@@ -5,4 +5,4 @@ Disallow: /private/
 Disallow: /api/
 Disallow: /admin/
 
-Sitemap: https://flamee.vn/sitemap.xml
+Sitemap: https://flamee-fe.vercel.app/sitemap.xml
