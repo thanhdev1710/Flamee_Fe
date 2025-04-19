@@ -135,6 +135,10 @@ export const metadata: Metadata = {
     email: false,
     address: false,
   },
+
+  verification: {
+    google: "googled7cd0c3e1cdd6cd4.html",
+  },
 };
 
 export const viewport: Viewport = {
