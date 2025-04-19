@@ -28,6 +28,7 @@ import {
   signup,
 } from "@/actions/auth.action";
 import FullScreenLoader from "../loading/FullScreenLoader";
+import { toast } from "sonner";
 
 export default function FormAuth({ type }: { type: FormType }) {
   const [isShowPass, setIsShowPass] = useState(false);
@@ -77,29 +78,39 @@ export default function FormAuth({ type }: { type: FormType }) {
   });
 
   async function onSubmit(data: AuthFormData) {
-    try {
-      setIsSubmitLoading(true);
-      switch (data.type) {
-        case "signin":
-          await signin(data);
-          break;
-        case "signup":
-          await signup(data);
-          break;
-        case "send-reset-password":
-          await sendResetPassword(data);
-          break;
-        case "reset-password":
-          await resetPassword(data);
-          break;
-        default:
-          break;
-      }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsSubmitLoading(false);
+    setIsSubmitLoading(true);
+
+    let error: string | null = null;
+
+    // Xử lý từng loại form
+    switch (data.type) {
+      case "signin":
+        error = await signin(data);
+        if (!error) toast.success("Đăng nhập thành công!");
+        break;
+      case "signup":
+        error = await signup(data);
+        if (!error) toast.success("Đăng ký thành công!");
+        break;
+      case "send-reset-password":
+        error = await sendResetPassword(data);
+        if (!error) toast.success("Đã gửi email khôi phục mật khẩu!");
+        break;
+      case "reset-password":
+        error = await resetPassword(data);
+        if (!error) toast.success("Đổi mật khẩu thành công!");
+        break;
+      default:
+        error = "Đã xảy ra lỗi không xác định";
+        break;
     }
+
+    // Nếu có lỗi thì show toast
+    if (error) {
+      toast.error(error, { richColors: true });
+    }
+
+    setIsSubmitLoading(false);
   }
 
   return (
