@@ -17,3 +17,7 @@ export async function withErrorHandler<T>(
     return "Đã xảy ra lỗi không xác định";
   }
 }
+
+export function hexString(str: string) {
+  return Buffer.from(str, "utf8").toString("hex");
+}
