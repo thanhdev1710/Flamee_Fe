@@ -69,8 +69,8 @@ export default function FormAuth({ type }: { type: FormType }) {
   }
 
   return (
-    <div className="w-full space-y-6">
-      <h2 className="font-semibold mb-6 mt-12 text-2xl">{textPrimary[type]}</h2>
+    <div className="w-full space-y-6 mt-6">
+      <h2 className="font-semibold text-2xl">{textPrimary[type]}</h2>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {/* Email */}
@@ -194,6 +194,7 @@ export default function FormAuth({ type }: { type: FormType }) {
                       <Switch
                         checked={field.value}
                         onCheckedChange={field.onChange}
+                        className="data-[state=checked]:bg-flamee-primary"
                       />
                     </FormControl>
                   </FormItem>
@@ -222,7 +223,7 @@ export default function FormAuth({ type }: { type: FormType }) {
           <hr />
 
           <div>
-            <button className="bg-black flex gap-2 items-center justify-center text-white w-full py-2 rounded-lg">
+            <button className="bg-black flex gap-2 items-center justify-center text-white cursor-pointer w-full py-2 rounded-lg">
               <Image
                 alt="Logo Google"
                 src="/assets/images/gg.webp"
@@ -230,7 +231,11 @@ export default function FormAuth({ type }: { type: FormType }) {
                 height={30}
               />
               <span>
-                Hoặc {type === "signin" ? "đăng nhập" : "đăng ký"} với Google
+                Hoặc{" "}
+                {type === "signin" || type === "send-reset-password"
+                  ? "đăng nhập"
+                  : "đăng ký"}{" "}
+                với Google
               </span>
             </button>
 

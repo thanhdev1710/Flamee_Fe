@@ -134,6 +134,7 @@ export const metadata: Metadata = {
 };
 
 import type { Viewport } from "next";
+import { ThemeProvider } from "next-themes";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -155,9 +156,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${geistRoboto.className} antialiased`}>
-        <div className="max-w-[1600px] mx-auto bg-gray-50">{children}</div>
+    <html lang="vi" suppressHydrationWarning>
+      <body className={`${geistRoboto.className} antialiased relative`}>
+        <head />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );
