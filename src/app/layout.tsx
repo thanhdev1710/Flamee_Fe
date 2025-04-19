@@ -9,7 +9,7 @@ import { Toaster } from "sonner";
 const geistRoboto = Roboto({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://flamee.vn"),
+  metadataBase: new URL("https://flamee-fe.vercel.app"),
 
   title: {
     default: "Flamee",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     "social interaction",
     "social feed",
     "trang cá nhân",
-    "Flamee.vn",
+    "flamee-fe.vercel.app",
     "ứng dụng chia sẻ",
     "Flamee app",
     "Flamee social media",
@@ -79,11 +79,11 @@ export const metadata: Metadata = {
     title: "Flamee - Mạng xã hội kết nối thời đại số",
     description:
       "Tham gia Flamee để chia sẻ hình ảnh, video và kết nối với cộng đồng người Việt năng động. Nền tảng mạng xã hội hiện đại, đơn giản và an toàn.",
-    url: "https://flamee.vn",
+    url: "https://flamee-fe.vercel.app",
     siteName: "Flamee",
     images: [
       {
-        url: "https://flamee.vn/og-image.png",
+        url: "https://flamee-fe.vercel.app/og-image.png",
         width: 1200,
         height: 630,
         alt: "Giao diện mạng xã hội Flamee",
@@ -99,7 +99,7 @@ export const metadata: Metadata = {
     description:
       "Khám phá Flamee – ứng dụng mạng xã hội dành cho người Việt để kết nối, chia sẻ và tương tác mỗi ngày.",
     creator: "@Chiithanh1",
-    images: ["https://flamee.vn/og-image.png"],
+    images: ["https://flamee-fe.vercel.app/og-image.png"],
   },
 
   icons: {
@@ -116,9 +116,9 @@ export const metadata: Metadata = {
   },
 
   alternates: {
-    canonical: "https://flamee.vn",
+    canonical: "https://flamee-fe.vercel.app",
     languages: {
-      vi: "https://flamee.vn",
+      vi: "https://flamee-fe.vercel.app",
     },
   },
 
