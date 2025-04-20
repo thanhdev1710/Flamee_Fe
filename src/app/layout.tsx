@@ -144,15 +144,14 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-  colorScheme: "light", // Chế độ sáng mặc định
+  maximumScale: 5,
+  userScalable: true,
+  colorScheme: "light",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" }, // Màu sáng cho chế độ sáng
-    { media: "(prefers-color-scheme: dark)", color: "#000000" }, // Màu tối cho chế độ tối
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#000000" },
   ],
-  // Optional: Nếu cần hỗ trợ cho chế độ ảo và chặn thu phóng.
-  viewportFit: "cover", // Điều này giúp trang web của bạn dễ dàng sử dụng trên các thiết bị màn hình lớn, như tablet hoặc điện thoại có viền cong.
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

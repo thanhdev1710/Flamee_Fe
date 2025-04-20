@@ -115,7 +115,7 @@ export default function FormAuth({ type }: { type: FormType }) {
 
   return (
     <>
-      <div className="w-full space-y-6 mt-6">
+      <div className="w-full space-y-6 mt-6 mb-3">
         <h2 className="font-semibold text-2xl">{textPrimary[type]}</h2>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -254,7 +254,8 @@ export default function FormAuth({ type }: { type: FormType }) {
                 />
                 <Link
                   href="/auth/reset-password"
-                  className="text-flamee-primary text-sm underline"
+                  className="text-flamee-primary underline"
+                  aria-label="Quên mật khẩu?"
                 >
                   Quên mật khẩu?
                 </Link>
@@ -291,7 +292,7 @@ export default function FormAuth({ type }: { type: FormType }) {
                 </span>
               </button>
 
-              <div className="flex mt-3 items-center justify-center gap-1 text-sm">
+              <div className="flex mt-3 items-center justify-center gap-1">
                 <p>
                   {type === "signin"
                     ? "Bạn chưa có tài khoản?"
@@ -300,6 +301,7 @@ export default function FormAuth({ type }: { type: FormType }) {
                 <Link
                   href={type === "signin" ? "/auth/signup" : "/auth/signin"}
                   className="text-flamee-primary underline"
+                  aria-label={type === "signin" ? "Đăng ký" : "Đăng nhập"}
                 >
                   {type === "signin" ? "Đăng ký" : "Đăng nhập"}
                 </Link>
