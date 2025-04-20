@@ -4,8 +4,6 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2, CheckCircle2, MailCheck } from "lucide-react";
 
-import console from "console";
-
 // TODO:MAI làm tiếp xác thực
 
 export default function VerifyEmailPage({
