@@ -9,9 +9,7 @@ async function Await(second: number) {
 
 export async function signin(formData: AuthFormData): Promise<string | null> {
   return await withErrorHandler(async () => {
-    await Await(2).then(() => {
-      throw new Error("Tài khoản này không tồn tại!");
-    });
+    await Await(2);
 
     console.log(formData);
     return null;
