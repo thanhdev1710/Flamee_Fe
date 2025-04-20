@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { MailWarning, Loader2, CheckCircle2 } from "lucide-react";
 
+// TODO:MAI làm tiếp xác thực
+
 export default function VerifyEmailPage() {
   const [resending, setResending] = useState(false);
   const [resent, setResent] = useState(false);
@@ -11,9 +13,7 @@ export default function VerifyEmailPage() {
   const handleResendEmail = async () => {
     setResending(true);
     try {
-      await fetch("https://a.com/api/auth/resend-verification", {
-        method: "POST",
-      });
+      console.log("run");
 
       setResent(true);
     } catch (error) {

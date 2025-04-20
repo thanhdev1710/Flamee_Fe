@@ -25,15 +25,36 @@ export async function signin(formData: AuthFormData): Promise<string | null> {
       return error.message;
     }
 
-    console.log(res.headers.get("Set-Cookie"));
-
     return null;
   });
 }
 
 export async function signup(formData: AuthFormData): Promise<string | null> {
   return await withErrorHandler(async () => {
-    console.log(formData);
+    const { email, password, confirmPassword } = formData;
+    if (password !== confirmPassword) {
+      return "Xác nhận mật khẩu giống với mật khẩu";
+    }
+    const body = JSON.stringify({ email, password, role: "user" });
+
+    const res = await fetch(
+      `${CONFIG.API_GATEWAY.API_URL}${CONFIG.API_GATEWAY.API_VERSION}/auth/register`,
+      {
+        method: "POST",
+        headers: {
+          "X-API-KEY": CONFIG.X_API_KEY,
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body,
+      }
+    );
+
+    if (!res.ok) {
+      const error = await res.json();
+      return error.message;
+    }
+
     return null;
   });
 }
