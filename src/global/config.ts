@@ -4,4 +4,5 @@ export const CONFIG = {
     API_VERSION: process.env.NEXT_PUBLIC_API_VERSION || "",
   },
   X_API_KEY: process.env.NEXT_PUBLIC_X_API_KEY || "",
+  JWT_SECRET: process.env.JWT_SECRET || "",
 };

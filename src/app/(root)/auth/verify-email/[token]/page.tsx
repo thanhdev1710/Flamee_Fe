@@ -4,22 +4,29 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2, CheckCircle2, MailCheck } from "lucide-react";
 
-export default function VerifyEmailPage() {
-  const [resending, setResending] = useState(false);
-  const [resent, setResent] = useState(false);
+import console from "console";
 
-  const handleResendEmail = async () => {
-    setResending(true);
+// TODO:MAI làm tiếp xác thực
+
+export default function VerifyEmailPage({
+  params,
+}: {
+  params: Promise<{ token: string }>;
+}) {
+  const [verifying, setVerifying] = useState(false);
+  const [verified, setVerified] = useState(false);
+
+  const handleVerifyEmail = async () => {
+    const { token } = await params;
+    setVerifying(true);
     try {
-      await fetch("/api/auth/resend-verification", {
-        method: "POST",
-      });
+      console.log(token);
 
-      setResent(true);
+      setVerified(true);
     } catch (error) {
-      console.error("Error resending email:", error);
+      console.error("Lỗi xác nhận email:", error);
     } finally {
-      setResending(false);
+      setVerifying(false);
     }
   };
 
@@ -28,35 +35,30 @@ export default function VerifyEmailPage() {
       <MailCheck className="text-green-500" size={48} />
       <h1 className="text-2xl font-bold">Xác thực email</h1>
       <p className="max-w-md">
-        Tài khoản của bạn chưa được xác thực. Hãy kiểm tra hộp thư đến (hoặc thư
-        rác) để hoàn tất xác thực email và sử dụng đầy đủ chức năng.
+        Tài khoản của bạn chưa được xác thực. Bấm nút bên dưới để tiến hành xác
+        thực và sử dụng đầy đủ chức năng.
       </p>
 
-      {!resent ? (
-        <div className="space-y-3">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Không nhận được email?
-          </p>
-          <Button
-            onClick={handleResendEmail}
-            disabled={resending}
-            className="w-full"
-          >
-            {resending ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Đang gửi lại...
-              </>
-            ) : (
-              "Gửi lại email xác thực"
-            )}
-          </Button>
-        </div>
+      {!verified ? (
+        <Button
+          onClick={handleVerifyEmail}
+          disabled={verifying}
+          className="w-full"
+        >
+          {verifying ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Đang xác nhận...
+            </>
+          ) : (
+            "Xác nhận email"
+          )}
+        </Button>
       ) : (
         <div className="flex flex-col items-center space-y-2">
           <CheckCircle2 className="text-green-500" size={32} />
           <p className="text-green-600 font-medium">
-            Email xác thực đã được gửi lại thành công!
+            Xác thực email thành công!
           </p>
         </div>
       )}
