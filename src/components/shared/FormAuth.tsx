@@ -52,15 +52,15 @@ export default function FormAuth({ type }: { type: FormType }) {
     defaultValues:
       type === "signin"
         ? {
-            email: "chithanh123@gmail.com",
-            password: "Chithanh123456@",
+            email: "chithanh171004@gmail.com",
+            password: "Chithanh123345@",
             rememberMe: false,
             type: "signin",
           }
         : type === "signup"
         ? {
-            email: "chithanh123@gmail.com",
-            password: "Chithanh123456@",
+            email: "chithanh171004@gmail.com",
+            password: "Chithanh123345@",
             confirmPassword: "",
             confirmPolicy: false,
             type: "signup",

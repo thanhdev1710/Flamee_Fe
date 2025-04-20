@@ -24,6 +24,7 @@ export function Logo({
         src="/assets/images/logo.svg"
         width={300}
         height={300}
+        priority
         style={{ width: size, height: "auto" }}
       />
     </h1>
