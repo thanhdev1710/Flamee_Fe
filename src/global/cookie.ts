@@ -1,6 +1,6 @@
 import { hexString } from "@/lib/utils";
 
 export const COOKIE = {
-  access_token: hexString("FLAMEE_ACCESS_TOKEN"),
-  refesh_token: hexString("FLAMEE_REFESH_TOKEN"),
+  access_token: hexString("flamee_access_token"),
+  refesh_token: hexString("flamee_refresh_token"),
 };

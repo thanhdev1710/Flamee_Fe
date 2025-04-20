@@ -29,8 +29,10 @@ import {
 } from "@/actions/auth.action";
 import FullScreenLoader from "../loading/FullScreenLoader";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function FormAuth({ type }: { type: FormType }) {
+  const router = useRouter();
   const [isShowPass, setIsShowPass] = useState(false);
   const [isSubmitLoading, setIsSubmitLoading] = useState(false);
   const textPrimary: { [key in FormType]: string } = {
@@ -86,11 +88,17 @@ export default function FormAuth({ type }: { type: FormType }) {
     switch (data.type) {
       case "signin":
         error = await signin(data);
-        if (!error) toast.success("Đăng nhập thành công!");
+        if (!error) {
+          toast.success("Đăng nhập thành công!");
+          router.replace("/");
+        }
         break;
       case "signup":
         error = await signup(data);
-        if (!error) toast.success("Đăng ký thành công!");
+        if (!error) {
+          toast.success("Đăng ký thành công!");
+          router.replace("/");
+        }
         break;
       case "send-reset-password":
         error = await sendResetPassword(data);
@@ -109,8 +117,9 @@ export default function FormAuth({ type }: { type: FormType }) {
     if (error) {
       toast.error(error, { richColors: true });
     }
-
-    setIsSubmitLoading(false);
+    setTimeout(() => {
+      setIsSubmitLoading(false);
+    }, 300);
   }
 
   return (
