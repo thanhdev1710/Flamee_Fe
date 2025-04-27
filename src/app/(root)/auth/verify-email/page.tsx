@@ -2,30 +2,42 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { MailWarning, Loader2, CheckCircle2 } from "lucide-react";
-
-// TODO:MAI làm tiếp xác thực
+import { Mail, Loader2, CheckCircle2 } from "lucide-react";
+import { getMe, sendVerifyEmail } from "@/actions/auth.action";
+import { toast } from "sonner";
 
 export default function VerifyEmailPage() {
-  const [resending, setResending] = useState(false);
-  const [resent, setResent] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
-  const handleResendEmail = async () => {
-    setResending(true);
+  const handleResend = async () => {
     try {
-      console.log("run");
+      setLoading(true);
+      const { user } = await getMe();
 
-      setResent(true);
-    } catch (error) {
-      console.error("Error resending email:", error);
+      if (!user?.email) {
+        toast.error("Không tìm thấy email người dùng.", { richColors: true });
+        return;
+      }
+
+      const err = await sendVerifyEmail(user.email);
+
+      if (err) {
+        toast.error(err.toUpperCase(), { richColors: true });
+        return;
+      }
+
+      setSuccess(true);
+    } catch {
+      toast.error("Đã xảy ra lỗi, vui lòng thử lại.", { richColors: true });
     } finally {
-      setResending(false);
+      setLoading(false);
     }
   };
 
   return (
     <div className="flex flex-col justify-center items-center h-full space-y-6 text-center">
-      <MailWarning className="text-yellow-500" size={48} />
+      <Mail className="text-yellow-500" size={48} />
       <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
         Vui lòng xác thực email
       </h1>
@@ -34,17 +46,13 @@ export default function VerifyEmailPage() {
         rác) để hoàn tất xác thực email và sử dụng đầy đủ chức năng.
       </p>
 
-      {!resent ? (
+      {!success ? (
         <div className="space-y-3">
           <p className="text-sm text-gray-500 dark:text-gray-400">
             Không nhận được email?
           </p>
-          <Button
-            onClick={handleResendEmail}
-            disabled={resending}
-            className="w-full"
-          >
-            {resending ? (
+          <Button onClick={handleResend} disabled={loading} className="w-full">
+            {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Đang gửi lại...

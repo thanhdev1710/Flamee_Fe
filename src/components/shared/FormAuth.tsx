@@ -54,15 +54,15 @@ export default function FormAuth({ type }: { type: FormType }) {
     defaultValues:
       type === "signin"
         ? {
-            email: "",
-            password: "",
+            email: "chithanh171004@gmail.com",
+            password: "Chithanh123456@",
             rememberMe: false,
             type: "signin",
           }
         : type === "signup"
         ? {
-            email: "",
-            password: "",
+            email: "chithanh171004@gmail.com",
+            password: "Chithanh123456@",
             confirmPassword: "",
             confirmPolicy: false,
             type: "signup",
@@ -115,7 +115,7 @@ export default function FormAuth({ type }: { type: FormType }) {
 
     // Nếu có lỗi thì show toast
     if (error) {
-      toast.error(error, { richColors: true });
+      toast.error(error.toUpperCase(), { richColors: true });
     }
     setTimeout(() => {
       setIsSubmitLoading(false);
