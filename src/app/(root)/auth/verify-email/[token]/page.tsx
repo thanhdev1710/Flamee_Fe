@@ -3,8 +3,9 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2, CheckCircle2, MailCheck } from "lucide-react";
-
-// TODO:MAI làm tiếp xác thực
+import { Logout, verifyEmail } from "@/actions/auth.action";
+import { toast } from "sonner";
+import { redirect } from "next/navigation";
 
 export default function VerifyEmailPage({
   params,
@@ -17,14 +18,21 @@ export default function VerifyEmailPage({
   const handleVerifyEmail = async () => {
     const { token } = await params;
     setVerifying(true);
-    try {
-      console.log(token);
 
+    try {
+      const err = await verifyEmail(token);
+
+      if (err) {
+        toast.error(err.toUpperCase(), { richColors: true });
+        return;
+      }
       setVerified(true);
-    } catch (error) {
-      console.error("Lỗi xác nhận email:", error);
+    } catch {
+      toast.error("Đã xảy ra lỗi, vui lòng thử lại.", { richColors: true });
     } finally {
       setVerifying(false);
+      await Logout();
+      redirect("/auth/signin");
     }
   };
 

@@ -22,12 +22,38 @@ const verifyToken = async (jwt: string) => {
   }
 };
 
+const refreshAccessToken = async (refreshToken: string | undefined) => {
+  if (!refreshToken) {
+    throw new Error("Refresh token failed");
+  }
+
+  const res = await fetch(
+    `${CONFIG.API_GATEWAY.API_URL}${CONFIG.API_GATEWAY.API_VERSION}/auth/refresh-token`,
+    {
+      method: "POST",
+      headers: {
+        "X-API-KEY": CONFIG.X_API_KEY,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ refresh_token: refreshToken }),
+      credentials: "include",
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error("Refresh token failed");
+  }
+
+  const data = await res.json();
+  return data.token;
+};
+
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
   // Lấy access token và refresh token từ cookie
   const token = request.cookies.get(COOKIE.access_token)?.value;
-  const refreshToken = request.cookies.get(COOKIE.refesh_token)?.value;
+  const refreshToken = request.cookies.get(COOKIE.refresh_token)?.value;
 
   // Xác định xem request hiện tại có phải là auth page không
   const isAuthPage =
@@ -74,8 +100,6 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL("/", request.url));
     }
 
-    console.log(pathname);
-
     if (
       pathname.startsWith("/auth/verify-email/") &&
       pathname !== "/auth/verify-email"
@@ -96,6 +120,22 @@ export async function middleware(request: NextRequest) {
   if (!accessTokenValid.status) {
     // Nếu không có refresh token hợp lệ thì redirect về trang đăng nhập
     if (!refreshTokenValid.status) {
+      return NextResponse.redirect(new URL("/auth/signin", request.url));
+    }
+
+    // Nếu refresh token hợp lệ, gọi API refresh token để lấy access token mới
+    try {
+      const newAccessToken = await refreshAccessToken(refreshToken);
+
+      // Sau khi có access token mới, tạo lại cookie và tiếp tục request
+      const response = NextResponse.next();
+      response.cookies.set(COOKIE.access_token, newAccessToken, {
+        httpOnly: true,
+        path: "/",
+      });
+      return response;
+    } catch (error) {
+      console.error("Refresh token failed", error);
       return NextResponse.redirect(new URL("/auth/signin", request.url));
     }
   }
