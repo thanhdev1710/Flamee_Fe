@@ -1,40 +1,47 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { Plus } from "lucide-react";
-import { toast } from "sonner";
+import Image from "next/image";
+import { useOnboardingStore } from "@/store/onboardingStore";
 
 export default function AvatarUploader() {
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const { avatar, setAvatar, lastName, firstName } = useOnboardingStore();
+  const [isUploading, setIsUploading] = useState(false); // Trạng thái upload
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSelectFile = () => {
     fileInputRef.current?.click();
   };
 
-  const handleFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  const handleFileChange = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file || isUploading) return;
 
-    const formData = new FormData();
-    formData.append("avatar", file);
+      setIsUploading(true);
 
-    try {
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
+      const formData = new FormData();
+      formData.append("avatar", file);
+      formData.append("lastName", lastName);
+      formData.append("firstName", firstName);
 
-      if (!res.ok) throw new Error("Upload failed");
+      try {
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
 
-      const { url } = await res.json();
-      setAvatarUrl(url);
-    } catch {
-      toast.error("Tải ảnh thất bại. Vui lòng thử lại.");
-    }
-  };
+        const { url } = await res.json();
+        setAvatar(url);
+      } catch (error) {
+        console.error("Upload failed", error);
+      } finally {
+        setIsUploading(false);
+      }
+    },
+    [isUploading, setAvatar, firstName, lastName]
+  );
 
   return (
     <div className="space-y-6">
@@ -46,10 +53,11 @@ export default function AvatarUploader() {
         onClick={handleSelectFile}
         className="size-[260px] cursor-pointer rounded-full overflow-hidden border-4 border-dashed hover:border-flamee-primary transition ring-1 ring-gray-200 shadow-lg"
       >
-        {avatarUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={avatarUrl}
+        {avatar ? (
+          <Image
+            width={300}
+            height={300}
+            src={avatar}
             alt="Ảnh đại diện"
             className="w-full h-full object-cover"
           />
