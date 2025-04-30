@@ -11,73 +11,95 @@ import {
 import { useState } from "react";
 import LayoutStep from "./LayoutStep";
 import { Label } from "@/components/ui/label";
+import { useOnboardingStore } from "@/store/onboardingStore";
+import { toast } from "sonner";
 
 export default function PersonalInfoStep() {
-  const [gender, setLocalGender] = useState("");
-  const [firstName, setLocalFirstName] = useState("");
-  const [lastName, setLocalLastName] = useState("");
-  const [email, setLocalEmail] = useState("");
-  const [phone, setLocalPhone] = useState("");
-  const [address, setLocalAddress] = useState("");
-  const [dob, setDob] = useState("");
-  const [country, setCountry] = useState("");
-  const [maritalStatus, setMaritalStatus] = useState("");
+  const {
+    nextStep,
+    gender,
+    firstName,
+    lastName,
+    phone,
+    address,
+    dob,
+    setGender,
+    setFirstName,
+    setLastName,
+    setPhone,
+    setAddress,
+    setDob,
+  } = useOnboardingStore();
+
+  const [localGender, setLocalGender] = useState(gender || "");
+  const [localFirstName, setLocalFirstName] = useState(firstName || "");
+  const [localLastName, setLocalLastName] = useState(lastName || "");
+  const [localPhone, setLocalPhone] = useState(phone || "");
+  const [localAddress, setLocalAddress] = useState(address || "");
+  const [localDob, setLocalDob] = useState(
+    dob ? new Date(dob).toISOString().split("T")[0] : ""
+  );
 
   const genders = ["Nam", "Nữ", "Khác"];
-  const countries = ["Việt Nam", "Mỹ", "Nhật Bản", "Hàn Quốc", "Ấn Độ"]; // Ví dụ quốc gia
-  const maritalStatuses = ["Độc thân", "Đã kết hôn", "Ly dị", "Góa"];
+
+  function handleNext() {
+    if (!localGender || !localFirstName || !localLastName || !localDob) {
+      toast.error("Vui lòng điền đầy đủ thông tin cá nhân", {
+        richColors: true,
+      });
+      return;
+    }
+
+    setGender(localGender);
+    setFirstName(localFirstName);
+    setLastName(localLastName);
+    setPhone(localPhone);
+    setAddress(localAddress);
+    setDob(new Date(localDob).getTime());
+
+    nextStep();
+  }
 
   return (
-    <LayoutStep onClickNext={() => console.log("Next step")} isPrev={false}>
+    <LayoutStep onClickNext={handleNext} isPrev={false}>
       <div className="space-y-6">
         <h1 className="text-2xl font-bold">Thông tin cá nhân</h1>
 
         <div className="flex gap-4">
-          {/* Input Họ */}
-          <div className="space-y-1">
+          {/* Họ */}
+          <div className="space-y-1 w-1/3">
             <Label className="text-sm text-muted-foreground">Họ của bạn</Label>
             <Input
               type="text"
               placeholder="Nhập họ"
-              value={lastName}
+              value={localLastName}
               onChange={(e) => setLocalLastName(e.target.value)}
               className="w-full"
             />
           </div>
 
-          {/* Input Tên */}
-          <div className="space-y-1">
+          {/* Tên */}
+          <div className="space-y-1 w-2/3">
             <Label className="text-sm text-muted-foreground">Tên của bạn</Label>
             <Input
               type="text"
-              placeholder="Nhập tên riêng"
-              value={firstName}
+              placeholder="Nhập tên"
+              value={localFirstName}
               onChange={(e) => setLocalFirstName(e.target.value)}
               className="w-full"
             />
           </div>
-        </div>
-        {/* Input Email */}
-        <div className="space-y-1">
-          <Label className="text-sm text-muted-foreground">Email</Label>
-          <Input
-            type="email"
-            placeholder="Nhập email"
-            value={email}
-            onChange={(e) => setLocalEmail(e.target.value)}
-            className="w-full"
-          />
         </div>
 
         {/* Ngày sinh */}
         <div className="space-y-1">
           <Label className="text-sm text-muted-foreground">Ngày sinh</Label>
           <Input
-            min={"1920-01-01"}
-            max={new Date().toISOString().split("T")[0]}
             type="date"
-            value={dob}
-            onChange={(e) => setDob(e.target.value)}
+            min="1920-01-01"
+            max={new Date().toISOString().split("T")[0]}
+            value={localDob}
+            onChange={(e) => setLocalDob(e.target.value)}
             className="w-full"
           />
         </div>
@@ -86,7 +108,7 @@ export default function PersonalInfoStep() {
         <div className="space-y-1">
           <Label className="text-sm text-muted-foreground">Giới tính</Label>
           <Select
-            value={gender}
+            value={localGender}
             onValueChange={(value) => setLocalGender(value)}
           >
             <SelectTrigger className="w-full">
@@ -102,7 +124,7 @@ export default function PersonalInfoStep() {
           </Select>
         </div>
 
-        {/* Số điện thoại (Tùy chọn) */}
+        {/* Số điện thoại */}
         <div className="space-y-1">
           <Label className="text-sm text-muted-foreground">
             Số điện thoại (Tùy chọn)
@@ -110,13 +132,13 @@ export default function PersonalInfoStep() {
           <Input
             type="tel"
             placeholder="Nhập số điện thoại"
-            value={phone}
+            value={localPhone}
             onChange={(e) => setLocalPhone(e.target.value)}
             className="w-full"
           />
         </div>
 
-        {/* Địa chỉ (Tùy chọn) */}
+        {/* Địa chỉ */}
         <div className="space-y-1">
           <Label className="text-sm text-muted-foreground">
             Địa chỉ (Tùy chọn)
@@ -124,49 +146,10 @@ export default function PersonalInfoStep() {
           <Input
             type="text"
             placeholder="Nhập địa chỉ"
-            value={address}
+            value={localAddress}
             onChange={(e) => setLocalAddress(e.target.value)}
             className="w-full"
           />
-        </div>
-
-        {/* Quốc gia */}
-        <div className="space-y-1">
-          <Label className="text-sm text-muted-foreground">Quốc gia</Label>
-          <Select value={country} onValueChange={(value) => setCountry(value)}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Chọn quốc gia" />
-            </SelectTrigger>
-            <SelectContent>
-              {countries.map((c) => (
-                <SelectItem key={c} value={c}>
-                  {c}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Tình trạng hôn nhân */}
-        <div className="space-y-1">
-          <Label className="text-sm text-muted-foreground">
-            Tình trạng hôn nhân
-          </Label>
-          <Select
-            value={maritalStatus}
-            onValueChange={(value) => setMaritalStatus(value)}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Chọn tình trạng hôn nhân" />
-            </SelectTrigger>
-            <SelectContent>
-              {maritalStatuses.map((status) => (
-                <SelectItem key={status} value={status}>
-                  {status}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
         </div>
       </div>
     </LayoutStep>
