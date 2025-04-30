@@ -9,10 +9,8 @@ const geistRoboto = Roboto({ subsets: ["latin"] });
 
 export default function GlobalError({
   error,
-  reset,
 }: {
   error: Error & { digest?: string };
-  reset: () => void;
 }) {
   return (
     <html lang="vi" suppressHydrationWarning>
@@ -41,7 +39,7 @@ export default function GlobalError({
               <Button
                 variant="outline"
                 className="gap-2"
-                onClick={() => reset()}
+                onClick={() => location.reload()}
               >
                 <RotateCcw className="w-4 h-4" />
                 Thử lại
