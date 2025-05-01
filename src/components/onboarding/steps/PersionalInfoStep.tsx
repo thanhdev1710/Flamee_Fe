@@ -13,6 +13,7 @@ import LayoutStep from "./LayoutStep";
 import { Label } from "@/components/ui/label";
 import { useOnboardingStore } from "@/store/onboardingStore";
 import { toast } from "sonner";
+import { createUserSchema } from "@/types/user.type";
 
 export default function PersonalInfoStep() {
   const {
@@ -50,12 +51,40 @@ export default function PersonalInfoStep() {
       return;
     }
 
+    const partialUserSchema = createUserSchema.pick({
+      firstName: true,
+      lastName: true,
+      dob: true,
+      gender: true,
+    });
+
+    // Xác thực thông tin với createUserSchema
+    const result = partialUserSchema.safeParse({
+      firstName: localFirstName,
+      lastName: localLastName,
+      phone: localPhone,
+      address: localAddress,
+      dob: localDob,
+      gender: localGender,
+    });
+
+    // Kiểm tra nếu có lỗi khi xác thực schema
+    if (!result.success) {
+      // Lấy lỗi đầu tiên để thông báo cho người dùng
+      const errorMessage = result.error.errors[0].message;
+      toast.error(errorMessage, {
+        richColors: true,
+      });
+      return;
+    }
+
+    // ✅ Lưu dob dưới dạng Date thay vì number
     setGender(localGender);
     setFirstName(localFirstName);
     setLastName(localLastName);
     setPhone(localPhone);
     setAddress(localAddress);
-    setDob(new Date(localDob).getTime());
+    setDob(new Date(localDob));
 
     nextStep();
   }
@@ -68,9 +97,12 @@ export default function PersonalInfoStep() {
         <div className="flex gap-4">
           {/* Họ */}
           <div className="space-y-1 w-1/3">
-            <Label className="text-sm text-muted-foreground">Họ của bạn</Label>
+            <Label htmlFor="lastName" className="text-sm text-muted-foreground">
+              Họ của bạn
+            </Label>
             <Input
               type="text"
+              id="lastName"
               placeholder="Nhập họ"
               value={localLastName}
               onChange={(e) => setLocalLastName(e.target.value)}
@@ -80,8 +112,14 @@ export default function PersonalInfoStep() {
 
           {/* Tên */}
           <div className="space-y-1 w-2/3">
-            <Label className="text-sm text-muted-foreground">Tên của bạn</Label>
+            <Label
+              htmlFor="firstName"
+              className="text-sm text-muted-foreground"
+            >
+              Tên của bạn
+            </Label>
             <Input
+              id="firstName"
               type="text"
               placeholder="Nhập tên"
               value={localFirstName}
@@ -93,8 +131,11 @@ export default function PersonalInfoStep() {
 
         {/* Ngày sinh */}
         <div className="space-y-1">
-          <Label className="text-sm text-muted-foreground">Ngày sinh</Label>
+          <Label htmlFor="dob" className="text-sm text-muted-foreground">
+            Ngày sinh
+          </Label>
           <Input
+            id="dob"
             type="date"
             min="1920-01-01"
             max={new Date().toISOString().split("T")[0]}
@@ -106,12 +147,16 @@ export default function PersonalInfoStep() {
 
         {/* Giới tính */}
         <div className="space-y-1">
-          <Label className="text-sm text-muted-foreground">Giới tính</Label>
+          <Label htmlFor="gender" className="text-sm text-muted-foreground">
+            Giới tính
+          </Label>
           <Select
             value={localGender}
-            onValueChange={(value) => setLocalGender(value)}
+            onValueChange={(value) =>
+              setLocalGender(value as "Nam" | "Nữ" | "Khác")
+            }
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger id="gender" className="w-full">
               <SelectValue placeholder="Chọn giới tính" />
             </SelectTrigger>
             <SelectContent>
@@ -126,10 +171,11 @@ export default function PersonalInfoStep() {
 
         {/* Số điện thoại */}
         <div className="space-y-1">
-          <Label className="text-sm text-muted-foreground">
+          <Label htmlFor="phone" className="text-sm text-muted-foreground">
             Số điện thoại (Tùy chọn)
           </Label>
           <Input
+            id="phone"
             type="tel"
             placeholder="Nhập số điện thoại"
             value={localPhone}
@@ -140,10 +186,11 @@ export default function PersonalInfoStep() {
 
         {/* Địa chỉ */}
         <div className="space-y-1">
-          <Label className="text-sm text-muted-foreground">
+          <Label htmlFor="address" className="text-sm text-muted-foreground">
             Địa chỉ (Tùy chọn)
           </Label>
           <Input
+            id="address"
             type="text"
             placeholder="Nhập địa chỉ"
             value={localAddress}
