@@ -53,15 +53,16 @@ export default function AvatarUploader() {
         </h2>
 
         <div
-          className="relative mx-auto w-40 h-40 rounded-full border-4 border-dashed hover:border-flamee-primary transition duration-300 ease-in-out ring-2 ring-gray-200 shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer overflow-hidden group"
+          className="mx-auto w-40 h-40 rounded-full border-4 border-dashed hover:border-flamee-primary transition duration-300 ease-in-out ring-2 ring-gray-200 shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer overflow-hidden group"
           onClick={handleSelectFile}
         >
           {avatar && !isUploading && (
             <Image
               src={avatar}
               alt="Avatar"
-              fill
-              className="object-cover rounded-full transition duration-300"
+              width={200}
+              height={200}
+              className="object-cover w-full h-full rounded-full transition duration-300"
             />
           )}
 

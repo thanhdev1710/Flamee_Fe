@@ -1,14 +1,16 @@
 "use client";
 import { useOnboardingStore } from "@/store/onboardingStore";
-import { User, Heart, Camera, Edit, Check } from "lucide-react";
+import { User, Heart, Camera, Edit, Check, IdCard } from "lucide-react";
 
 export default function AsideOnboarding() {
   const { step } = useOnboardingStore();
   const steps = [
+    { title: "Ảnh thẻ sinh viên", icon: <IdCard /> },
     { title: "Thông tin cá nhân", icon: <User /> },
     { title: "Sở thích", icon: <Heart /> },
     { title: "Ảnh đại diện", icon: <Camera /> },
     { title: "Giới thiệu bản thân", icon: <Edit /> },
+    { title: "Tên người dùng", icon: <User /> },
   ];
   return (
     <aside className="hidden md:block w-md p-8">
