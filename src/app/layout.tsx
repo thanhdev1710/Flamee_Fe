@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Roboto } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
 import type { Viewport } from "next";
@@ -7,11 +7,11 @@ import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
 import AuthProvider from "@/components/provider/AuthProvider";
 
-const geistRoboto = Roboto({
+const geistInter = Inter({
   subsets: ["latin", "vietnamese"],
   adjustFontFallback: true,
   display: "auto",
-  fallback: ["'Roboto', sans-serif"],
+  fallback: ["'Inter', sans-serif"],
   preload: true,
   style: ["normal"],
   weight: ["400", "500", "600", "700"],
@@ -170,7 +170,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi" suppressHydrationWarning>
-      <body className={`${geistRoboto.className} antialiased relative`}>
+      <body className={`${geistInter.className} antialiased relative`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
