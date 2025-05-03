@@ -20,19 +20,9 @@ export const createUserSchema = z.object({
       "Username chỉ được chứa chữ cái, số, dấu _ và ., không được bắt đầu/kết thúc bằng _ hoặc ., và không có dấu liên tiếp"
     ),
 
-  phone: z
-    .string()
-    .regex(
-      /^0\d{9}$/,
-      "Số điện thoại không hợp lệ (phải có 10 chữ số và bắt đầu bằng số 0)"
-    )
-    .optional(),
+  phone: z.string().optional(),
 
-  address: z
-    .string()
-    .min(5, "Địa chỉ quá ngắn")
-    .max(200, "Địa chỉ quá dài")
-    .optional(),
+  address: z.string().optional(),
 
   dob: z.preprocess(
     (val) => {

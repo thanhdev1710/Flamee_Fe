@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
 
   if (refreshCheck.status && refreshToken) {
     try {
-      const newAccessToken = await refreshAccessToken(refreshToken);
+      const newAccessToken = await refreshAccessToken();
 
       const response = NextResponse.json(
         { message: "Session refreshed" },
