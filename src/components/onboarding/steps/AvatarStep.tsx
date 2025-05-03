@@ -1,24 +1,18 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
-import { Plus, Loader2 } from "lucide-react";
-import Image from "next/image";
+import { useState, useCallback } from "react";
+
 import { useOnboardingStore } from "@/store/onboardingStore";
 import LayoutStep from "./LayoutStep";
+import CropImage from "@/components/shared/CropImage";
 
 export default function AvatarUploader() {
   const { avatar, setAvatar, lastName, firstName, nextStep, prevStep } =
     useOnboardingStore();
   const [isUploading, setIsUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleSelectFile = () => {
-    fileInputRef.current?.click();
-  };
 
   const handleFileChange = useCallback(
-    async (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
+    async (file: File) => {
       if (!file || isUploading) return;
 
       setIsUploading(true);
@@ -52,41 +46,13 @@ export default function AvatarUploader() {
           Ảnh đại diện của bạn
         </h2>
 
-        <div
-          className="mx-auto w-40 h-40 rounded-full border-4 border-dashed hover:border-flamee-primary transition duration-300 ease-in-out ring-2 ring-gray-200 shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer overflow-hidden group"
-          onClick={handleSelectFile}
-        >
-          {avatar && !isUploading && (
-            <Image
-              src={avatar}
-              alt="Avatar"
-              width={200}
-              height={200}
-              className="object-cover w-full h-full rounded-full transition duration-300"
-            />
-          )}
-
-          {!avatar && !isUploading && (
-            <div className="flex flex-col items-center justify-center w-full h-full text-gray-400 group-hover:text-flamee-primary transition">
-              <Plus size={36} />
-              <span className="text-sm mt-1">Tải ảnh</span>
-            </div>
-          )}
-
-          {isUploading && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/70 text-flamee-primary">
-              <Loader2 className="animate-spin" size={32} />
-              <span className="text-sm mt-1">Đang tải...</span>
-            </div>
-          )}
-        </div>
-
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={handleFileChange}
+        <CropImage
+          imgDefault={avatar}
+          action={async (file) => {
+            await handleFileChange(file);
+          }}
+          aspect={1}
+          isCircular
         />
       </div>
     </LayoutStep>

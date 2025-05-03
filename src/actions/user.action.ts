@@ -6,22 +6,15 @@ export async function createProfile(profile: CreateUserType) {
   console.log(profile);
 }
 
-export async function confirmCard(img: string) {
-  const base64String = img.split(",")[1];
-
-  // Tạo body chứa ảnh base64
-  const body = JSON.stringify({
-    base64_image: base64String,
-  });
-
+export async function confirmCard(image: File) {
   try {
-    // Gửi request POST đến API Flask
-    const res = await fetch("http://localhost:5000/extract_info", {
+    const formData = new FormData();
+    formData.append("file", image);
+
+    // Gửi POST request
+    const res = await fetch("http://localhost:8000/ocr", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: body,
+      body: formData,
     });
 
     const data = await res.json();

@@ -30,7 +30,6 @@ export default function PersonalInfoStep() {
     setPhone,
     setAddress,
     setDob,
-    prevStep,
   } = useOnboardingStore();
 
   const [localGender, setLocalGender] = useState(gender || "");
@@ -44,41 +43,39 @@ export default function PersonalInfoStep() {
 
   const genders = ["Nam", "Nữ", "Khác"];
 
-  function handle(type: "NEXT" | "PREV") {
-    if (type === "NEXT") {
-      if (!localGender || !localFirstName || !localLastName || !localDob) {
-        toast.error("Vui lòng điền đầy đủ thông tin cá nhân", {
-          richColors: true,
-        });
-        return;
-      }
-
-      const partialUserSchema = createUserSchema.pick({
-        firstName: true,
-        lastName: true,
-        dob: true,
-        gender: true,
+  function handleNext() {
+    if (!localGender || !localFirstName || !localLastName || !localDob) {
+      toast.error("Vui lòng điền đầy đủ thông tin cá nhân", {
+        richColors: true,
       });
+      return;
+    }
 
-      // Xác thực thông tin với createUserSchema
-      const result = partialUserSchema.safeParse({
-        firstName: localFirstName,
-        lastName: localLastName,
-        phone: localPhone,
-        address: localAddress,
-        dob: localDob,
-        gender: localGender,
+    const partialUserSchema = createUserSchema.pick({
+      firstName: true,
+      lastName: true,
+      dob: true,
+      gender: true,
+    });
+
+    // Xác thực thông tin với createUserSchema
+    const result = partialUserSchema.safeParse({
+      firstName: localFirstName,
+      lastName: localLastName,
+      phone: localPhone,
+      address: localAddress,
+      dob: localDob,
+      gender: localGender,
+    });
+
+    // Kiểm tra nếu có lỗi khi xác thực schema
+    if (!result.success) {
+      // Lấy lỗi đầu tiên để thông báo cho người dùng
+      const errorMessage = result.error.errors[0].message;
+      toast.error(errorMessage, {
+        richColors: true,
       });
-
-      // Kiểm tra nếu có lỗi khi xác thực schema
-      if (!result.success) {
-        // Lấy lỗi đầu tiên để thông báo cho người dùng
-        const errorMessage = result.error.errors[0].message;
-        toast.error(errorMessage, {
-          richColors: true,
-        });
-        return;
-      }
+      return;
     }
 
     setGender(localGender);
@@ -88,18 +85,11 @@ export default function PersonalInfoStep() {
     setAddress(localAddress);
     setDob(new Date(localDob));
 
-    if (type === "NEXT") {
-      nextStep();
-    } else {
-      prevStep();
-    }
+    nextStep();
   }
 
   return (
-    <LayoutStep
-      onClickNext={() => handle("NEXT")}
-      onClickPrev={() => handle("PREV")}
-    >
+    <LayoutStep isPrev={false} onClickNext={() => handleNext()}>
       <div className="space-y-6">
         <h1 className="text-2xl font-bold">Thông tin cá nhân</h1>
 

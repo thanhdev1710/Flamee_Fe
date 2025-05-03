@@ -5,17 +5,21 @@ type ImageFormat = "avif" | "jpeg" | "png" | "webp";
 // Hàm nén ảnh với khả năng chọn định dạng đầu ra (mặc định: AVIF)
 export async function compressImage({
   fileBuffer,
-  width = 800,
+  width,
   quality = 80,
-  format = "avif",
+  format,
 }: {
   fileBuffer: Buffer;
   width?: number;
   quality?: number;
-  format?: ImageFormat;
+  format: ImageFormat;
 }): Promise<Buffer> {
   try {
-    const image = sharp(fileBuffer).resize(width);
+    const image = sharp(fileBuffer);
+
+    if (width) {
+      image.resize(width);
+    }
 
     // Chuyển đổi theo định dạng được chọn
     switch (format) {
