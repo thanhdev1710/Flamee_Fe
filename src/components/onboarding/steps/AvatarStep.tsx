@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { toast } from "sonner";
 
 import { useOnboardingStore } from "@/store/onboardingStore";
 import LayoutStep from "./LayoutStep";
@@ -30,8 +31,11 @@ export default function AvatarUploader() {
 
         const { url } = await res.json();
         setAvatar(url);
-      } catch (error) {
-        console.error("Upload failed", error);
+        toast.success("Ảnh đã được cập nhật!");
+      } catch {
+        toast.error("Tải ảnh lên thất bại. Vui lòng thử lại.", {
+          richColors: true,
+        });
       } finally {
         setIsUploading(false);
       }
@@ -39,12 +43,25 @@ export default function AvatarUploader() {
     [isUploading, setAvatar, firstName, lastName]
   );
 
+  const handleNext = () => {
+    if (!avatar) {
+      toast.error("Vui lòng chọn trước khi tiếp tục.", {
+        richColors: true,
+      });
+      return;
+    }
+    nextStep();
+  };
+
   return (
-    <LayoutStep onClickNext={nextStep} onClickPrev={prevStep}>
+    <LayoutStep onClickNext={handleNext} onClickPrev={prevStep}>
       <div className="max-w-md mx-auto text-center space-y-6 p-6">
-        <h2 className="text-2xl font-bold text-flamee-primary">
-          Ảnh đại diện của bạn
+        <h2 className="text-3xl font-bold text-flamee-primary">
+          Chọn ảnh đại diện
         </h2>
+        <p className="text-gray-600">
+          Hãy chọn ảnh rõ mặt để mọi người nhận ra bạn dễ hơn!
+        </p>
 
         <CropImage
           imgDefault={avatar}
@@ -54,6 +71,12 @@ export default function AvatarUploader() {
           aspect={1}
           isCircular
         />
+
+        {avatar && (
+          <p className="text-green-600 font-medium">
+            ✅ Ảnh đã được lưu! Bạn có thể tiếp tục.
+          </p>
+        )}
       </div>
     </LayoutStep>
   );

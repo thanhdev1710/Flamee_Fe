@@ -79,7 +79,7 @@ export async function middleware(request: NextRequest) {
 
     // Nếu refresh token hợp lệ, gọi API refresh token để lấy access token mới
     try {
-      const newAccessToken = await refreshAccessToken(refreshToken);
+      const newAccessToken = await refreshAccessToken();
 
       // Sau khi có access token mới, tạo lại cookie và tiếp tục request
       const response = NextResponse.next();

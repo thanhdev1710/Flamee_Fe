@@ -19,11 +19,7 @@ export const verifyToken = async (jwt: string) => {
   }
 };
 
-export const refreshAccessToken = async (refreshToken: string | undefined) => {
-  if (!refreshToken) {
-    throw new Error("Refresh token failed");
-  }
-
+export const refreshAccessToken = async () => {
   const res = await fetch(
     `${CONFIG.API_GATEWAY.API_URL}${CONFIG.API_GATEWAY.API_VERSION}/auth/refresh-token`,
     {
@@ -32,7 +28,6 @@ export const refreshAccessToken = async (refreshToken: string | undefined) => {
         "X-API-KEY": CONFIG.X_API_KEY,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ refresh_token: refreshToken }),
       credentials: "include",
     }
   );

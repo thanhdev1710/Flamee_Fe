@@ -7,6 +7,7 @@ import { Button } from "../ui/button";
 import { getCroppedImg } from "@/utils/cropImage";
 import { Slider } from "../ui/slider";
 import { base64ToFile } from "@/utils/image";
+import { toast } from "sonner";
 
 export default function CropImage({
   action,
@@ -27,7 +28,7 @@ export default function CropImage({
   const [croppedImageUrl, setCroppedImageUrl] = useState<string | null>(
     imgDefault
   );
-  const [isDragging, setIsDragging] = useState(false); // 👈 Thêm state để kiểm tra drag
+  const [isDragging, setIsDragging] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -90,7 +91,17 @@ export default function CropImage({
   };
 
   const handleConfirm = async () => {
-    if (!croppedImageUrl) return;
+    if (!croppedImageUrl) {
+      toast.error("Vui lòng cắt ảnh trước khi xác nhận", { richColors: true });
+      return;
+    }
+    if (imgDefault === croppedImageUrl) {
+      toast.error("Ảnh chưa được thay đổi. Vui lòng chọn ảnh mới", {
+        richColors: true,
+      });
+      return;
+    }
+
     setIsProcessing(true);
     try {
       const image = await base64ToFile(croppedImageUrl);
