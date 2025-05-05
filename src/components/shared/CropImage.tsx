@@ -15,7 +15,7 @@ export default function CropImage({
   isCircular = false,
   imgDefault = null,
 }: {
-  action: (file: File) => void;
+  action: (file: File) => Promise<void>;
   aspect: number;
   isCircular?: boolean;
   imgDefault?: string | null;
@@ -105,7 +105,7 @@ export default function CropImage({
     setIsProcessing(true);
     try {
       const image = await base64ToFile(croppedImageUrl);
-      action(image);
+      await action(image);
     } catch {
       console.error("Xác nhận ảnh thất bại");
     } finally {
@@ -175,7 +175,7 @@ export default function CropImage({
           </div>
 
           {/* Slider */}
-          <div className="mt-4 w-full">
+          <div className="mt-6 w-full max-w-[300px] mx-auto">
             <Slider
               min={1}
               max={3}
@@ -186,7 +186,7 @@ export default function CropImage({
             />
           </div>
 
-          <div className="flex items-center justify-center gap-4 mt-4">
+          <div className="flex items-center justify-center gap-4 mt-6">
             <Button onClick={handleChangeImage} variant="outline">
               Chọn ảnh khác
             </Button>
@@ -202,20 +202,24 @@ export default function CropImage({
       {croppedImageUrl && (
         <>
           <div
-            className={`border overflow-hidden shadow-sm ${
+            className={`border overflow-hidden shadow-sm mx-auto ${
               isCircular
                 ? "rounded-full w-[300px] h-auto aspect-square"
-                : "rounded-xl w-full max-h-[300px]"
+                : "rounded-xl w-full max-w-[500px] h-auto aspect-[8/5]"
             }`}
           >
             <img
               src={croppedImageUrl}
               alt="Ảnh xem trước"
-              className="object-cover w-full h-full"
+              className="w-full h-full"
             />
           </div>
           <div className="flex justify-center gap-4 mt-4">
-            <Button onClick={handleChangeImage} variant="outline">
+            <Button
+              onClick={handleChangeImage}
+              disabled={isProcessing}
+              variant="outline"
+            >
               Chọn lại ảnh
             </Button>
             <Button onClick={handleConfirm} disabled={isProcessing}>
