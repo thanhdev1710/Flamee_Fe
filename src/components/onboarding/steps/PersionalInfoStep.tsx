@@ -25,26 +25,18 @@ export default function PersonalInfoStep() {
     address,
     dob,
     setGender,
-    setFirstName,
-    setLastName,
     setPhone,
     setAddress,
-    setDob,
   } = useOnboardingStore();
 
-  const [localGender, setLocalGender] = useState(gender || "");
-  const [localFirstName, setLocalFirstName] = useState(firstName || "");
-  const [localLastName, setLocalLastName] = useState(lastName || "");
+  const [localGender, setLocalGender] = useState(gender);
   const [localPhone, setLocalPhone] = useState(phone || "");
   const [localAddress, setLocalAddress] = useState(address || "");
-  const [localDob, setLocalDob] = useState(
-    dob ? new Date(dob).toISOString().split("T")[0] : ""
-  );
 
   const genders = ["Nam", "Nữ", "Khác"];
 
   function handleNext() {
-    if (!localGender || !localFirstName || !localLastName || !localDob) {
+    if (!localGender) {
       toast.error("Vui lòng điền đầy đủ thông tin cá nhân", {
         richColors: true,
       });
@@ -52,19 +44,15 @@ export default function PersonalInfoStep() {
     }
 
     const partialUserSchema = createUserSchema.pick({
-      firstName: true,
-      lastName: true,
-      dob: true,
+      phone: true,
       gender: true,
+      address: true,
     });
 
     // Xác thực thông tin với createUserSchema
     const result = partialUserSchema.safeParse({
-      firstName: localFirstName,
-      lastName: localLastName,
       phone: localPhone,
       address: localAddress,
-      dob: localDob,
       gender: localGender,
     });
 
@@ -79,11 +67,8 @@ export default function PersonalInfoStep() {
     }
 
     setGender(localGender);
-    setFirstName(localFirstName);
-    setLastName(localLastName);
     setPhone(localPhone);
     setAddress(localAddress);
-    setDob(new Date(localDob));
 
     nextStep();
   }
@@ -103,8 +88,8 @@ export default function PersonalInfoStep() {
               type="text"
               id="lastName"
               placeholder="Nhập họ"
-              value={localLastName}
-              onChange={(e) => setLocalLastName(e.target.value)}
+              value={lastName}
+              disabled
               className="w-full"
             />
           </div>
@@ -121,8 +106,8 @@ export default function PersonalInfoStep() {
               id="firstName"
               type="text"
               placeholder="Nhập tên"
-              value={localFirstName}
-              onChange={(e) => setLocalFirstName(e.target.value)}
+              value={firstName}
+              disabled
               className="w-full"
             />
           </div>
@@ -138,8 +123,12 @@ export default function PersonalInfoStep() {
             type="date"
             min="1920-01-01"
             max={new Date().toISOString().split("T")[0]}
-            value={localDob}
-            onChange={(e) => setLocalDob(e.target.value)}
+            value={
+              new Date(dob.getTime() - dob.getTimezoneOffset() * 60000)
+                .toISOString()
+                .split("T")[0]
+            }
+            disabled
             className="w-full"
           />
         </div>

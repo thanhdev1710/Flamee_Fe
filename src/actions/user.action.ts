@@ -1,5 +1,5 @@
 import { CONFIG } from "@/global/config";
-import { CreateUserType } from "@/types/user.type";
+import { CardStudent, CreateUserType } from "@/types/user.type";
 import { refreshAccessToken } from "@/utils/jwt";
 import { toast } from "sonner";
 
@@ -33,13 +33,13 @@ export async function createProfile(profile: CreateUserType) {
   }
 }
 
-export async function confirmCard(image: File) {
+export async function confirmCard(image: File): Promise<CardStudent> {
   try {
     const formData = new FormData();
     formData.append("file", image);
 
     // Gửi POST request
-    const res = await fetch("http://localhost:8000/ocr", {
+    const res = await fetch("http://192.168.102.5:8000/ocr", {
       method: "POST",
       body: formData,
     });
@@ -47,11 +47,12 @@ export async function confirmCard(image: File) {
     const data = await res.json();
 
     if (res.ok) {
-      console.log("Thông tin trích xuất:", data);
+      return data.info;
     } else {
-      console.log("Lỗi từ server:", data.error);
+      throw new Error(data.error);
     }
   } catch (error) {
     console.error("Lỗi khi gọi API:", error);
+    throw error;
   }
 }

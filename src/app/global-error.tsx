@@ -4,8 +4,6 @@ import { Logo } from "@/components/shared/Logo";
 import { Button } from "@/components/ui/button";
 import { RotateCcw } from "lucide-react";
 import { ThemeProvider } from "next-themes";
-import { Roboto } from "next/font/google";
-const geistRoboto = Roboto({ subsets: ["latin"] });
 
 export default function GlobalError({
   error,
@@ -14,7 +12,7 @@ export default function GlobalError({
 }) {
   return (
     <html lang="vi" suppressHydrationWarning>
-      <body className={`${geistRoboto.className} antialiased relative`}>
+      <body className={`antialiased relative`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
