@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { createUserSchema } from "@/types/user.type";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { base64ToFile } from "@/utils/image";
 
 export default function StudentCardStep() {
   const {
@@ -49,11 +50,7 @@ export default function StudentCardStep() {
       const base64 = canvas.toDataURL("image/jpeg");
 
       try {
-        const file = await fetch(base64)
-          .then((res) => res.blob())
-          .then(
-            (blob) => new File([blob], "capture.jpg", { type: "image/jpeg" })
-          );
+        const file = await base64ToFile(base64);
 
         const data = await confirmCard(file);
 
