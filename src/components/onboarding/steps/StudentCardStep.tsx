@@ -25,7 +25,7 @@ export default function StudentCardStep() {
   const startCamera = async () => {
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: true,
+        video: { facingMode: "user" },
       });
       setStream(mediaStream);
       setIsCameraAllowed(true);
@@ -38,6 +38,10 @@ export default function StudentCardStep() {
   };
 
   useEffect(() => {
+    if (videoRef.current && stream) {
+      videoRef.current.srcObject = stream;
+    }
+
     return () => stream?.getTracks().forEach((track) => track.stop());
   }, [stream]);
 
@@ -134,7 +138,8 @@ export default function StudentCardStep() {
               ref={videoRef}
               autoPlay
               playsInline
-              className="rounded-xl shadow w-full max-w-md"
+              muted
+              className="rounded-xl shadow w-full max-w-md border border-gray-300 bg-black"
             />
             <canvas ref={canvasRef} hidden />
             <Button onClick={capturePhoto}>Chụp ảnh</Button>
