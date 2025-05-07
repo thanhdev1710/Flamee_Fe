@@ -3,7 +3,7 @@ import { confirmCard } from "@/actions/user.action";
 import { useOnboardingStore } from "@/store/onboardingStore";
 import { toast } from "sonner";
 import { createUserSchema } from "@/types/user.type";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 export default function StudentCardStep() {
@@ -18,6 +18,7 @@ export default function StudentCardStep() {
   } = useOnboardingStore();
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [isCameraAllowed, setIsCameraAllowed] = useState(false);
@@ -37,15 +38,7 @@ export default function StudentCardStep() {
     }
   };
 
-  useEffect(() => {
-    if (videoRef.current && stream) {
-      videoRef.current.srcObject = stream;
-    }
-
-    return () => stream?.getTracks().forEach((track) => track.stop());
-  }, [stream]);
-
-  const capturePhoto = async () => {
+  const capturePhoto = useCallback(async () => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
 
@@ -107,7 +100,42 @@ export default function StudentCardStep() {
         toast.error(message, { richColors: true });
       }
     }
-  };
+  }, [
+    nextStep,
+    setCourse,
+    setDob,
+    setFirstName,
+    setLastName,
+    setMSSV,
+    setMajor,
+  ]);
+
+  useEffect(() => {
+    if (videoRef.current && stream) {
+      videoRef.current.srcObject = stream;
+
+      const startInterval = () => {
+        if (!intervalRef.current) {
+          intervalRef.current = setInterval(() => {
+            capturePhoto();
+          }, 1000); // quét mỗi giây
+        }
+      };
+
+      // Chờ video sẵn sàng trước khi quét
+      videoRef.current.onloadedmetadata = () => {
+        startInterval();
+      };
+    }
+
+    return () => {
+      stream?.getTracks().forEach((track) => track.stop());
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [stream, capturePhoto]);
 
   return (
     <LayoutStep isPrev={false} isNext={false}>
@@ -142,7 +170,6 @@ export default function StudentCardStep() {
               className="rounded-xl shadow w-full max-w-md border border-gray-300 bg-black"
             />
             <canvas ref={canvasRef} hidden />
-            <Button onClick={capturePhoto}>Chụp ảnh</Button>
           </>
         )}
       </div>
