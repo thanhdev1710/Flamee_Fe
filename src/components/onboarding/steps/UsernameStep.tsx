@@ -1,6 +1,6 @@
 "use client";
 
-import { useOnboardingStore } from "@/store/onboardingStore";
+import { getOnboardingData, useOnboardingStore } from "@/store/onboardingStore";
 import LayoutStep from "./LayoutStep";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -10,11 +10,15 @@ import { createUserSchema } from "@/types/user.type";
 import { toast } from "sonner";
 import { useDebounce } from "@/hooks/utils";
 import { getSuggestUsername } from "@/services/user.service";
+import { createProfile } from "@/actions/user.action";
 
 export default function UsernameStep() {
-  const { username, setUsername, prevStep, nextStep } = useOnboardingStore();
+  const { username, setUsername, prevStep } = useOnboardingStore();
   const [localUsername, setLocalUsername] = useState(username); // local state to store username temporarily
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [usernameStatus, setUsernameStatus] = useState<
+    "available" | "taken" | "invalid" | "checking" | null
+  >(null);
   const nameDebounce = useDebounce(localUsername, 0.5);
 
   useEffect(() => {
@@ -22,14 +26,33 @@ export default function UsernameStep() {
       const userCheck = createUserSchema.pick({ username: true });
       const result = userCheck.safeParse({ username: nameDebounce });
 
-      if (!result.success) {
+      if (!nameDebounce) {
+        setUsernameStatus(null);
         return;
       }
 
-      const data = await getSuggestUsername(nameDebounce);
+      if (!result.success) {
+        setUsernameStatus("invalid");
+        return;
+      }
 
-      setSuggestions(data || []);
+      setUsernameStatus("checking");
+
+      try {
+        const data = await getSuggestUsername(nameDebounce);
+
+        if (data.length > 0) {
+          setSuggestions(data);
+          setUsernameStatus("taken");
+        } else {
+          setSuggestions([]);
+          setUsernameStatus("available");
+        }
+      } catch {
+        setUsernameStatus("available");
+      }
     }
+
     fetchData();
   }, [nameDebounce]);
 
@@ -38,7 +61,7 @@ export default function UsernameStep() {
     setLocalUsername(value); // Chỉ cập nhật trạng thái local
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     // Kiểm tra tính hợp lệ của username khi nhấn Next
     const userCheck = createUserSchema.pick({ username: true });
     const result = userCheck.safeParse({ username: localUsername });
@@ -51,31 +74,18 @@ export default function UsernameStep() {
       return;
     }
 
-    // Nếu tên hợp lệ, lưu vào store
     setUsername(localUsername);
-    nextStep();
+
+    await createProfile(getOnboardingData());
   };
 
   const handlePrev = () => {
-    // Kiểm tra tính hợp lệ của username khi nhấn Next
-    const userCheck = createUserSchema.pick({ username: true });
-    const result = userCheck.safeParse({ username: localUsername });
-
-    if (!result.success) {
-      const errorMessage = result.error.errors[0].message;
-      toast.error(errorMessage, {
-        richColors: true,
-      });
-      return;
-    }
-
-    // Nếu tên hợp lệ, lưu vào store
     setUsername(localUsername);
     prevStep();
   };
 
   return (
-    <LayoutStep onClickNext={handleNext} onClickPrev={handlePrev}>
+    <LayoutStep isFinish onClickNext={handleNext} onClickPrev={handlePrev}>
       <div className="space-y-6">
         <h1 className="text-2xl font-bold">Tạo tên người dùng</h1>
         <p className="text-muted-foreground text-sm">
@@ -87,13 +97,36 @@ export default function UsernameStep() {
             Tên người dùng
           </label>
 
-          <Input
-            id="username"
-            className="pl-7 border p-2 w-full rounded"
-            placeholder="example123"
-            value={localUsername}
-            onChange={(e) => handleUsernameChange(e.target.value)}
-          />
+          <div className="relative">
+            <Input
+              id="username"
+              className={`!pl-8 border p-2 w-full rounded focus:outline-none ${
+                usernameStatus === "invalid"
+                  ? "border-red-500"
+                  : usernameStatus === "available"
+                  ? "border-green-500"
+                  : usernameStatus === "taken"
+                  ? "border-red-500"
+                  : ""
+              }`}
+              placeholder="example123"
+              value={localUsername}
+              onChange={(e) => handleUsernameChange(e.target.value)}
+            />
+            <span className="absolute top-1/2 -translate-y-1/2 left-3 text-gray-400">
+              @
+            </span>
+          </div>
+          {/* Thông báo trạng thái */}
+          {usernameStatus === "available" && (
+            <p className="text-sm text-green-600">✅ Tên này có thể sử dụng</p>
+          )}
+          {usernameStatus === "taken" && (
+            <p className="text-sm text-red-600">❌ Tên này đã được sử dụng</p>
+          )}
+          {usernameStatus === "invalid" && (
+            <p className="text-sm text-red-600">⚠️ Tên không hợp lệ</p>
+          )}
         </div>
 
         {suggestions.length > 0 && (

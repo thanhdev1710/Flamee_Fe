@@ -1,12 +1,21 @@
 import type { Metadata } from "next";
-import { Roboto } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
 import type { Viewport } from "next";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
+import AuthProvider from "@/components/provider/AuthProvider";
 
-const geistRoboto = Roboto({ subsets: ["latin"] });
+const geistInter = Inter({
+  subsets: ["latin", "vietnamese"],
+  adjustFontFallback: true,
+  display: "auto",
+  fallback: ["'Inter', sans-serif"],
+  preload: true,
+  style: ["normal"],
+  weight: ["400", "500", "600", "700"],
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://flamee-fe.vercel.app"),
@@ -161,15 +170,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi" suppressHydrationWarning>
-      <body className={`${geistRoboto.className} antialiased relative`}>
-        <head />
+      <body className={`${geistInter.className} antialiased relative`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <AuthProvider>{children}</AuthProvider>
         </ThemeProvider>
         <Toaster />
       </body>

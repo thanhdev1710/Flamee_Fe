@@ -29,6 +29,7 @@ export async function POST(req: NextRequest) {
       fileBuffer: buffer,
       quality: 75,
       width: 300,
+      format: "avif",
     });
 
     // Lưu tạm file vào thư mục public/uploads trên server

@@ -1,24 +1,19 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
-import { Plus, Loader2 } from "lucide-react";
-import Image from "next/image";
+import { useState, useCallback } from "react";
+import { toast } from "sonner";
+
 import { useOnboardingStore } from "@/store/onboardingStore";
 import LayoutStep from "./LayoutStep";
+import CropImage from "@/components/shared/CropImage";
 
 export default function AvatarUploader() {
   const { avatar, setAvatar, lastName, firstName, nextStep, prevStep } =
     useOnboardingStore();
   const [isUploading, setIsUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleSelectFile = () => {
-    fileInputRef.current?.click();
-  };
 
   const handleFileChange = useCallback(
-    async (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
+    async (file: File) => {
       if (!file || isUploading) return;
 
       setIsUploading(true);
@@ -36,8 +31,11 @@ export default function AvatarUploader() {
 
         const { url } = await res.json();
         setAvatar(url);
-      } catch (error) {
-        console.error("Upload failed", error);
+        toast.success("Ảnh đã được cập nhật!");
+      } catch {
+        toast.error("Tải ảnh lên thất bại. Vui lòng thử lại.", {
+          richColors: true,
+        });
       } finally {
         setIsUploading(false);
       }
@@ -45,48 +43,40 @@ export default function AvatarUploader() {
     [isUploading, setAvatar, firstName, lastName]
   );
 
+  const handleNext = () => {
+    if (!avatar) {
+      toast.error("Vui lòng chọn trước khi tiếp tục.", {
+        richColors: true,
+      });
+      return;
+    }
+    nextStep();
+  };
+
   return (
-    <LayoutStep onClickNext={nextStep} onClickPrev={prevStep}>
+    <LayoutStep onClickNext={handleNext} onClickPrev={prevStep}>
       <div className="max-w-md mx-auto text-center space-y-6 p-6">
-        <h2 className="text-2xl font-bold text-flamee-primary">
-          Ảnh đại diện của bạn
+        <h2 className="text-3xl font-bold text-flamee-primary">
+          Chọn ảnh đại diện
         </h2>
+        <p className="text-gray-600">
+          Hãy chọn ảnh rõ mặt để mọi người nhận ra bạn dễ hơn!
+        </p>
 
-        <div
-          className="relative mx-auto w-40 h-40 rounded-full border-4 border-dashed hover:border-flamee-primary transition duration-300 ease-in-out ring-2 ring-gray-200 shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer overflow-hidden group"
-          onClick={handleSelectFile}
-        >
-          {avatar && !isUploading && (
-            <Image
-              src={avatar}
-              alt="Avatar"
-              fill
-              className="object-cover rounded-full transition duration-300"
-            />
-          )}
-
-          {!avatar && !isUploading && (
-            <div className="flex flex-col items-center justify-center w-full h-full text-gray-400 group-hover:text-flamee-primary transition">
-              <Plus size={36} />
-              <span className="text-sm mt-1">Tải ảnh</span>
-            </div>
-          )}
-
-          {isUploading && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/70 text-flamee-primary">
-              <Loader2 className="animate-spin" size={32} />
-              <span className="text-sm mt-1">Đang tải...</span>
-            </div>
-          )}
-        </div>
-
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={handleFileChange}
+        <CropImage
+          imgDefault={avatar}
+          action={async (file) => {
+            await handleFileChange(file);
+          }}
+          aspect={1}
+          isCircular
         />
+
+        {avatar && (
+          <p className="text-green-600 font-medium">
+            ✅ Ảnh đã được lưu! Bạn có thể tiếp tục.
+          </p>
+        )}
       </div>
     </LayoutStep>
   );

@@ -13,6 +13,9 @@ export const useOnboardingStore = create<CreateUserStateType>((set) => ({
   avatar: "",
   bio: "",
   username: "",
+  course: "",
+  major: "",
+  mssv: "",
 
   nextStep: () => set((state) => ({ step: state.step + 1 })),
   prevStep: () => set((state) => ({ step: state.step - 1 })),
@@ -26,6 +29,9 @@ export const useOnboardingStore = create<CreateUserStateType>((set) => ({
   setAvatar: (avatar) => set({ avatar }),
   setBio: (bio) => set({ bio }),
   setUsername: (username) => set({ username }),
+  setCourse: (course) => set({ course }),
+  setMajor: (major) => set({ major }),
+  setMSSV: (mssv) => set({ mssv }),
 }));
 
 export const getOnboardingData = (): CreateUserType => {
@@ -40,6 +46,9 @@ export const getOnboardingData = (): CreateUserType => {
     avatar,
     bio,
     username,
+    course,
+    major,
+    mssv,
   } = useOnboardingStore.getState();
 
   return {
@@ -53,5 +62,8 @@ export const getOnboardingData = (): CreateUserType => {
     avatar,
     bio,
     username,
+    course,
+    major,
+    mssv,
   };
 };
