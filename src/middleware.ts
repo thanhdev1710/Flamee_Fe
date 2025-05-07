@@ -1,52 +1,6 @@
-// Import các thư viện cần thiết và biến cấu hình
 import { COOKIE } from "@/global/cookie";
 import { NextRequest, NextResponse } from "next/server";
-import { jwtVerify } from "jose";
-import { CONFIG } from "./global/config";
-
-// Hàm kiểm tra tính hợp lệ của token
-const verifyToken = async (jwt: string) => {
-  const secret = new TextEncoder().encode(CONFIG.JWT_SECRET);
-  const nowInSec = Math.floor(Date.now() / 1000);
-  try {
-    const { payload } = await jwtVerify(jwt, secret, {
-      algorithms: ["HS512"],
-    });
-    // Nếu token hết hạn thì trả về không hợp lệ
-    if (payload.exp && nowInSec > payload.exp)
-      return { status: false, payload };
-    return { status: true, payload };
-  } catch {
-    // Nếu lỗi verify thì coi như token không hợp lệ
-    return { status: false, payload: null };
-  }
-};
-
-const refreshAccessToken = async (refreshToken: string | undefined) => {
-  if (!refreshToken) {
-    throw new Error("Refresh token failed");
-  }
-
-  const res = await fetch(
-    `${CONFIG.API_GATEWAY.API_URL}${CONFIG.API_GATEWAY.API_VERSION}/auth/refresh-token`,
-    {
-      method: "POST",
-      headers: {
-        "X-API-KEY": CONFIG.X_API_KEY,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ refresh_token: refreshToken }),
-      credentials: "include",
-    }
-  );
-
-  if (!res.ok) {
-    throw new Error("Refresh token failed");
-  }
-
-  const data = await res.json();
-  return data.token;
-};
+import { verifyToken, refreshAccessToken } from "./utils/jwt";
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
@@ -83,7 +37,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 👉 Trường hợp người dùng đang truy cập vào các trang /auth/* (ngoại trừ /verify-email)
+  // Trường hợp người dùng đang truy cập vào các trang /auth/* (ngoại trừ /verify-email)
   if (isAuthPage) {
     // Nếu đã đăng nhập thì redirect về trang chủ
     if (accessTokenValid.status) {
@@ -93,7 +47,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 👉 Trường hợp người dùng truy cập trang xác thực email
+  // Trường hợp người dùng truy cập trang xác thực email
   if (isVerifyEmailPage) {
     // Nếu đã xác thực email rồi thì redirect về trang chủ
     if (isVerified) {
@@ -116,7 +70,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 👉 Trường hợp truy cập các route khác (ví dụ "/")
+  // Trường hợp truy cập các route khác (ví dụ "/")
   if (!accessTokenValid.status) {
     // Nếu không có refresh token hợp lệ thì redirect về trang đăng nhập
     if (!refreshTokenValid.status) {
@@ -125,7 +79,7 @@ export async function middleware(request: NextRequest) {
 
     // Nếu refresh token hợp lệ, gọi API refresh token để lấy access token mới
     try {
-      const newAccessToken = await refreshAccessToken(refreshToken);
+      const newAccessToken = await refreshAccessToken();
 
       // Sau khi có access token mới, tạo lại cookie và tiếp tục request
       const response = NextResponse.next();
@@ -145,11 +99,26 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/auth/verify-email", request.url));
   }
 
+  // Kiểm tra nếu người dùng đã vào trang onboarding rồi (tránh vòng lặp)
+  const isOnboardingPage = pathname === "/onboarding";
+
+  // Kiểm tra trạng thái profile
+  const isProfile = accessTokenValid.payload?.is_profile;
+
+  // Tránh vòng lặp: Nếu đã vào trang onboarding rồi, không cần redirect nữa
+  if (!isProfile && !isOnboardingPage) {
+    return NextResponse.redirect(new URL("/onboarding", request.url));
+  }
+
+  if (isProfile && isOnboardingPage) {
+    return NextResponse.redirect(new URL("/", request.url));
+  }
+
   // Nếu tất cả đều hợp lệ → cho phép truy cập
   return NextResponse.next();
 }
 
 // Áp dụng middleware cho các route cần kiểm soát
 export const config = {
-  matcher: ["/", "/auth/:path*"],
+  matcher: ["/", "/onboarding", "/auth/:path*"],
 };

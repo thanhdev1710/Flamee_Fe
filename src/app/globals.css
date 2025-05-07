@@ -132,3 +132,7 @@
 @utility bg-flamee-primary {
   background-color: var(--color-primary);
 }
+
+@utility border-flamee-primary {
+  border-color: var(--color-primary);
+}

@@ -11,7 +11,7 @@ export default function LayoutStep({
   isFinish = false,
 }: {
   children: React.ReactNode;
-  onClickNext: () => void;
+  onClickNext?: () => void;
   onClickPrev?: () => void;
   isNext?: boolean;
   isPrev?: boolean;
