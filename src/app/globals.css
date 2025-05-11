@@ -136,3 +136,8 @@
 @utility border-flamee-primary {
   border-color: var(--color-primary);
 }
+
+.shadcn-calendar-day--outside {
+  opacity: 0.5; /* Điều chỉnh độ mờ */
+  pointer-events: none; /* Ngăn không cho người dùng chọn các ngày này nếu cần */
+}

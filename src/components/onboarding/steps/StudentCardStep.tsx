@@ -8,18 +8,9 @@ import { Button } from "@/components/ui/button";
 import { base64ToFile } from "@/utils/image";
 
 export default function StudentCardStep() {
-  const {
-    nextStep,
-    setLastName,
-    setFirstName,
-    setDob,
-    setCourse,
-    setMSSV,
-    setMajor,
-  } = useOnboardingStore();
+  const { nextStep, setMSSV } = useOnboardingStore();
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [isCameraAllowed, setIsCameraAllowed] = useState(false);
@@ -39,6 +30,12 @@ export default function StudentCardStep() {
     }
   };
 
+  const offCamera = async () => {
+    setStream(null);
+    setIsCameraAllowed(false);
+    if (videoRef.current) videoRef.current.srcObject = null;
+  };
+
   const capturePhoto = useCallback(async () => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
@@ -52,43 +49,19 @@ export default function StudentCardStep() {
       try {
         const file = await base64ToFile(base64);
 
-        const data = await confirmCard(file);
+        const mssv = await confirmCard(file);
 
         const cardSchema = createUserSchema.pick({
-          course: true,
-          dob: true,
           mssv: true,
-          major: true,
-          lastName: true,
-          firstName: true,
         });
 
-        const [lastName, ...rest] = data.name.trim().split(" ");
-        const firstName = rest.join(" ");
-        const [day, month, year] = data.dob.split("/").map(Number);
-        const dob = new Date(year, month - 1, day);
-
-        const card = {
-          lastName,
-          firstName,
-          major: data.major,
-          mssv: data.mssv,
-          course: data.course,
-          dob,
-        };
-
-        const result = cardSchema.safeParse(card);
+        const result = cardSchema.safeParse({ mssv });
         if (!result.success) {
           toast.error(result.error.errors[0].message, { richColors: true });
           return;
         }
 
-        setLastName(lastName);
-        setFirstName(firstName);
-        setDob(dob);
-        setMSSV(data.mssv);
-        setMajor(data.major);
-        setCourse(data.course);
+        setMSSV(mssv);
 
         nextStep();
       } catch (error) {
@@ -97,40 +70,29 @@ export default function StudentCardStep() {
         toast.error(message, { richColors: true });
       }
     }
-  }, [
-    nextStep,
-    setCourse,
-    setDob,
-    setFirstName,
-    setLastName,
-    setMSSV,
-    setMajor,
-  ]);
+  }, [setMSSV, nextStep]);
 
   useEffect(() => {
+    let isMounted = true;
+
+    const startLoop = async () => {
+      while (isMounted) {
+        await capturePhoto(); // Chờ xử lý xong
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+      }
+    };
+
     if (videoRef.current && stream) {
       videoRef.current.srcObject = stream;
 
-      const startInterval = () => {
-        if (!intervalRef.current) {
-          intervalRef.current = setInterval(() => {
-            capturePhoto();
-          }, 1000); // quét mỗi giây
-        }
-      };
-
-      // Chờ video sẵn sàng trước khi quét
       videoRef.current.onloadedmetadata = () => {
-        startInterval();
+        startLoop(); // Bắt đầu vòng lặp tuần tự
       };
     }
 
     return () => {
+      isMounted = false;
       stream?.getTracks().forEach((track) => track.stop());
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
     };
   }, [stream, capturePhoto]);
 
@@ -167,6 +129,7 @@ export default function StudentCardStep() {
               className="rounded-xl shadow w-full max-w-md border border-gray-300 bg-black"
             />
             <canvas ref={canvasRef} hidden />
+            <Button onClick={offCamera}>Tắt camera</Button>
           </>
         )}
       </div>

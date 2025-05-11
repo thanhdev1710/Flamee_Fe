@@ -82,11 +82,3 @@ export interface CreateUserStateType extends CreateUserType {
   setCourse: (course: string) => void;
   setMajor: (major: string) => void;
 }
-
-export interface CardStudent {
-  mssv: string;
-  name: string;
-  dob: string;
-  major: string;
-  course: string;
-}

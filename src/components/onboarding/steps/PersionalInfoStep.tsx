@@ -14,6 +14,18 @@ import { Label } from "@/components/ui/label";
 import { useOnboardingStore } from "@/store/onboardingStore";
 import { toast } from "sonner";
 import { createUserSchema } from "@/types/user.type";
+import { cn } from "@/lib/utils";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { vi } from "date-fns/locale";
+import { Calendar } from "@/components/ui/calendar";
+import { Button } from "@/components/ui/button";
+import "react-day-picker/dist/style.css";
 
 export default function PersonalInfoStep() {
   const {
@@ -29,9 +41,20 @@ export default function PersonalInfoStep() {
     setAddress,
   } = useOnboardingStore();
 
+  const [localFirstname, setLocalFirstname] = useState(firstName);
+  const [localLastname, setLocalLastname] = useState(lastName);
+  const [localDob, setLocalDob] = useState<Date>(dob);
   const [localGender, setLocalGender] = useState(gender);
   const [localPhone, setLocalPhone] = useState(phone || "");
   const [localAddress, setLocalAddress] = useState(address || "");
+
+  const today = new Date();
+  const eighteenYearsAgo = new Date(
+    today.getFullYear() - 18,
+    today.getMonth(),
+    today.getDate()
+  );
+  const minDate = new Date(1920, 0, 1);
 
   const genders = ["Nam", "Nữ", "Khác"];
 
@@ -49,16 +72,13 @@ export default function PersonalInfoStep() {
       address: true,
     });
 
-    // Xác thực thông tin với createUserSchema
     const result = partialUserSchema.safeParse({
       phone: localPhone,
       address: localAddress,
       gender: localGender,
     });
 
-    // Kiểm tra nếu có lỗi khi xác thực schema
     if (!result.success) {
-      // Lấy lỗi đầu tiên để thông báo cho người dùng
       const errorMessage = result.error.errors[0].message;
       toast.error(errorMessage, {
         richColors: true,
@@ -74,27 +94,25 @@ export default function PersonalInfoStep() {
   }
 
   return (
-    <LayoutStep isPrev={false} onClickNext={() => handleNext()}>
+    <LayoutStep isPrev={false} onClickNext={handleNext}>
       <div className="space-y-6">
         <h1 className="text-2xl font-bold">Thông tin cá nhân</h1>
-
         <div className="flex gap-4">
-          {/* Họ */}
           <div className="space-y-1 w-1/3">
             <Label htmlFor="lastName" className="text-sm text-muted-foreground">
               Họ của bạn
             </Label>
             <Input
+              autoFocus
               type="text"
               id="lastName"
               placeholder="Nhập họ"
-              value={lastName}
-              disabled
+              value={localLastname}
+              onChange={(e) => setLocalLastname(e.target.value)}
               className="w-full"
             />
           </div>
 
-          {/* Tên */}
           <div className="space-y-1 w-2/3">
             <Label
               htmlFor="firstName"
@@ -106,34 +124,51 @@ export default function PersonalInfoStep() {
               id="firstName"
               type="text"
               placeholder="Nhập tên"
-              value={firstName}
-              disabled
+              value={localFirstname}
+              onChange={(e) => setLocalFirstname(e.target.value)}
               className="w-full"
             />
           </div>
         </div>
 
-        {/* Ngày sinh */}
         <div className="space-y-1">
           <Label htmlFor="dob" className="text-sm text-muted-foreground">
             Ngày sinh
           </Label>
-          <Input
-            id="dob"
-            type="date"
-            min="1920-01-01"
-            max={new Date().toISOString().split("T")[0]}
-            value={
-              new Date(dob.getTime() - dob.getTimezoneOffset() * 60000)
-                .toISOString()
-                .split("T")[0]
-            }
-            disabled
-            className="w-full"
-          />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-[240px] justify-start text-left font-normal",
+                  !localDob && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {localDob
+                  ? format(localDob, "dd/MM/yyyy", { locale: vi })
+                  : "Chọn ngày"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                locale={vi}
+                selected={localDob}
+                onSelect={(date) => date && setLocalDob(date)}
+                fromDate={minDate}
+                toDate={eighteenYearsAgo}
+                captionLayout="dropdown"
+                initialFocus
+                classNames={{
+                  caption_dropdowns: "flex items-center gap-5",
+                  day_outside: "opacity-50 text-muted-foreground",
+                }}
+              />
+            </PopoverContent>
+          </Popover>
         </div>
 
-        {/* Giới tính */}
         <div className="space-y-1">
           <Label htmlFor="gender" className="text-sm text-muted-foreground">
             Giới tính
@@ -157,7 +192,6 @@ export default function PersonalInfoStep() {
           </Select>
         </div>
 
-        {/* Số điện thoại */}
         <div className="space-y-1">
           <Label htmlFor="phone" className="text-sm text-muted-foreground">
             Số điện thoại (Tùy chọn)
@@ -172,7 +206,6 @@ export default function PersonalInfoStep() {
           />
         </div>
 
-        {/* Địa chỉ */}
         <div className="space-y-1">
           <Label htmlFor="address" className="text-sm text-muted-foreground">
             Địa chỉ (Tùy chọn)
