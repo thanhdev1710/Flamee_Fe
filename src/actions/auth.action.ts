@@ -7,6 +7,7 @@ import { GetMeResponse } from "@/types/jwt";
 export async function signin(formData: AuthFormData): Promise<string | null> {
   return await withErrorHandler(async () => {
     const { email, password, rememberMe } = formData;
+
     const body = JSON.stringify({ email, password, rememberMe });
 
     const res = await fetch(
