@@ -1,0 +1,20 @@
+{
+  "HomePage": {
+    "title": "Social Media",
+    "title_sub": "HUIT",
+    "description": "A new social platform that helps you share moments, connect with friends, and explore the world in a whole new way."
+  },
+  "SettingComponent": {
+    "appearance": "Appearance",
+    "light": "Light",
+    "light_description": "Bright and clean",
+    "dark": "Dark",
+    "dark_description": "Easy on the eyes",
+    "system": "System",
+    "system_description": "Follows your device",
+    "language": "Language",
+    "english": "English",
+    "vietnamese": "Vietnamese",
+    "customize_experience": "Customize your experience"
+  }
+}

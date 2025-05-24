@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { Card, CardContent } from "@/components/ui/card";
 
 type FeatureBoxProps = {
