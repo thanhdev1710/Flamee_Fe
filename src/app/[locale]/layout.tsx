@@ -193,12 +193,12 @@ export default async function RootLayout({
         >
           <NextIntlClientProvider locale={locale}>
             {children}
+            <div className="fixed bottom-3 right-3">
+              <ModeToggle />
+            </div>
+            <Toaster />
           </NextIntlClientProvider>
-          <div className="fixed bottom-3 right-3">
-            <ModeToggle />
-          </div>
         </ThemeProvider>
-        <Toaster />
       </body>
     </html>
   );

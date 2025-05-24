@@ -3,5 +3,18 @@
     "title": "Mạng xã hội",
     "title_sub": "HUIT",
     "description": "Một nền tảng xã hội mới giúp bạn chia sẻ khoảnh khắc, kết nối với bạn bè và khám phá thế giới theo một cách hoàn toàn mới."
+  },
+  "SettingComponent": {
+    "appearance": "Giao diện",
+    "light": "Sáng",
+    "light_description": "Sáng sủa và rõ ràng",
+    "dark": "Tối",
+    "dark_description": "Dễ chịu cho mắt",
+    "system": "Hệ thống",
+    "system_description": "Theo hệ thống của bạn",
+    "language": "Ngôn ngữ",
+    "english": "Tiếng Anh",
+    "vietnamese": "Tiếng Việt",
+    "customize_experience": "Tuỳ chỉnh trải nghiệm của bạn"
   }
 }
