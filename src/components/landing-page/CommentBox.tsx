@@ -40,7 +40,7 @@ const CommentBox: React.FC<Props> = ({ data }) => {
       </CardContent>
 
       {/* Avatar positioned at bottom */}
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2">
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 translate-y-1/2">
         <Avatar className="h-12 w-12 border-4 border-background shadow-lg">
           <AvatarImage
             src={data.image || "/placeholder.svg"}

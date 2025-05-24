@@ -1,18 +1,17 @@
-import React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/shared/Logo";
-import { ModeToggle } from "@/components/shared/ModeToggle";
+import "./globals.css";
 
 export const metadata = {
-  title: "404 - Trang không tồn tại | Flamee",
+  title: "404 - Page Not Found | Flamee",
   description:
-    "Trang bạn tìm kiếm không tồn tại. Quay về trang chủ và thử lại.",
+    "The page you are looking for does not exist. Go back to the homepage and try again.",
   robots: "noindex, nofollow",
   openGraph: {
-    title: "404 - Trang không tồn tại | Flamee",
+    title: "404 - Page Not Found | Flamee",
     description:
-      "Trang bạn tìm kiếm không tồn tại. Quay về trang chủ và thử lại.",
+      "The page you are looking for does not exist. Go back to the homepage and try again.",
     type: "website",
   },
 };
@@ -26,21 +25,18 @@ export default function NotFound() {
         </div>
 
         <h1 className="text-4xl font-bold tracking-tight">
-          😵‍💫 Ủa? Flamee không biết trang này luôn á!
+          😵‍💫 Oops! Flamee doesn’t know this page either!
         </h1>
         <p className="text-muted-foreground max-w-lg mx-auto">
-          🕳️ Bạn vừa mở cánh cửa vào hư vô... <br /> 🏡 Nhưng đừng lo! Flamee sẽ
-          giúp bạn quay về nhà ngay
+          🕳️ You&apos;ve opened a portal to nowhere... <br /> 🏡 But don’t
+          worry! Flamee will take you back home.
         </p>
 
         <Link href="/">
           <Button className="gap-2 cursor-pointer">
-            🚀 Quay về nhà liền thui!
+            🚀 Let&apos;s go back home!
           </Button>
         </Link>
-      </div>
-      <div className="fixed bottom-3 right-3">
-        <ModeToggle />
       </div>
     </div>
   );

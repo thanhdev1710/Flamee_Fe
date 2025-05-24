@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
+import "../globals.css";
 
 import type { Viewport } from "next";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
 import { ModeToggle } from "@/components/shared/ModeToggle";
+import { routing } from "@/i18n/routing";
+import { hasLocale, NextIntlClientProvider } from "next-intl";
+import { notFound } from "next/navigation";
 
 const geistInter = Inter({
   subsets: ["latin", "vietnamese"],
@@ -163,13 +166,24 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-export default function RootLayout({
+export async function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
+
+export default async function RootLayout({
   children,
+  params,
 }: Readonly<{
   children: React.ReactNode;
+  params: Promise<{ locale: string }>;
 }>) {
+  const { locale } = await params;
+  if (!hasLocale(routing.locales, locale)) {
+    notFound();
+  }
+
   return (
-    <html lang="vi" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <body className={`${geistInter.className} antialiased relative`}>
         <ThemeProvider
           attribute="class"
@@ -177,12 +191,14 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
-          <div className="fixed bottom-3 right-3">
-            <ModeToggle />
-          </div>
+          <NextIntlClientProvider locale={locale}>
+            {children}
+            <div className="fixed bottom-3 right-3">
+              <ModeToggle />
+            </div>
+            <Toaster />
+          </NextIntlClientProvider>
         </ThemeProvider>
-        <Toaster />
       </body>
     </html>
   );

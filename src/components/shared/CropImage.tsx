@@ -1,5 +1,5 @@
 "use client";
-/* eslint-disable @next/next/no-img-element */
+
 import { Camera, Loader2 } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 import Cropper, { Area } from "react-easy-crop";
@@ -8,6 +8,7 @@ import { getCroppedImg } from "@/utils/cropImage";
 import { Slider } from "../ui/slider";
 import { base64ToFile } from "@/utils/image";
 import { toast } from "sonner";
+import Image from "next/image";
 
 export default function CropImage({
   action,
@@ -208,7 +209,9 @@ export default function CropImage({
                 : "rounded-xl w-full max-w-[500px] h-auto aspect-[8/5]"
             }`}
           >
-            <img
+            <Image
+              width={300}
+              height={200}
               src={croppedImageUrl}
               alt="Ảnh xem trước"
               className="w-full h-full"
