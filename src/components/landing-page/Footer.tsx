@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Facebook, Linkedin, Twitter, MapPin, Mail, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 function Footer() {
   return (
@@ -11,7 +12,9 @@ function Footer() {
           <div className="space-y-4">
             <Link href="/" className="flex items-center space-x-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                <img
+                <Image
+                  width={300}
+                  height={200}
                   src="/assets/images/logo.svg"
                   alt="Flamee logo"
                   className="h-5 w-5"

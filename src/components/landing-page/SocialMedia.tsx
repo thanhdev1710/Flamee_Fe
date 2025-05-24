@@ -1,17 +1,19 @@
 import { Button } from "@/components/ui/button";
+import { getTranslations } from "next-intl/server";
+import Image from "next/image";
 
-function SocialMedia() {
+async function SocialMedia() {
+  const t = await getTranslations("HomePage");
   return (
     <section className="flex flex-col items-center justify-center py-20 px-4 bg-gradient-to-b from-background to-muted/30">
       <div className="container mx-auto text-center">
         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
-          Manage Social Media
-          <span className="block text-primary">Accounts</span>
+          {t("title")}
+          <span className="block text-primary mt-1">{t("title_sub")}</span>
         </h1>
 
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed">
-          A new social platform that helps you share moments, connect with
-          friends, and explore the world in a whole new way.
+          {t("description")}
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
@@ -24,8 +26,10 @@ function SocialMedia() {
         </div>
 
         <div className="relative max-w-6xl mx-auto">
-          <img
-            src="./assets/landing-page.webp"
+          <Image
+            width={300}
+            height={200}
+            src="/assets/landing-page.webp"
             alt="Social Media UI"
             className="w-full rounded-2xl shadow-2xl"
           />
