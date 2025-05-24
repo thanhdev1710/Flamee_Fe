@@ -25,13 +25,13 @@ async function SocialMedia() {
           </Button>
         </div>
 
-        <div className="relative max-w-6xl mx-auto">
+        <div className="relative max-w-6xl w-full aspect-[5/3] mx-auto">
           <Image
-            width={300}
-            height={200}
+            fill
+            priority
             src="/assets/landing-page.webp"
             alt="Social Media UI"
-            className="w-full rounded-2xl shadow-2xl"
+            className="w-full rounded-2xl shadow-2xl absolute"
           />
           <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-background/20 to-transparent"></div>
         </div>
