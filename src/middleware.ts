@@ -41,7 +41,7 @@ export async function middleware(request: NextRequest) {
   if (isAuthPage) {
     // Nếu đã đăng nhập thì redirect về trang chủ
     if (accessTokenValid.status) {
-      return NextResponse.redirect(new URL("/", request.url));
+      return NextResponse.redirect(new URL("/app", request.url));
     }
     // Nếu chưa đăng nhập thì cho phép vào trang /auth/*
     return NextResponse.next();
@@ -51,7 +51,7 @@ export async function middleware(request: NextRequest) {
   if (isVerifyEmailPage) {
     // Nếu đã xác thực email rồi thì redirect về trang chủ
     if (isVerified) {
-      return NextResponse.redirect(new URL("/", request.url));
+      return NextResponse.redirect(new URL("/app", request.url));
     }
 
     if (
@@ -70,7 +70,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Trường hợp truy cập các route khác (ví dụ "/")
+  // Trường hợp truy cập các route khác (ví dụ "/app")
   if (!accessTokenValid.status) {
     // Nếu không có refresh token hợp lệ thì redirect về trang đăng nhập
     if (!refreshTokenValid.status) {
@@ -85,7 +85,7 @@ export async function middleware(request: NextRequest) {
       const response = NextResponse.next();
       response.cookies.set(COOKIE.access_token, newAccessToken, {
         httpOnly: true,
-        path: "/",
+        path: "/app",
       });
       return response;
     } catch (error) {
@@ -111,7 +111,7 @@ export async function middleware(request: NextRequest) {
   }
 
   if (isProfile && isOnboardingPage) {
-    return NextResponse.redirect(new URL("/", request.url));
+    return NextResponse.redirect(new URL("/app", request.url));
   }
 
   // Nếu tất cả đều hợp lệ → cho phép truy cập
@@ -120,5 +120,5 @@ export async function middleware(request: NextRequest) {
 
 // Áp dụng middleware cho các route cần kiểm soát
 export const config = {
-  matcher: ["/", "/onboarding", "/auth/:path*"],
+  matcher: ["/app", "/onboarding", "/auth/:path*"],
 };
