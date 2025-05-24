@@ -1,6 +1,6 @@
-
 "use client";
 import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import FeatureBox from "./FeatureBox";
 
 function SocialControl() {
@@ -15,7 +15,7 @@ function SocialControl() {
       name: "Follower",
       image: "https://cdn-icons-png.flaticon.com/128/7542/7542074.png",
       description:
-        "Follow friends, influencers, or communities you love and stay updated on what’s important to you.",
+        "Follow friends, influencers, or communities you love and stay updated on what's important to you.",
     },
     {
       name: "Post",
@@ -44,34 +44,39 @@ function SocialControl() {
   ]);
 
   return (
-    <div className="py-20 px-4 bg-gray-60">
-      <div className="text-center mb-6">
-        <span className="inline-block bg-orange-100 text-orange-600 text-sm font-medium px-8 py-3 rounded-md">
-          Social Control
-        </span>
-      </div>
+    <section className="py-20 px-4 bg-background">
+      <div className="container mx-auto">
+        <div className="text-center mb-6">
+          <Badge
+            variant="secondary"
+            className="bg-orange-100 text-orange-600 hover:bg-orange-100"
+          >
+            Social Control
+          </Badge>
+        </div>
 
-      <div className="text-center max-w-3xl mx-auto mb-10">
-        <h1 className="text-2xl sm:text-3xl font-bold text-indigo-900 mb-2">
-          You Are In All Control
-        </h1>
-        <p className="text-gray-500 text-sm sm:text-base">
-          Take charge of your social experience. Share moments, build your community, and connect with the world—your way.
+        <div className="text-center max-w-3xl mx-auto mb-16">
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4">
+            You Are In All Control
+          </h1>
+          <p className="text-lg text-muted-foreground leading-relaxed">
+            Take charge of your social experience. Share moments, build your
+            community, and connect with the world—your way.
+          </p>
+        </div>
 
-        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          {features.map((feature) => (
+            <FeatureBox
+              key={feature.name}
+              name={feature.name}
+              image={feature.image}
+              description={feature.description}
+            />
+          ))}
+        </div>
       </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto px-4">
-        {features.map((feature) => (
-          <FeatureBox
-            key={feature.name}
-            name={feature.name}
-            image={feature.image}
-            description={feature.description}
-          />
-        ))}
-      </div>
-    </div>
+    </section>
   );
 }
 
