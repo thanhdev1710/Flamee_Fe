@@ -5,7 +5,7 @@ import "./globals.css";
 import type { Viewport } from "next";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
-import AuthProvider from "@/components/provider/AuthProvider";
+import { ModeToggle } from "@/components/shared/ModeToggle";
 
 const geistInter = Inter({
   subsets: ["latin", "vietnamese"],
@@ -177,7 +177,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AuthProvider>{children}</AuthProvider>
+          {children}
+          <div className="fixed bottom-3 right-3">
+            <ModeToggle />
+          </div>
         </ThemeProvider>
         <Toaster />
       </body>
