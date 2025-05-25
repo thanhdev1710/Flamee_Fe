@@ -1,5 +1,5 @@
 import { CONFIG } from "@/global/config";
-import { getAccessToken } from "@/lib/auth";
+import { getAccessToken } from "@/utils/auth";
 import { withErrorHandler } from "@/lib/utils";
 import { AuthFormData } from "@/types/formAuth.type";
 import { GetMeResponse } from "@/types/jwt";

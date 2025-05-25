@@ -16,7 +16,6 @@ import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { Switch } from "../ui/switch";
 import Link from "next/link";
-import Image from "next/image";
 import { AuthFormData, authSchema, FormType } from "@/types/formAuth.type";
 
 import { PasswordTooltip } from "./PasswordTooltip";
@@ -30,6 +29,7 @@ import {
 import FullScreenLoader from "../loading/FullScreenLoader";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import ButtonSignin from "./ButtonSignin";
 
 export default function FormAuth({ type }: { type: FormType }) {
   const router = useRouter();
@@ -285,22 +285,7 @@ export default function FormAuth({ type }: { type: FormType }) {
             <hr />
 
             <div>
-              <button className="bg-black flex gap-2 items-center justify-center text-white cursor-pointer w-full py-2 rounded-lg">
-                <Image
-                  alt="Logo Google"
-                  src="/assets/images/gg.webp"
-                  width={30}
-                  height={30}
-                />
-                <span>
-                  Hoặc{" "}
-                  {type === "signin" || type === "send-reset-password"
-                    ? "đăng nhập"
-                    : "đăng ký"}{" "}
-                  với Google
-                </span>
-              </button>
-
+              <ButtonSignin type={type} />
               <div className="flex mt-3 items-center justify-center gap-1">
                 <p>
                   {type === "signin"

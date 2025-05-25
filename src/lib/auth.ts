@@ -1,10 +1,6 @@
-"use server";
+import NextAuth from "next-auth";
+import Google from "next-auth/providers/google";
 
-import { cookies } from "next/headers";
-import { COOKIE } from "@/global/cookie";
-
-export async function getAccessToken(): Promise<string | null> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get(COOKIE.access_token)?.value || null;
-  return token;
-}
+export const { handlers, signIn, signOut, auth } = NextAuth({
+  providers: [Google],
+});
