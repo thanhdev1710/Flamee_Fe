@@ -4,7 +4,7 @@ import Image from "next/image";
 export default function ButtonSignin({ type }: { type: string }) {
   return (
     <button
-      onClick={() => signIn("google")}
+      onClick={() => signIn("facebook")}
       className="bg-black flex gap-2 items-center justify-center text-white cursor-pointer w-full py-2 rounded-lg"
     >
       <Image
