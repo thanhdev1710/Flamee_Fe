@@ -8,7 +8,10 @@ import { createUserSchema } from "@/types/user.type";
 import { toast } from "sonner";
 
 export default function FavoriteStep() {
-  const { setFavorites, nextStep, prevStep, favorites } = useOnboardingStore();
+  const setFavorites = useOnboardingStore((state) => state.setFavorites);
+  const nextStep = useOnboardingStore((state) => state.nextStep);
+  const prevStep = useOnboardingStore((state) => state.prevStep);
+  const favorites = useOnboardingStore((state) => state.favorites);
   const [selected, setSelected] = useState<string[]>(favorites);
 
   const toggleFavorite = (label: string) => {

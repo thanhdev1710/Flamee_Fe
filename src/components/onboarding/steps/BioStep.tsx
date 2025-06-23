@@ -5,7 +5,10 @@ import LayoutStep from "./LayoutStep";
 import { Textarea } from "@/components/ui/textarea";
 
 export default function BioStep() {
-  const { setBio, bio, prevStep, nextStep } = useOnboardingStore();
+  const setBio = useOnboardingStore((state) => state.setBio);
+  const bio = useOnboardingStore((state) => state.bio);
+  const prevStep = useOnboardingStore((state) => state.prevStep);
+  const nextStep = useOnboardingStore((state) => state.nextStep);
 
   return (
     <LayoutStep onClickNext={nextStep} onClickPrev={prevStep}>

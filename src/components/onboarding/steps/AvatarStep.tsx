@@ -8,8 +8,12 @@ import LayoutStep from "./LayoutStep";
 import CropImage from "@/components/shared/CropImage";
 
 export default function AvatarUploader() {
-  const { avatar, setAvatar, lastName, firstName, nextStep, prevStep } =
-    useOnboardingStore();
+  const avatar = useOnboardingStore((state) => state.avatar);
+  const setAvatar = useOnboardingStore((state) => state.setAvatar);
+  const lastName = useOnboardingStore((state) => state.lastName);
+  const firstName = useOnboardingStore((state) => state.firstName);
+  const nextStep = useOnboardingStore((state) => state.nextStep);
+  const prevStep = useOnboardingStore((state) => state.prevStep);
   const [isUploading, setIsUploading] = useState(false);
 
   const handleFileChange = useCallback(

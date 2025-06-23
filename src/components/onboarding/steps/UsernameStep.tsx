@@ -13,8 +13,10 @@ import { getSuggestUsername } from "@/services/user.service";
 import { createProfile } from "@/actions/user.action";
 
 export default function UsernameStep() {
-  const { username, setUsername, prevStep } = useOnboardingStore();
-  const [localUsername, setLocalUsername] = useState(username); // local state to store username temporarily
+  const username = useOnboardingStore((state) => state.username);
+  const setUsername = useOnboardingStore((state) => state.setUsername);
+  const prevStep = useOnboardingStore((state) => state.prevStep);
+  const [localUsername, setLocalUsername] = useState(username);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [usernameStatus, setUsernameStatus] = useState<
     "available" | "taken" | "invalid" | "checking" | null
