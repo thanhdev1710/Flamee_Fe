@@ -16,18 +16,16 @@ import { toast } from "sonner";
 import { createUserSchema } from "@/types/user.type";
 
 export default function PersonalInfoStep() {
-  const {
-    nextStep,
-    gender,
-    firstName,
-    lastName,
-    phone,
-    address,
-    dob,
-    setGender,
-    setPhone,
-    setAddress,
-  } = useOnboardingStore();
+  const nextStep = useOnboardingStore((state) => state.nextStep);
+  const gender = useOnboardingStore((state) => state.gender);
+  const firstName = useOnboardingStore((state) => state.firstName);
+  const lastName = useOnboardingStore((state) => state.lastName);
+  const phone = useOnboardingStore((state) => state.phone);
+  const address = useOnboardingStore((state) => state.address);
+  const dob = useOnboardingStore((state) => state.dob);
+  const setGender = useOnboardingStore((state) => state.setGender);
+  const setPhone = useOnboardingStore((state) => state.setPhone);
+  const setAddress = useOnboardingStore((state) => state.setAddress);
 
   const [localGender, setLocalGender] = useState(gender);
   const [localPhone, setLocalPhone] = useState(phone || "");

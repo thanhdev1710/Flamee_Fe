@@ -8,15 +8,13 @@ import { Button } from "@/components/ui/button";
 import { base64ToFile } from "@/utils/image";
 
 export default function StudentCardStep() {
-  const {
-    nextStep,
-    setLastName,
-    setFirstName,
-    setDob,
-    setCourse,
-    setMSSV,
-    setMajor,
-  } = useOnboardingStore();
+  const nextStep = useOnboardingStore((state) => state.nextStep);
+  const setLastName = useOnboardingStore((state) => state.setLastName);
+  const setFirstName = useOnboardingStore((state) => state.setFirstName);
+  const setDob = useOnboardingStore((state) => state.setDob);
+  const setCourse = useOnboardingStore((state) => state.setCourse);
+  const setMSSV = useOnboardingStore((state) => state.setMSSV);
+  const setMajor = useOnboardingStore((state) => state.setMajor);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
