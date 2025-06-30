@@ -25,7 +25,7 @@ export async function middleware(request: NextRequest) {
   );
 
   if (shouldApplyAuth) {
-    return await authMiddleware(request);
+    // return await authMiddleware(request);
   }
 
   // Không cần auth → tiếp tục
