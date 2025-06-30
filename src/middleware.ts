@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import authMiddleware from "./middlewares/authMiddleware";
+// import authMiddleware from "./middlewares/authMiddleware";
 import { i18nMiddleware } from "./middlewares/i18nMiddleware";
 import { routing } from "./i18n/routing";
 
