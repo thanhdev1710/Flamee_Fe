@@ -15,7 +15,7 @@ import {
 export default function HeaderApp() {
   const { setIsSidebarOpen } = useMenuStore();
   return (
-    <header className="bg-background shadow-sm border-b px-4 py-3 flex items-center justify-between relative">
+    <header className="bg-background shadow-sm border-b px-3 min-[400px]:px-4 py-3 flex items-center justify-between relative">
       <div className="flex items-center gap-4">
         <Button
           variant="ghost"

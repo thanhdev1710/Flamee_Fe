@@ -22,7 +22,7 @@ export default function Dashboard() {
         {/* Main Content */}
         <main
           ref={mainRef}
-          className="relative flex-1 lg:flex lg:gap-16 p-2 sm:p-4 lg:p-6 justify-center w-full h-full overflow-auto  [&::-webkit-scrollbar]:w-1.5
+          className="relative flex-1 lg:flex lg:gap-16 p-3 min-[400px]:p-6 justify-center w-full h-full overflow-auto  [&::-webkit-scrollbar]:w-1.5
   [&::-webkit-scrollbar-track]:bg-gray-100
   [&::-webkit-scrollbar-thumb]:bg-gray-400"
         >

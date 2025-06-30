@@ -92,7 +92,7 @@ export default function SectionPost({ scrollRef }: SectionPostProps) {
               left: 0,
               width: "100%",
               height: itemHeight,
-              padding: "1rem",
+              padding: "1rem 0 1rem 0",
             }}
           >
             <PostCard {...post} />
