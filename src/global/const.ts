@@ -16,6 +16,12 @@ import {
   Users,
   ShoppingCart,
   Gamepad,
+  Home,
+  MessageCircle,
+  Palette,
+  Plus,
+  Settings,
+  Video,
 } from "lucide-react";
 
 export const allFavorites = [
@@ -39,4 +45,14 @@ export const allFavorites = [
   { label: "CLB", icon: Users },
   { label: "Tình nguyện", icon: Heart },
   { label: "Kinh doanh", icon: ShoppingCart },
+];
+
+export const navigationItems = [
+  { icon: Home, label: "Home", active: true },
+  { icon: Users, label: "Friends", active: false },
+  { icon: MessageCircle, label: "Messages", active: false },
+  { icon: Video, label: "Reels", active: false },
+  { icon: Plus, label: "Create", active: false },
+  { icon: Palette, label: "Theme", active: false },
+  { icon: Settings, label: "Settings", active: false },
 ];
