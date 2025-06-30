@@ -19,7 +19,7 @@ export default function PostCard({ id, title, body, userId }: PostCardProps) {
       <CardContent className="h-full flex flex-col max-sm:px-3">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <Avatar className="h-10 w-10">
+            <Avatar className="h-10 w-10 rounded-full overflow-hidden shadow border">
               <AvatarImage
                 src={`https://i.pravatar.cc/150?u=user-${userId}`}
                 alt={`User ${userId}`}
@@ -36,7 +36,7 @@ export default function PostCard({ id, title, body, userId }: PostCardProps) {
           </Button>
         </div>
 
-        <div className="relative mb-4 h-full w-full">
+        <div className="relative mb-4 h-full w-full rounded-md overflow-hidden">
           <Image
             fill
             src={`https://picsum.photos/seed/${id}/600/400`}

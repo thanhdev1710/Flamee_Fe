@@ -9,6 +9,13 @@ export default function AsideMenuApp() {
   const { isSidebarOpen, setIsSidebarOpen } = useMenuStore();
   return (
     <>
+      {/* Overlay for mobile */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 z-40 lg:hidden"
+          onClick={() => setIsSidebarOpen()}
+        />
+      )}
       <aside
         className={`
           fixed lg:static inset-y-0 left-0 z-50 w-64 bg-background shadow-lg transform transition-transform duration-300 ease-in-out
@@ -44,13 +51,6 @@ export default function AsideMenuApp() {
           ))}
         </nav>
       </aside>
-      {/* Overlay for mobile */}
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/60 bg-opacity-50 z-40 lg:hidden"
-          onClick={() => setIsSidebarOpen()}
-        />
-      )}
     </>
   );
 }
