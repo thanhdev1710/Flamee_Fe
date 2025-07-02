@@ -9,7 +9,6 @@ import {
   Volume2,
   VolumeX,
   Play,
-  Flame,
   ArrowLeft,
   ArrowUp,
   ArrowDown,
@@ -235,7 +234,7 @@ export default function ReelsPage() {
             <div className="flex flex-col items-center gap-1">
               <Button variant="ghost" size="icon">
                 <Heart
-                  className={`h-7 w-7 ${
+                  className={`size-6 ${
                     currentReel.isLiked
                       ? "fill-flamee-primary text-flamee-primary"
                       : ""
@@ -249,7 +248,7 @@ export default function ReelsPage() {
 
             <div className="flex flex-col items-center gap-1">
               <Button variant="ghost" size="icon">
-                <MessageCircle className="h-7 w-7" />
+                <MessageCircle className="size-6" />
               </Button>
               <span className="text-xs font-medium">
                 {formatNumber(currentReel.stats.comments)}
@@ -258,7 +257,7 @@ export default function ReelsPage() {
 
             <div className="flex flex-col items-center gap-1">
               <Button variant="ghost" size="icon">
-                <Share className="h-7 w-7" />
+                <Share className="size-6" />
               </Button>
               <span className="text-xs font-medium">
                 {formatNumber(currentReel.stats.shares)}
@@ -279,8 +278,8 @@ export default function ReelsPage() {
             <div className="flex items-center gap-2 mb-2">
               <span className="font-semibold">{currentReel.user.name}</span>
               {currentReel.user.isVerified && (
-                <div className="bg-orange-500 rounded-full p-0.5">
-                  <Flame className="h-3 w-3" />
+                <div className="bg-foreground rounded-full p-1">
+                  <Logo size={10} isText={false} />
                 </div>
               )}
               <span className="text-sm">{currentReel.user.username}</span>
