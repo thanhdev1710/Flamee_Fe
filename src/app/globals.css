@@ -129,6 +129,10 @@
   color: var(--color-primary);
 }
 
+@utility fill-flamee-primary {
+  fill: var(--color-primary);
+}
+
 @utility bg-flamee-primary {
   background-color: var(--color-primary);
 }
