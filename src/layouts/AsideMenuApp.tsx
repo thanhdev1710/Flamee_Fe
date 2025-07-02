@@ -2,10 +2,13 @@
 import { Logo } from "@/components/shared/Logo";
 import { Button } from "@/components/ui/button";
 import { navigationItems } from "@/global/const";
+import { Link } from "@/i18n/navigation";
 import { useMenuStore } from "@/store/onMenuStore";
 import { X } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 export default function AsideMenuApp() {
+  const pathname = usePathname();
   const { isSidebarOpen, setIsSidebarOpen } = useMenuStore();
   return (
     <>
@@ -40,13 +43,18 @@ export default function AsideMenuApp() {
           {navigationItems.map((item, index) => (
             <Button
               key={index}
-              variant={item.active ? "default" : "ghost"}
+              variant={pathname.includes(item.href) ? "default" : "ghost"}
               className={`w-full justify-start gap-3 ${
-                item.active ? "bg-blue-600 text-white" : "text-gray-700"
+                pathname.includes(item.href)
+                  ? "hover:bg-flamee-primary bg-flamee-primary text-white"
+                  : ""
               }`}
+              asChild
             >
-              <item.icon className="h-5 w-5" />
-              {item.label}
+              <Link href={item.href}>
+                <item.icon className="h-5 w-5" />
+                {item.label}
+              </Link>
             </Button>
           ))}
         </nav>

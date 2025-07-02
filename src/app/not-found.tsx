@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/shared/Logo";
 import "./globals.css";
+import { Link } from "@/i18n/navigation";
 
 export const metadata = {
   title: "404 - Page Not Found | Flamee",

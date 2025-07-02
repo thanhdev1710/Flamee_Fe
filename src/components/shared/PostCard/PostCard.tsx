@@ -2,8 +2,8 @@
 
 import { Avatar, AvatarImage, AvatarFallback } from "@radix-ui/react-avatar";
 import { MoreHorizontal, Heart, MessageSquare } from "lucide-react";
-import { Button } from "../ui/button";
-import { Card, CardContent } from "../ui/card";
+import { Button } from "../../ui/button";
+import { Card, CardContent } from "../../ui/card";
 import Image from "next/image";
 
 interface PostCardProps {

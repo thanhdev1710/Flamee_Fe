@@ -1,10 +1,11 @@
 "use client";
 
-import PostCard from "@/components/shared/PostCard";
+import PostCard from "@/components/shared/PostCard/PostCard";
 import useSWRInfinite from "swr/infinite";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useWindowSize } from "react-use";
 import { PAGE_SIZE } from "@/global/base";
+import SkeletonPostCard from "@/components/shared/PostCard/SkeletonPostCard";
 
 interface Post {
   id: number;
@@ -23,7 +24,7 @@ export default function SectionPost({ scrollRef }: SectionPostProps) {
   const { width } = useWindowSize();
   const itemHeight = width < 700 ? width : 640;
 
-  const { data, setSize, isValidating, error } = useSWRInfinite(
+  const { data, setSize, isValidating, error, isLoading } = useSWRInfinite(
     (pageIndex, previousPageData: Post[] | null) => {
       if (previousPageData && previousPageData.length < PAGE_SIZE) return null;
       const start = pageIndex * PAGE_SIZE;
@@ -65,6 +66,11 @@ export default function SectionPost({ scrollRef }: SectionPostProps) {
     return () => container.removeEventListener("scroll", onScroll);
   }, [scrollRef, posts.length, itemHeight, hasMore, isValidating, setSize]);
 
+  const totalHeight = useMemo(
+    () => posts.length * itemHeight,
+    [posts.length, itemHeight]
+  );
+
   if (error) {
     return (
       <div className="text-center text-red-600">
@@ -73,10 +79,16 @@ export default function SectionPost({ scrollRef }: SectionPostProps) {
     );
   }
 
+  if (isLoading) {
+    return Array.from({ length: 6 }).map((_, i) => (
+      <SkeletonPostCard key={i} />
+    ));
+  }
+
   return (
     <div
       style={{
-        height: posts.length * itemHeight,
+        height: totalHeight,
         position: "relative",
       }}
     >
