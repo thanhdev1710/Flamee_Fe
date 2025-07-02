@@ -18,9 +18,7 @@ import {
   Gamepad,
   Home,
   MessageCircle,
-  Palette,
   Plus,
-  Settings,
   Video,
 } from "lucide-react";
 
@@ -48,11 +46,9 @@ export const allFavorites = [
 ];
 
 export const navigationItems = [
-  { icon: Home, label: "Home", active: true },
-  { icon: Users, label: "Friends", active: false },
-  { icon: MessageCircle, label: "Messages", active: false },
-  { icon: Video, label: "Reels", active: false },
-  { icon: Plus, label: "Create", active: false },
-  { icon: Palette, label: "Theme", active: false },
-  { icon: Settings, label: "Settings", active: false },
+  { icon: Home, label: "Home", href: "/feeds" },
+  { icon: Users, label: "Friends", href: "/friends" },
+  { icon: MessageCircle, label: "Messages", href: "/messages" },
+  { icon: Video, label: "Reels", href: "/reels" },
+  { icon: Plus, label: "Create", href: "/create" },
 ];

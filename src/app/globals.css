@@ -136,3 +136,7 @@
 @utility border-flamee-primary {
   border-color: var(--color-primary);
 }
+
+@utility padding-flame {
+  @apply p-3 min-[400px]:p-6;
+}

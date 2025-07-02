@@ -5,18 +5,10 @@ import { Input } from "@/components/ui/input";
 import { useMenuStore } from "@/store/onMenuStore";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  MessageCircle,
-  ChevronDown,
-  Plus,
-  X,
-  Home,
-  Users,
-  Calendar,
-  Grid3X3,
-} from "lucide-react";
+import { MessageCircle, ChevronDown, Plus, X } from "lucide-react";
 import React, { useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
+import { navigationItems } from "@/global/const";
 
 export default function AsideMessageApp() {
   const [selectedChat, setSelectedChat] = useState("florencio");
@@ -251,50 +243,23 @@ export default function AsideMessageApp() {
         {/* Navigation Icons */}
         <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
           <div className="flex justify-around">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="p-2 flex flex-col items-center"
-              asChild
-            >
-              <Link href={"/app"}>
-                <Home className="w-5 h-5" />
-              </Link>
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="p-2 flex flex-col items-center"
-              asChild
-            >
-              <Link href={"/friends"}>
-                <Users className="w-5 h-5" />
-              </Link>
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="p-2 bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300 flex flex-col items-center"
-              asChild
-            >
-              <Link href={"/messages"}>
-                <MessageCircle className="w-5 h-5" />
-              </Link>
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="p-2 flex flex-col items-center"
-            >
-              <Calendar className="w-5 h-5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="p-2 flex flex-col items-center"
-            >
-              <Grid3X3 className="w-5 h-5" />
-            </Button>
+            {navigationItems.map((item) => (
+              <Button
+                key={item.href}
+                variant="ghost"
+                size="sm"
+                className={`${
+                  item.href.includes("/messages")
+                    ? "bg-flamee-primary text-white hover:bg-flamee-primary! hover:text-white"
+                    : ""
+                } p-2 flex flex-col items-center`}
+                asChild
+              >
+                <Link href={item.href}>
+                  <item.icon className="w-5 h-5" />
+                </Link>
+              </Button>
+            ))}
           </div>
         </div>
       </div>
