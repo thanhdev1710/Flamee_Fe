@@ -11,6 +11,7 @@ import {
   UserPlus,
   MessageCircleMore,
 } from "lucide-react";
+import Link from "next/link";
 
 export default function HeaderApp() {
   const { setIsSidebarOpen } = useMenuStore();
@@ -38,14 +39,20 @@ export default function HeaderApp() {
       </div>
 
       <div className="flex items-center gap-3">
-        <Button variant="ghost" size="sm" className="hidden md:flex">
-          <UserPlus className="h-5 w-5" />
+        <Button asChild variant="ghost" size="sm" className="hidden md:flex">
+          <Link href="/friends">
+            <UserPlus className="h-5 w-5" />
+          </Link>
         </Button>
-        <Button variant="ghost" size="sm" className="hidden md:flex">
-          <MessageCircleMore className="h-5 w-5" />
+        <Button asChild variant="ghost" size="sm" className="hidden md:flex">
+          <Link href="/messages">
+            <MessageCircleMore className="h-5 w-5" />
+          </Link>
         </Button>
-        <Button variant="ghost" size="sm" className="hidden md:flex">
-          <BellPlus className="h-5 w-5" />
+        <Button asChild variant="ghost" size="sm" className="hidden md:flex">
+          <Link href="/notifications">
+            <BellPlus className="h-5 w-5" />
+          </Link>
         </Button>
         <div className="flex items-center gap-2">
           <Avatar className="h-8 w-8">
