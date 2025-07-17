@@ -20,7 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Logo } from "@/components/shared/Logo";
 import { formatNumber } from "@/lib/utils";
-import { Link } from "@/i18n/navigation";
+import Link from "next/link";
 
 interface Reel {
   id: number;

@@ -13,7 +13,7 @@ import {
   Smile,
   Send,
 } from "lucide-react";
-import { Link } from "@/i18n/navigation";
+import Link from "next/link";
 import React, { useState } from "react";
 
 export default function MainMessage() {

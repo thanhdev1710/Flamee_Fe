@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import {
   Settings,
   Sun,
@@ -79,13 +78,15 @@ export function ModeToggle() {
     router.replace({ pathname, query }, { locale });
   };
 
+  if (pathname.includes("messages")) return null;
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
           size="icon"
-          className="relative overflow-hidden group hover:shadow-lg transition-all duration-300 hover:scale-105 border-2 hover:border-primary/20"
+          className="relative group hover:shadow-lg transition-all duration-300 hover:scale-105 border-2 hover:border-primary/20"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           <Settings className="h-4 w-4 transition-transform duration-300 group-hover:rotate-12" />
