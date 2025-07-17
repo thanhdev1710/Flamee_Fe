@@ -27,7 +27,6 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
-    "formidable": "^3.5.4",
     "jose": "^6.0.10",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.487.0",
