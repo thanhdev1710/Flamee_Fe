@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageCircle, ChevronDown, Plus, X } from "lucide-react";
 import React, { useState } from "react";
-import { Link } from "@/i18n/navigation";
+import Link from "next/link";
 import { navigationItems } from "@/global/const";
 
 export default function AsideMessageApp() {

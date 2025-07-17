@@ -1,4 +1,3 @@
-import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import {
   NavigationMenu,
@@ -7,6 +6,7 @@ import {
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import Link from "next/link";
 import { Menu } from "lucide-react";
 import {
   Home,
@@ -43,7 +43,7 @@ function MenuBar() {
         </Link>
 
         {/* Desktop Navigation */}
-        <NavigationMenu className="hidden md:flex">
+        <NavigationMenu className="hidden md:flex w-full">
           <NavigationMenuList className="space-x-6">
             <NavigationMenuItem>
               <NavigationMenuLink asChild>

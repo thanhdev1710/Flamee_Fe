@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { Switch } from "../ui/switch";
-import { Link } from "@/i18n/navigation";
+import Link from "next/link";
 import { AuthFormData, authSchema, FormType } from "@/types/formAuth.type";
 
 import { PasswordTooltip } from "./PasswordTooltip";

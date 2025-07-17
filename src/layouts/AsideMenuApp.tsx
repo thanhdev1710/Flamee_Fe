@@ -2,7 +2,7 @@
 import { Logo } from "@/components/shared/Logo";
 import { Button } from "@/components/ui/button";
 import { navigationItems } from "@/global/const";
-import { Link } from "@/i18n/navigation";
+import Link from "next/link";
 import { useMenuStore } from "@/store/onMenuStore";
 import { X } from "lucide-react";
 import { usePathname } from "next/navigation";

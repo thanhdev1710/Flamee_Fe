@@ -1,4 +1,4 @@
-import { Link } from "@/i18n/navigation";
+import Link from "next/link";
 import { Facebook, Linkedin, Twitter, MapPin, Mail, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
