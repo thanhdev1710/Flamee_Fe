@@ -28,6 +28,7 @@ export default function SectionPost({ scrollRef }: SectionPostProps) {
     (pageIndex, previousPageData: Post[] | null) => {
       if (previousPageData && previousPageData.length < PAGE_SIZE) return null;
       const start = pageIndex * PAGE_SIZE;
+
       return `https://jsonplaceholder.typicode.com/posts?_start=${start}&_limit=${PAGE_SIZE}`;
     },
     (url) => fetch(url).then((res) => res.json())
