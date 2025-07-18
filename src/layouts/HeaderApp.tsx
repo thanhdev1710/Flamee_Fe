@@ -1,16 +1,10 @@
 "use client";
 import { Logo } from "@/components/shared/Logo";
+import { SearchCommand } from "@/components/shared/SearchCommand";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useMenuStore } from "@/store/onMenuStore";
 import { Avatar, AvatarImage, AvatarFallback } from "@radix-ui/react-avatar";
-import {
-  Menu,
-  Search,
-  BellPlus,
-  UserPlus,
-  MessageCircleMore,
-} from "lucide-react";
+import { Menu, BellPlus, UserPlus, MessageCircleMore } from "lucide-react";
 import Link from "next/link";
 
 export default function HeaderApp() {
@@ -32,9 +26,8 @@ export default function HeaderApp() {
       </div>
 
       <div className="hidden md:flex flex-1 max-w-md mx-8">
-        <div className="relative w-full">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-          <Input placeholder="Search" className="pl-10 border-none" />
+        <div className="w-full">
+          <SearchCommand />
         </div>
       </div>
 
@@ -55,9 +48,14 @@ export default function HeaderApp() {
           </Link>
         </Button>
         <div className="flex items-center gap-2">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src="/placeholder.svg?height=32&width=32" />
-            <AvatarFallback>CT</AvatarFallback>
+          <Avatar asChild className="h-8 w-8">
+            <Link href="/users">
+              <AvatarImage
+                className="w-full h-full object-cover rounded-full"
+                src="https://placehold.co/600x400/6366f1/ffffff?text=Cover+Photo"
+              />
+              <AvatarFallback>CT</AvatarFallback>
+            </Link>
           </Avatar>
           <div className="hidden sm:block">
             <div className="text-sm font-medium">Chi Thành</div>

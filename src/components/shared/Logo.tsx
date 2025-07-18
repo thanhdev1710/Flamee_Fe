@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export function Logo({
   size,
@@ -10,7 +11,7 @@ export function Logo({
   isText?: boolean;
 }) {
   return (
-    <h1 className={classname + " flex gap-1"}>
+    <Link href="/feeds" className={classname + " flex gap-1"}>
       {isText && (
         <span
           className="text-flamee-primary font-semibold"
@@ -27,6 +28,6 @@ export function Logo({
         priority
         style={{ width: size, height: "auto" }}
       />
-    </h1>
+    </Link>
   );
 }

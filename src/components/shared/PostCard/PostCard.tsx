@@ -5,6 +5,7 @@ import { MoreHorizontal, Heart, MessageSquare } from "lucide-react";
 import { Button } from "../../ui/button";
 import { Card, CardContent } from "../../ui/card";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface PostCardProps {
   id: number;
@@ -14,6 +15,7 @@ interface PostCardProps {
 }
 
 export default function PostCard({ id, title, body, userId }: PostCardProps) {
+  const router = useRouter();
   return (
     <Card className="h-full max-sm:py-3">
       <CardContent className="h-full flex flex-col max-sm:px-3">
@@ -36,7 +38,12 @@ export default function PostCard({ id, title, body, userId }: PostCardProps) {
           </Button>
         </div>
 
-        <div className="relative mb-4 h-full w-full aspect-[3/2] rounded-md overflow-hidden">
+        <div
+          onClick={() => {
+            router.push(`/feeds/${id}`);
+          }}
+          className="relative mb-4 aspect-[3/2] w-full h-auto rounded-md overflow-hidden cursor-pointer"
+        >
           <Image
             fill
             src={`https://picsum.photos/seed/${id}/600/400`}
@@ -60,7 +67,14 @@ export default function PostCard({ id, title, body, userId }: PostCardProps) {
             <Heart className="h-5 w-5" />
             <span>1,498</span>
           </Button>
-          <Button variant="ghost" size="sm" className="gap-2 p-0 h-auto">
+          <Button
+            onClick={() => {
+              router.push(`/feeds/${id}`);
+            }}
+            variant="ghost"
+            size="sm"
+            className="gap-2 p-0 h-auto"
+          >
             <MessageSquare className="h-5 w-5" />
             <span>3,000</span>
           </Button>
