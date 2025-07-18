@@ -3,7 +3,11 @@ import createNextIntlPlugin from "next-intl/plugin";
 
 const nextConfig: NextConfig = {
   images: {
-    remotePatterns: [{ hostname: "picsum.photos" }],
+    remotePatterns: [
+      { hostname: "picsum.photos" },
+      { hostname: "placehold.co" },
+    ],
+    dangerouslyAllowSVG: true,
   },
 };
 

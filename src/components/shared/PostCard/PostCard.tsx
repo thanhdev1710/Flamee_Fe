@@ -36,7 +36,7 @@ export default function PostCard({ id, title, body, userId }: PostCardProps) {
           </Button>
         </div>
 
-        <div className="relative mb-4 h-full w-full rounded-md overflow-hidden">
+        <div className="relative mb-4 h-full w-full aspect-[3/2] rounded-md overflow-hidden">
           <Image
             fill
             src={`https://picsum.photos/seed/${id}/600/400`}
