@@ -4,10 +4,17 @@ import ProfileHeader from "@/components/users/ProfileHeader";
 import PostSectionCard from "@/components/users/PostSectionCard";
 import YouMightKnow from "@/components/users/YouMightKnow";
 
-export default function page() {
+export default async function page({
+  params,
+}: {
+  params: Promise<{ username: string }>;
+}) {
+  const { username } = await params;
+
   return (
     <ScrollArea className="h-full">
       <div className="padding-flame max-w-7xl mx-auto h-full">
+        <h1 className="text-7xl">{username}</h1>
         {/* Profile Header */}
         <ProfileHeader />
 
