@@ -396,7 +396,7 @@ export function RichTextEditor({
         onKeyDown={handleKeyDown}
         onMouseUp={updateFormatState}
         onKeyUp={updateFormatState}
-        className="min-h-[120px] rounded-b-lg p-4 *:text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset prose prose-sm max-w-none"
+        className="min-h-[120px] rounded-b-lg p-4 *:text-foreground! text-foreground! focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset prose prose-sm max-w-none"
         style={{ wordBreak: "break-word" }}
         data-placeholder={placeholder}
         suppressContentEditableWarning={true}
