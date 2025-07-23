@@ -1,8 +1,24 @@
 "use client";
 
+import { useCallback, useRef, useState, useEffect } from "react";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Toggle } from "@/components/ui/toggle";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 import {
   Bold,
   Italic,
@@ -17,14 +33,6 @@ import {
   MoreHorizontal,
   ChevronDown,
 } from "lucide-react";
-import React, { useCallback, useRef, useState, useEffect } from "react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
 
 interface RichTextEditorProps {
   value: string;
@@ -49,6 +57,7 @@ export function RichTextEditor({
   className,
 }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
+  const savedSelectionRef = useRef<Range | null>(null);
   const [formatState, setFormatState] = useState<FormatState>({
     bold: false,
     italic: false,
@@ -57,7 +66,10 @@ export function RichTextEditor({
     alignCenter: false,
     alignRight: false,
   });
+
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [isLinkDialogOpen, setIsLinkDialogOpen] = useState(false);
+  const [linkUrl, setLinkUrl] = useState("");
 
   const updateFormatState = useCallback(() => {
     setFormatState({
@@ -89,7 +101,6 @@ export function RichTextEditor({
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      // Handle keyboard shortcuts
       if (e.ctrlKey || e.metaKey) {
         switch (e.key) {
           case "b":
@@ -111,11 +122,13 @@ export function RichTextEditor({
   );
 
   const insertLink = useCallback(() => {
-    const url = prompt("Enter URL:");
-    if (url) {
-      executeCommand("createLink", url);
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      savedSelectionRef.current = selection.getRangeAt(0);
     }
-  }, [executeCommand]);
+    setLinkUrl("");
+    setIsLinkDialogOpen(true);
+  }, []);
 
   const formatHeading = useCallback(
     (level: string) => {
@@ -131,16 +144,13 @@ export function RichTextEditor({
     }
   }, [value]);
 
-  // Desktop Toolbar
   const DesktopToolbar = () => (
     <div className="hidden md:flex items-center gap-1 p-2 border-b rounded-t-lg">
-      {/* Text Formatting */}
       <div className="flex items-center gap-1">
         <Toggle
           pressed={formatState.bold}
           onPressedChange={() => executeCommand("bold")}
           size="sm"
-          aria-label="Bold"
         >
           <Bold className="w-4 h-4" />
         </Toggle>
@@ -148,7 +158,6 @@ export function RichTextEditor({
           pressed={formatState.italic}
           onPressedChange={() => executeCommand("italic")}
           size="sm"
-          aria-label="Italic"
         >
           <Italic className="w-4 h-4" />
         </Toggle>
@@ -156,15 +165,13 @@ export function RichTextEditor({
           pressed={formatState.underline}
           onPressedChange={() => executeCommand("underline")}
           size="sm"
-          aria-label="Underline"
         >
           <Underline className="w-4 h-4" />
         </Toggle>
       </div>
 
-      <Separator orientation="vertical" className="h-6" />
+      <Separator orientation="vertical" className="h-6!" />
 
-      {/* Headings */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="sm">
@@ -188,15 +195,13 @@ export function RichTextEditor({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <Separator orientation="vertical" className="h-6" />
+      <Separator orientation="vertical" className="h-6!" />
 
-      {/* Lists */}
       <div className="flex items-center gap-1">
         <Button
           variant="ghost"
           size="sm"
           onClick={() => executeCommand("insertUnorderedList")}
-          aria-label="Bullet List"
         >
           <List className="w-4 h-4" />
         </Button>
@@ -204,21 +209,18 @@ export function RichTextEditor({
           variant="ghost"
           size="sm"
           onClick={() => executeCommand("insertOrderedList")}
-          aria-label="Numbered List"
         >
           <ListOrdered className="w-4 h-4" />
         </Button>
       </div>
 
-      <Separator orientation="vertical" className="h-6" />
+      <Separator orientation="vertical" className="h-6!" />
 
-      {/* Alignment */}
       <div className="flex items-center gap-1">
         <Toggle
           pressed={formatState.alignLeft}
           onPressedChange={() => executeCommand("justifyLeft")}
           size="sm"
-          aria-label="Align Left"
         >
           <AlignLeft className="w-4 h-4" />
         </Toggle>
@@ -226,7 +228,6 @@ export function RichTextEditor({
           pressed={formatState.alignCenter}
           onPressedChange={() => executeCommand("justifyCenter")}
           size="sm"
-          aria-label="Align Center"
         >
           <AlignCenter className="w-4 h-4" />
         </Toggle>
@@ -234,37 +235,27 @@ export function RichTextEditor({
           pressed={formatState.alignRight}
           onPressedChange={() => executeCommand("justifyRight")}
           size="sm"
-          aria-label="Align Right"
         >
           <AlignRight className="w-4 h-4" />
         </Toggle>
       </div>
 
-      <Separator orientation="vertical" className="h-6" />
+      <Separator orientation="vertical" className="h-6!" />
 
-      {/* Link */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={insertLink}
-        aria-label="Insert Link"
-      >
+      <Button variant="ghost" size="sm" onClick={insertLink}>
         <Link className="w-4 h-4" />
       </Button>
     </div>
   );
 
-  // Mobile Toolbar
   const MobileToolbar = () => (
     <div className="md:hidden">
-      {/* Main toolbar */}
       <div className="flex items-center justify-between p-2 border-b rounded-t-lg">
         <div className="flex items-center gap-1">
           <Toggle
             pressed={formatState.bold}
             onPressedChange={() => executeCommand("bold")}
             size="sm"
-            aria-label="Bold"
           >
             <Bold className="w-4 h-4" />
           </Toggle>
@@ -272,7 +263,6 @@ export function RichTextEditor({
             pressed={formatState.italic}
             onPressedChange={() => executeCommand("italic")}
             size="sm"
-            aria-label="Italic"
           >
             <Italic className="w-4 h-4" />
           </Toggle>
@@ -280,7 +270,6 @@ export function RichTextEditor({
             pressed={formatState.underline}
             onPressedChange={() => executeCommand("underline")}
             size="sm"
-            aria-label="Underline"
           >
             <Underline className="w-4 h-4" />
           </Toggle>
@@ -290,16 +279,13 @@ export function RichTextEditor({
           variant="ghost"
           size="sm"
           onClick={() => setShowMobileMenu(!showMobileMenu)}
-          aria-label="More options"
         >
           <MoreHorizontal className="w-4 h-4" />
         </Button>
       </div>
 
-      {/* Expandable menu */}
       {showMobileMenu && (
         <div className="p-2 border-b space-y-2">
-          {/* Headings */}
           <div className="flex flex-wrap gap-1">
             <Button
               variant="ghost"
@@ -331,7 +317,6 @@ export function RichTextEditor({
             </Button>
           </div>
 
-          {/* Lists and Alignment */}
           <div className="flex flex-wrap gap-1">
             <Button
               variant="ghost"
@@ -355,7 +340,6 @@ export function RichTextEditor({
             </Button>
           </div>
 
-          {/* Alignment */}
           <div className="flex gap-1">
             <Toggle
               pressed={formatState.alignLeft}
@@ -396,52 +380,57 @@ export function RichTextEditor({
         onKeyDown={handleKeyDown}
         onMouseUp={updateFormatState}
         onKeyUp={updateFormatState}
-        className="min-h-[120px] rounded-b-lg p-4 *:text-foreground! text-foreground! focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset prose prose-sm max-w-none"
-        style={{ wordBreak: "break-word" }}
+        className="prose prose-sm max-w-none min-h-[120px] break-words rounded-b-lg p-4 text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset prose-a:text-blue-500 prose-a:underline"
         data-placeholder={placeholder}
         suppressContentEditableWarning={true}
       />
 
-      <style jsx>{`
-        [contenteditable]:empty:before {
-          content: attr(data-placeholder);
-          color: #9ca3af;
-          pointer-events: none;
-        }
+      {/* AlertDialog for Link Insertion */}
+      <AlertDialog open={isLinkDialogOpen} onOpenChange={setIsLinkDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Insert Link</AlertDialogTitle>
+            <AlertDialogDescription>
+              Enter the URL to link to:
+            </AlertDialogDescription>
+          </AlertDialogHeader>
 
-        [contenteditable] h1 {
-          font-size: 2rem;
-          font-weight: bold;
-          margin: 0.5rem 0;
-        }
+          <input
+            type="url"
+            value={linkUrl}
+            onChange={(e) => setLinkUrl(e.target.value)}
+            placeholder="https://example.com"
+            className="w-full border rounded px-3 py-2 mt-2 text-sm"
+          />
 
-        [contenteditable] h2 {
-          font-size: 1.5rem;
-          font-weight: bold;
-          margin: 0.5rem 0;
-        }
+          <AlertDialogFooter>
+            <Button
+              variant="secondary"
+              onClick={() => setIsLinkDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (linkUrl && savedSelectionRef.current) {
+                  const selection = window.getSelection();
+                  selection?.removeAllRanges();
+                  selection?.addRange(savedSelectionRef.current);
 
-        [contenteditable] h3 {
-          font-size: 1.25rem;
-          font-weight: bold;
-          margin: 0.5rem 0;
-        }
+                  const normalizedUrl = linkUrl.startsWith("http")
+                    ? linkUrl
+                    : `https://${linkUrl}`;
 
-        [contenteditable] ul,
-        [contenteditable] ol {
-          margin: 0.5rem 0;
-          padding-left: 1.5rem;
-        }
-
-        [contenteditable] a {
-          color: #3b82f6;
-          text-decoration: underline;
-        }
-
-        [contenteditable] p {
-          margin: 0.5rem 0;
-        }
-      `}</style>
+                  executeCommand("createLink", normalizedUrl);
+                }
+                setIsLinkDialogOpen(false);
+              }}
+            >
+              Insert
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
