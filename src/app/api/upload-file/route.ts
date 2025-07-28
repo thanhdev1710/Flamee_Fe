@@ -3,7 +3,9 @@ import { uploadToSpaces } from "@/utils/uploadToSpaces";
 
 export const config = {
   api: {
-    bodyParser: false,
+    bodyParser: {
+      sizeLimit: "100mb",
+    },
   },
 };
 
