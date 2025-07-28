@@ -6,11 +6,11 @@ import { CreateUserType } from "@/types/user.type";
 export async function getSuggestUsername(username: string) {
   try {
     const res = await fetch(
-      `${CONFIG.API_GATEWAY.API_URL}${CONFIG.API_GATEWAY.API_VERSION}/profiles/suggest-username/${username}`,
+      `${CONFIG.API.BASE_URL}${CONFIG.API.VERSION}/profiles/suggest-username/${username}`,
       {
         method: "GET",
         headers: {
-          "X-API-KEY": CONFIG.X_API_KEY,
+          "X-API-KEY": CONFIG.API.X_API_KEY,
           "Content-Type": "application/json",
         },
         credentials: "include",
@@ -34,11 +34,11 @@ export async function getSuggestUsername(username: string) {
 export async function getMyProfiles(username: string): Promise<CreateUserType> {
   try {
     const res = await fetch(
-      `${CONFIG.API_GATEWAY.API_URL}${CONFIG.API_GATEWAY.API_VERSION}/profiles/suggest-username/${username}`,
+      `${CONFIG.API.BASE_URL}${CONFIG.API.VERSION}/profiles/suggest-username/${username}`,
       {
         method: "GET",
         headers: {
-          "X-API-KEY": CONFIG.X_API_KEY,
+          "X-API-KEY": CONFIG.API.X_API_KEY,
           "Content-Type": "application/json",
         },
         credentials: "include",

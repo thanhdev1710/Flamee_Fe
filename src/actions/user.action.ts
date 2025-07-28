@@ -6,11 +6,11 @@ import { toast } from "sonner";
 export async function createProfile(profile: CreateUserType) {
   try {
     const res = await fetch(
-      `${CONFIG.API_GATEWAY.API_URL}${CONFIG.API_GATEWAY.API_VERSION}/profiles`,
+      `${CONFIG.API.BASE_URL}${CONFIG.API.VERSION}/profiles`,
       {
         method: "POST",
         headers: {
-          "X-API-KEY": CONFIG.X_API_KEY,
+          "X-API-KEY": CONFIG.API.X_API_KEY,
           "Content-Type": "application/json",
         },
         credentials: "include",

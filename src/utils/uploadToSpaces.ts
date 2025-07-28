@@ -1,4 +1,5 @@
 import { CONFIG } from "@/global/config";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { s3 } from "@/lib/spaces";
 
 export async function uploadToSpaces({
@@ -12,15 +13,15 @@ export async function uploadToSpaces({
   contentType: string;
   bucket?: string;
 }): Promise<string> {
-  const params = {
+  const command = new PutObjectCommand({
     Bucket: bucket,
     Key: fileName,
     Body: fileBuffer,
-    // ACL: "public-read",
     ContentType: contentType,
-  };
+    // ACL: "public-read", // ❌ bỏ nếu dùng Backblaze
+  });
 
-  await s3.putObject(params).promise();
+  await s3.send(command);
 
   const endpoint = CONFIG.DIGITALOCEAN.ENDPOINT.replace(/^https?:\/\//, "");
   return `https://${bucket}.${endpoint}/${fileName}`;
