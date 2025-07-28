@@ -9,8 +9,11 @@ export async function POST(req: Request) {
   if (!file) return Response.json({ error: "Thiếu file" }, { status: 400 });
 
   const fileBuffer = Buffer.from(await file.arrayBuffer());
-  const name = file.name.split(".")[0];
-  const fileName = `uploads/${name.replace(/\s+/g, "-")}-${uuid}`;
+  const parts = file.name.split(".");
+  const type = parts.at(-1);
+  const name = parts.slice(0, -1).join(".").replace(/\s+/g, "-");
+
+  const fileName = `uploads/${name.replace(/\s+/g, "-")}-${uuid}.${type}`;
   const contentType = file.type;
 
   try {
@@ -18,7 +21,6 @@ export async function POST(req: Request) {
     const finalBuffer = isImage
       ? await compressImage({
           fileBuffer,
-          width: 1000,
           quality: 80,
           format: "avif",
         })
