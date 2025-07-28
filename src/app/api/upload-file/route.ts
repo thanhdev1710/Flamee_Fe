@@ -1,14 +1,6 @@
 import { compressImage } from "@/utils/compressImage";
 import { uploadToSpaces } from "@/utils/uploadToSpaces";
 
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: "100mb",
-    },
-  },
-};
-
 export async function POST(req: Request) {
   const uuid = crypto.randomUUID();
   const form = await req.formData();
