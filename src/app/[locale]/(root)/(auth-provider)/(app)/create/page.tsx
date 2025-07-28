@@ -1,7 +1,5 @@
 "use client";
-
 import type React from "react";
-
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -12,7 +10,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
-import { ImageIcon, PlayIcon, Trash2 } from "lucide-react";
+import { ImageIcon, PlayIcon, Trash2, Hash } from "lucide-react";
 import { type ChangeEvent, type RefObject, useRef, useState } from "react";
 import axios from "axios";
 import { CompactFileItem } from "@/components/shared/CompactFileItem";
@@ -20,6 +18,8 @@ import { RichTextEditor } from "@/components/shared/RichTextEditor";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MAX_SIZE } from "@/global/base";
 import { toast } from "sonner";
+import TagInput from "@/components/shared/TagInput";
+import { Input } from "@/components/ui/input";
 
 interface FileWithProgress {
   id: string;
@@ -52,21 +52,20 @@ export default function CreatePostPage() {
   const [hideStats, setHideStats] = useState<boolean>(false);
   const [turnOffComments, setTurnOffComments] = useState<boolean>(false);
   const [isDragOver, setIsDragOver] = useState<boolean>(false);
+  const [tags, setTags] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [title, setTitle] = useState<string>("");
 
   function handleFileSelect(e: ChangeEvent<HTMLInputElement>) {
     if (!e.target.files?.length) return;
-
     const newFilesArray = Array.from(e.target.files);
     const totalFiles = files.length + newFilesArray.length;
-
     if (totalFiles > 5) {
       toast.error("Bạn chỉ có thể upload tối đa 5 file!", { richColors: true });
       return;
     }
 
     const oversizedFiles = newFilesArray.filter((file) => file.size > MAX_SIZE);
-
     if (oversizedFiles.length > 0) {
       toast.error("File vượt quá giới hạn 100MB!", { richColors: true });
       return;
@@ -80,7 +79,6 @@ export default function CreatePostPage() {
     }));
 
     setFiles([...files, ...newFiles]);
-
     if (inputRef.current) {
       inputRef.current.value = "";
     }
@@ -89,12 +87,10 @@ export default function CreatePostPage() {
   function handleDrop(e: React.DragEvent<HTMLDivElement>) {
     e.preventDefault();
     setIsDragOver(false);
-
     const droppedFiles = Array.from(e.dataTransfer.files);
     if (droppedFiles.length === 0) return;
 
     const totalFiles = files.length + droppedFiles.length;
-
     if (totalFiles > 5) {
       alert("Bạn chỉ có thể upload tối đa 5 file!");
       return;
@@ -106,6 +102,7 @@ export default function CreatePostPage() {
       uploaded: false,
       id: `${file.name}-${Date.now()}`,
     }));
+
     setFiles([...files, ...newFiles]);
   }
 
@@ -127,10 +124,40 @@ export default function CreatePostPage() {
     setFiles([]);
   }
 
+  function handleAddTag(tag: string) {
+    const trimmedTag = tag.trim().toLowerCase();
+
+    // Validate tag
+    if (!trimmedTag) return;
+    if (trimmedTag.length > 20) {
+      toast.error("Tag không được vượt quá 20 ký tự!", { richColors: true });
+      return;
+    }
+    if (tags.length >= 10) {
+      toast.error("Bạn chỉ có thể thêm tối đa 10 tag!", { richColors: true });
+      return;
+    }
+    if (tags.includes(trimmedTag)) {
+      toast.error("Tag này đã tồn tại!", { richColors: true });
+      return;
+    }
+    if (!/^[a-zA-Z0-9\u00C0-\u024F\u1E00-\u1EFF\s]+$/.test(trimmedTag)) {
+      toast.error("Tag chỉ được chứa chữ cái, số và khoảng trắng!", {
+        richColors: true,
+      });
+      return;
+    }
+
+    setTags([...tags, trimmedTag]);
+  }
+
+  function handleRemoveTag(tagToRemove: string) {
+    setTags(tags.filter((tag) => tag !== tagToRemove));
+  }
+
   async function handleUpload(): Promise<typeof files> {
     if (files.length === 0 || uploading) return files;
     setUploading(true);
-
     const updatedFiles = [...files];
 
     const uploadPromises = files.map(async (fileWithProgress, index) => {
@@ -143,7 +170,6 @@ export default function CreatePostPage() {
             const progress = Math.round(
               (progressEvent.loaded * 100) / (progressEvent.total || 1)
             );
-
             updatedFiles[index] = {
               ...updatedFiles[index],
               progress,
@@ -153,7 +179,6 @@ export default function CreatePostPage() {
         });
 
         console.log(res.data);
-
         updatedFiles[index] = {
           ...updatedFiles[index],
           uploaded: true,
@@ -165,16 +190,13 @@ export default function CreatePostPage() {
     });
 
     await Promise.all(uploadPromises);
-
     await new Promise((res) => setTimeout(res, 500));
     setUploading(false);
-
     return updatedFiles;
   }
 
   async function handleCreatePost() {
     let uploadedFiles = files;
-
     // Upload nếu chưa upload hết
     if (files.length > 0 && !files.every((f) => f.uploaded)) {
       uploadedFiles = await handleUpload(); // lấy kết quả mới
@@ -182,13 +204,14 @@ export default function CreatePostPage() {
 
     // Bây giờ dùng uploadedFiles thay vì state cũ
     const uploadedOnly = uploadedFiles.filter((f) => f.uploaded);
-
     console.log({
+      title,
       content,
       files: uploadedOnly,
       privacy,
       hideStats,
       turnOffComments,
+      tags,
     });
   }
 
@@ -249,6 +272,30 @@ export default function CreatePostPage() {
                 )}
               </div>
 
+              {/* Title Section */}
+              <div className="space-y-3">
+                <label htmlFor="post-title" className="text-lg font-semibold">
+                  Title
+                </label>
+                <Input
+                  id="post-title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Give your post a catchy title..."
+                  className="text-lg font-medium"
+                  maxLength={100}
+                  disabled={uploading}
+                />
+                <div className="flex justify-between items-center">
+                  <p className="text-sm text-gray-600">
+                    A good title helps people understand what your post is about
+                  </p>
+                  <span className="text-xs text-gray-500">
+                    {title.length}/100
+                  </span>
+                </div>
+              </div>
+
               {/* Content Section */}
               <div className="space-y-3">
                 <label className="text-lg font-semibold">Content</label>
@@ -257,10 +304,38 @@ export default function CreatePostPage() {
                   onChange={setContent}
                   placeholder="What's on your mind? Share your story..."
                   className="w-full"
+                  onSearchUsers={(query) => {
+                    return [
+                      {
+                        displayName: query,
+                        id: "#000000",
+                        username: "#1d4ed8",
+                        avatar: "#000000",
+                      },
+                    ];
+                  }}
                 />
                 <p className="text-sm">
                   Use the toolbar to format your text. Supports headings, lists,
                   links, and more.
+                </p>
+              </div>
+
+              {/* Tags Section */}
+              <div className="space-y-3">
+                <label className="text-lg font-semibold flex items-center gap-2">
+                  <Hash className="w-5 h-5" />
+                  Tags
+                </label>
+                <TagInput
+                  tags={tags}
+                  onAddTag={handleAddTag}
+                  onRemoveTag={handleRemoveTag}
+                  disabled={uploading}
+                />
+                <p className="text-sm text-gray-600">
+                  Add up to 10 tags to help people discover your post. Press
+                  Enter to add a tag.
                 </p>
               </div>
 
@@ -280,7 +355,7 @@ export default function CreatePostPage() {
                       <SelectItem value="private">Private</SelectItem>
                     </SelectContent>
                   </Select>
-                  <p className="text-sm ">Who can see your post?</p>
+                  <p className="text-sm">Who can see your post?</p>
                 </div>
 
                 {/* Additional Settings */}
@@ -295,12 +370,10 @@ export default function CreatePostPage() {
                         }
                       }}
                     />
-
-                    <label htmlFor="hide-stats" className="text-sm ">
+                    <label htmlFor="hide-stats" className="text-sm">
                       Hide like and view counts on this post
                     </label>
                   </div>
-
                   <div className="flex items-center space-x-2">
                     <Checkbox
                       id="turn-off-comments"
@@ -311,7 +384,7 @@ export default function CreatePostPage() {
                         }
                       }}
                     />
-                    <label htmlFor="turn-off-comments" className="text-sm ">
+                    <label htmlFor="turn-off-comments" className="text-sm">
                       Turn off commenting
                     </label>
                   </div>
@@ -367,7 +440,6 @@ function FileUploadArea({
         id="file-upload"
         disabled={disabled}
       />
-
       <div className="space-y-4">
         <div className="flex justify-center">
           <div className="relative">
@@ -375,11 +447,10 @@ function FileUploadArea({
               <ImageIcon className="w-8 h-8" />
             </div>
             <div className="absolute -top-1 -right-1 w-8 h-8 rounded-lg flex items-center justify-center">
-              <PlayIcon className="w-4 h-4 " />
+              <PlayIcon className="w-4 h-4" />
             </div>
           </div>
         </div>
-
         <div className="space-y-2">
           <p className="text-lg">Drag photos and videos here</p>
           <p className="text-sm">Tối đa 5 file, mỗi file không quá 100MB</p>
