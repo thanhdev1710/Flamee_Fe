@@ -67,7 +67,7 @@ export default function CreatePostPage() {
 
     const oversizedFiles = newFilesArray.filter((file) => file.size > MAX_SIZE);
     if (oversizedFiles.length > 0) {
-      toast.error("File vượt quá giới hạn 100MB!", { richColors: true });
+      toast.error("File vượt quá giới hạn 4.5MB!", { richColors: true });
       return;
     }
 
@@ -453,7 +453,7 @@ function FileUploadArea({
         </div>
         <div className="space-y-2">
           <p className="text-lg">Drag photos and videos here</p>
-          <p className="text-sm">Tối đa 5 file, mỗi file không quá 100MB</p>
+          <p className="text-sm">Tối đa 5 file, mỗi file không quá 4.5MB</p>
           <Button asChild>
             <label htmlFor="file-upload" className="cursor-pointer">
               Select from computer
