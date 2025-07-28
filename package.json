@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.850.0",
     "@hookform/resolvers": "^5.0.1",
     "@radix-ui/react-alert-dialog": "^1.1.14",
     "@radix-ui/react-avatar": "^1.1.10",
@@ -29,7 +30,6 @@
     "@radix-ui/react-tooltip": "^1.2.0",
     "@tailwindcss/typography": "^0.0.0-insiders.0339c42",
     "@tanstack/react-virtual": "^3.13.11",
-    "aws-sdk": "^2.1692.0",
     "axios": "^1.11.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

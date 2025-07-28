@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
   try {
     const { payload } = await jwtVerify(
       token,
-      new TextEncoder().encode(CONFIG.JWT_SECRET),
+      new TextEncoder().encode(CONFIG.AUTH.JWT_SECRET),
       { algorithms: ["HS512"] }
     );
     console.log(payload);
