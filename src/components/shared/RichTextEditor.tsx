@@ -380,7 +380,7 @@ export function RichTextEditor({
         onKeyDown={handleKeyDown}
         onMouseUp={updateFormatState}
         onKeyUp={updateFormatState}
-        className="prose prose-sm max-w-none min-h-[120px] break-words rounded-b-lg p-4 text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset prose-a:text-blue-500 prose-a:underline"
+        className="prose prose-sm max-w-none min-h-[120px] break-words rounded-b-lg p-4 *:text-foreground text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset prose-a:text-blue-500 prose-a:underline"
         data-placeholder={placeholder}
         suppressContentEditableWarning={true}
       />

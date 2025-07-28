@@ -18,6 +18,8 @@ import axios from "axios";
 import { CompactFileItem } from "@/components/shared/CompactFileItem";
 import { RichTextEditor } from "@/components/shared/RichTextEditor";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { MAX_SIZE } from "@/global/base";
+import { toast } from "sonner";
 
 interface FileWithProgress {
   id: string;
@@ -59,7 +61,14 @@ export default function CreatePostPage() {
     const totalFiles = files.length + newFilesArray.length;
 
     if (totalFiles > 5) {
-      alert("Bạn chỉ có thể upload tối đa 5 file!");
+      toast.error("Bạn chỉ có thể upload tối đa 5 file!", { richColors: true });
+      return;
+    }
+
+    const oversizedFiles = newFilesArray.filter((file) => file.size > MAX_SIZE);
+
+    if (oversizedFiles.length > 0) {
+      toast.error("File vượt quá giới hạn 100MB!", { richColors: true });
       return;
     }
 
@@ -69,7 +78,9 @@ export default function CreatePostPage() {
       uploaded: false,
       id: `${file.name}-${Date.now()}`,
     }));
+
     setFiles([...files, ...newFiles]);
+
     if (inputRef.current) {
       inputRef.current.value = "";
     }
@@ -116,56 +127,65 @@ export default function CreatePostPage() {
     setFiles([]);
   }
 
-  async function handleUpload() {
-    if (files.length === 0 || uploading) return;
+  async function handleUpload(): Promise<typeof files> {
+    if (files.length === 0 || uploading) return files;
     setUploading(true);
 
-    const uploadPromises = files.map(async (fileWithProgress) => {
+    const updatedFiles = [...files];
+
+    const uploadPromises = files.map(async (fileWithProgress, index) => {
       const formData = new FormData();
       formData.append("file", fileWithProgress.file);
 
       try {
-        await axios.post("https://httpbin.org/post", formData, {
+        const res = await axios.post("/api/upload-file", formData, {
           onUploadProgress: (progressEvent) => {
             const progress = Math.round(
               (progressEvent.loaded * 100) / (progressEvent.total || 1)
             );
-            setFiles((prevFiles) =>
-              prevFiles.map((file) =>
-                file.id === fileWithProgress.id ? { ...file, progress } : file
-              )
-            );
+
+            updatedFiles[index] = {
+              ...updatedFiles[index],
+              progress,
+            };
+            setFiles([...updatedFiles]);
           },
         });
-        setFiles((prevFiles) =>
-          prevFiles.map((file) =>
-            file.id === fileWithProgress.id ? { ...file, uploaded: true } : file
-          )
-        );
+
+        console.log(res.data);
+
+        updatedFiles[index] = {
+          ...updatedFiles[index],
+          uploaded: true,
+        };
+        setFiles([...updatedFiles]);
       } catch (error) {
-        console.error(error);
+        console.error("Upload failed:", error);
       }
     });
 
     await Promise.all(uploadPromises);
-    await new Promise((res) =>
-      setTimeout(() => {
-        res("");
-      }, 1000)
-    );
+
+    await new Promise((res) => setTimeout(res, 500));
     setUploading(false);
+
+    return updatedFiles;
   }
 
   async function handleCreatePost() {
-    // Upload files first if there are any
+    let uploadedFiles = files;
+
+    // Upload nếu chưa upload hết
     if (files.length > 0 && !files.every((f) => f.uploaded)) {
-      await handleUpload();
+      uploadedFiles = await handleUpload(); // lấy kết quả mới
     }
 
-    // Handle post creation logic here
+    // Bây giờ dùng uploadedFiles thay vì state cũ
+    const uploadedOnly = uploadedFiles.filter((f) => f.uploaded);
+
     console.log({
       content,
-      files: files.filter((f) => f.uploaded),
+      files: uploadedOnly,
       privacy,
       hideStats,
       turnOffComments,
@@ -346,7 +366,6 @@ function FileUploadArea({
         className="hidden"
         id="file-upload"
         disabled={disabled}
-        accept="image/*,video/*,audio/*,.pdf,.doc,.docx"
       />
 
       <div className="space-y-4">
@@ -363,7 +382,7 @@ function FileUploadArea({
 
         <div className="space-y-2">
           <p className="text-lg">Drag photos and videos here</p>
-          <p className="text-sm">Tối đa 5 file, mỗi file không quá 10MB</p>
+          <p className="text-sm">Tối đa 5 file, mỗi file không quá 100MB</p>
           <Button asChild>
             <label htmlFor="file-upload" className="cursor-pointer">
               Select from computer
