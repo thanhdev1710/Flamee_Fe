@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { compressImage } from "@/utils/compressImage";
+import { compressImage } from "@/utils/compressFile";
 import path from "path";
 import { writeFile } from "fs/promises";
 import { join } from "path";

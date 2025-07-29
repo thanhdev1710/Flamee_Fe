@@ -1,5 +1,5 @@
 "use server";
-import { compressImage } from "./compressImage";
+import { compressImage } from "./compressFile";
 
 export async function base64ToFile(base64: string, fileName = "cropped") {
   const data = base64.split(",")[1];
