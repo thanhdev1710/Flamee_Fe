@@ -1,35 +1,41 @@
-import { NextRequest } from "next/server";
-// import authMiddleware from "./middlewares/authMiddleware";
+// middleware.ts
+import { NextRequest, NextResponse } from "next/server";
+import authMiddleware from "./middlewares/authMiddleware";
 import { i18nMiddleware } from "./middlewares/i18nMiddleware";
 import { routing } from "./i18n/routing";
 
 const AUTH_PATHS = ["/app", "/onboarding", "/auth"];
 
-export async function middleware(request: NextRequest) {
-  // i18n xử lý đầu tiên
-  const i18nResponse = i18nMiddleware(request);
-  if (i18nResponse) return i18nResponse;
-
-  const pathname = request.nextUrl.pathname;
-
-  const localePrefix = routing.locales.find(
-    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
+function parseLocale(pathname: string) {
+  const locale = routing.locales.find(
+    (l) => pathname === `/${l}` || pathname.startsWith(`/${l}/`)
   );
-
-  const cleanPathname = localePrefix
-    ? pathname.replace(`/${localePrefix}`, "") || "/"
+  const hasLocale = Boolean(locale);
+  const cleanPath = hasLocale
+    ? pathname.replace(new RegExp(`^/${locale}`), "") || "/"
     : pathname;
+  return { hasLocale, locale, cleanPath };
+}
+
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const { hasLocale, locale, cleanPath } = parseLocale(pathname);
+
+  if (!hasLocale) {
+    // Chưa có locale → để i18n thêm prefix
+    return i18nMiddleware(request);
+  }
 
   const shouldApplyAuth = AUTH_PATHS.some(
-    (path) => cleanPathname === path || cleanPathname.startsWith(`${path}/`)
+    (p) => cleanPath === p || cleanPath.startsWith(`${p}/`)
   );
 
   if (shouldApplyAuth) {
-    // return await authMiddleware(request);
+    // Truyền locale cho auth
+    return await authMiddleware(request, locale || "vi");
   }
 
-  // Không cần auth → tiếp tục
-  return new Response(null, { status: 200 });
+  return NextResponse.next();
 }
 
 export const config = {

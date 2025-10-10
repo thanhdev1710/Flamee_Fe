@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
     ],
     dangerouslyAllowSVG: true,
   },
+  output: "standalone",
 };
 
 const withNextIntl = createNextIntlPlugin();

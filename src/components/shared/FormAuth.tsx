@@ -81,7 +81,6 @@ export default function FormAuth({ type }: { type: FormType }) {
 
   async function onSubmit(data: AuthFormData) {
     setIsSubmitLoading(true);
-
     let error: string | null = null;
 
     // Xử lý từng loại form

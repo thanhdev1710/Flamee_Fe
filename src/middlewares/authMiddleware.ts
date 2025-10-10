@@ -1,20 +1,43 @@
+// middlewares/authMiddleware.ts
 import { COOKIE } from "@/global/cookie";
 import { verifyToken, refreshAccessToken } from "@/utils/jwt";
 import { NextRequest, NextResponse } from "next/server";
+import { routing } from "../i18n/routing";
 
-export default async function authMiddleware(request: NextRequest) {
-  const pathname = request.nextUrl.pathname;
+export default async function authMiddleware(
+  request: NextRequest,
+  locale: string
+) {
+  const { pathname } = request.nextUrl;
 
-  // Lấy access token và refresh token từ cookie
+  // --- bóc prefix locale để so khớp chuẩn ---
+  const matched = routing.locales.find(
+    (l) => pathname === `/${l}` || pathname.startsWith(`/${l}/`)
+  );
+  const cleanPath = matched
+    ? pathname.replace(new RegExp(`^/${matched}`), "") || "/"
+    : pathname;
+
+  // helper: tạo URL có prefix locale
+  const withLocale = (p: string) => {
+    const path = p.startsWith("/") ? p : `/${p}`;
+    return path.startsWith(`/${locale}/`) || path === `/${locale}`
+      ? path
+      : `/${locale}${path}`;
+  };
+
+  // helper: tránh tự-redirect (đang ở đúng URL rồi thì next)
+  const redirectIfChanged = (destPath: string) => {
+    const dest = new URL(withLocale(destPath), request.url);
+    if (dest.pathname === pathname) return NextResponse.next();
+    return NextResponse.redirect(dest);
+    // (giữ nguyên search/query hiện tại nếu muốn: dest.search = request.nextUrl.search)
+  };
+
+  // Lấy token
   const token = request.cookies.get(COOKIE.access_token)?.value;
   const refreshToken = request.cookies.get(COOKIE.refresh_token)?.value;
 
-  // Xác định xem request hiện tại có phải là auth page không
-  const isAuthPage =
-    pathname.startsWith("/auth") && pathname !== "/auth/verify-email";
-  const isVerifyEmailPage = pathname === "/auth/verify-email";
-
-  // Kiểm tra access token và refresh token
   const accessTokenValid = token
     ? await verifyToken(token)
     : { status: false, payload: null };
@@ -22,98 +45,76 @@ export default async function authMiddleware(request: NextRequest) {
     ? await verifyToken(refreshToken)
     : { status: false, payload: null };
 
-  // Kiểm tra người dùng đã xác thực email hay chưa
   const isVerified =
     accessTokenValid.payload?.is_verified ||
     refreshTokenValid.payload?.is_verified;
 
-  // ❌ Bỏ qua middleware nếu là route xác thực email qua token: /auth/verify-email/[token]
-  if (!isVerified) {
-    if (
-      pathname.startsWith("/auth/verify-email/") &&
-      pathname !== "/auth/verify-email"
-    ) {
-      return NextResponse.next();
-    }
+  // --- xác định các nhóm route trên cleanPath (đÃ bỏ locale) ---
+  const isAuthPage =
+    cleanPath.startsWith("/auth") && cleanPath !== "/auth/verify-email";
+  const isVerifyEmailPage = cleanPath === "/auth/verify-email";
+  const isVerifyEmailTokenRoute =
+    cleanPath.startsWith("/auth/verify-email/") &&
+    cleanPath !== "/auth/verify-email";
+
+  // Bỏ qua verify-email bằng token
+  if (!isVerified && isVerifyEmailTokenRoute) {
+    return NextResponse.next();
   }
 
-  // Trường hợp người dùng đang truy cập vào các trang /auth/* (ngoại trừ /verify-email)
+  // Nhóm /auth/*
   if (isAuthPage) {
-    // Nếu đã đăng nhập thì redirect về trang chủ
     if (accessTokenValid.status) {
-      return NextResponse.redirect(new URL("/app", request.url));
+      // đã đăng nhập → về /app (theo locale)
+      return redirectIfChanged("/app");
     }
-    // Nếu chưa đăng nhập thì cho phép vào trang /auth/*
-    return NextResponse.next();
+    return NextResponse.next(); // chưa đăng nhập → vào trang auth bình thường
   }
 
-  // Trường hợp người dùng truy cập trang xác thực email
+  // Trang /auth/verify-email
   if (isVerifyEmailPage) {
-    // Nếu đã xác thực email rồi thì redirect về trang chủ
     if (isVerified) {
-      return NextResponse.redirect(new URL("/app", request.url));
+      return redirectIfChanged("/app");
     }
-
-    if (
-      pathname.startsWith("/auth/verify-email/") &&
-      pathname !== "/auth/verify-email"
-    ) {
-      return NextResponse.next();
-    }
-
-    // Nếu chưa đăng nhập thì redirect về trang đăng nhập
     if (!accessTokenValid.status && !refreshTokenValid.status) {
-      return NextResponse.redirect(new URL("/auth/signin", request.url));
+      return redirectIfChanged("/auth/signin");
     }
-
-    // Nếu có token hợp lệ và chưa xác thực → cho phép truy cập verify-email
     return NextResponse.next();
   }
 
-  // Trường hợp truy cập các route khác (ví dụ "/app")
+  // Các route khác (ví dụ /app)
   if (!accessTokenValid.status) {
-    // Nếu không có refresh token hợp lệ thì redirect về trang đăng nhập
     if (!refreshTokenValid.status) {
-      return NextResponse.redirect(new URL("/auth/signin", request.url));
+      return redirectIfChanged("/auth/signin");
     }
-
-    // Nếu refresh token hợp lệ, gọi API refresh token để lấy access token mới
     try {
       const newAccessToken = await refreshAccessToken();
-
-      // Sau khi có access token mới, tạo lại cookie và tiếp tục request
-      const response = NextResponse.next();
-      response.cookies.set(COOKIE.access_token, newAccessToken, {
+      const res = NextResponse.next();
+      res.cookies.set(COOKIE.access_token, newAccessToken, {
         httpOnly: true,
-        path: "/app",
+        path: "/",
       });
-      return response;
-    } catch (error) {
-      console.error("Refresh token failed", error);
-      return NextResponse.redirect(new URL("/auth/signin", request.url));
+      return res;
+    } catch (e) {
+      console.error("Refresh token failed", e);
+      return redirectIfChanged("/auth/signin");
     }
   }
 
-  // Nếu người dùng chưa xác thực email → redirect về verify-email
   if (!isVerified) {
-    return NextResponse.redirect(new URL("/auth/verify-email", request.url));
+    return redirectIfChanged("/auth/verify-email");
   }
 
-  // Kiểm tra nếu người dùng đã vào trang onboarding rồi (tránh vòng lặp)
-  const isOnboardingPage = pathname === "/onboarding";
-
-  // Kiểm tra trạng thái profile
+  const isOnboardingPage = cleanPath === "/onboarding";
   const isProfile = accessTokenValid.payload?.is_profile;
 
-  // Tránh vòng lặp: Nếu đã vào trang onboarding rồi, không cần redirect nữa
   if (!isProfile && !isOnboardingPage) {
-    return NextResponse.redirect(new URL("/onboarding", request.url));
+    return redirectIfChanged("/onboarding");
   }
 
   if (isProfile && isOnboardingPage) {
-    return NextResponse.redirect(new URL("/app", request.url));
+    return redirectIfChanged("/app");
   }
 
-  // Nếu tất cả đều hợp lệ → cho phép truy cập
   return NextResponse.next();
 }
