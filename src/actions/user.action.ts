@@ -39,7 +39,7 @@ export async function confirmCard(image: File): Promise<CardStudent> {
     formData.append("file", image);
 
     // Gửi POST request
-    const res = await fetch("http://192.168.102.5:8000/ocr", {
+    const res = await fetch(`${CONFIG.API.CHECK_STUDENT_CARD_URL}/ocr`, {
       method: "POST",
       body: formData,
     });
