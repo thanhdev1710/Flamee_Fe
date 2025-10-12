@@ -20,6 +20,8 @@ export const CONFIG = {
     BASE_URL: process.env.NEXT_PUBLIC_API_URL || "",
     VERSION: process.env.NEXT_PUBLIC_API_VERSION || "",
     X_API_KEY: process.env.NEXT_PUBLIC_X_API_KEY || "",
+    CHECK_STUDENT_CARD_URL:
+      process.env.NEXT_PUBLIC_CHECK_STUDENT_CARD_URL || "",
   },
 
   DIGITALOCEAN: {
