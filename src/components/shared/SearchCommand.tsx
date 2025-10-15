@@ -120,7 +120,7 @@ export function SearchCommand() {
                   <CommandItem
                     key={post.slug}
                     onSelect={() => {
-                      router.push(`/feeds/${post.slug}`);
+                      router.push(`/app/feeds/${post.slug}`);
                       setOpen(false);
                     }}
                   >

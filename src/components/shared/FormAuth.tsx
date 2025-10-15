@@ -89,14 +89,14 @@ export default function FormAuth({ type }: { type: FormType }) {
         error = await signin(data);
         if (!error) {
           toast.success("Đăng nhập thành công!");
-          router.replace("/");
+          router.replace("/app/feeds");
         }
         break;
       case "signup":
         error = await signup(data);
         if (!error) {
           toast.success("Đăng ký thành công!");
-          router.replace("/");
+          router.replace("/app/feeds");
         }
         break;
       case "send-reset-password":

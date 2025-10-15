@@ -158,7 +158,7 @@ export default function ReelsPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Button asChild variant="ghost" size="icon">
-              <Link href="/feeds">
+              <Link href="/app/feeds">
                 <ArrowLeft className="h-5 w-5" />
               </Link>
             </Button>
