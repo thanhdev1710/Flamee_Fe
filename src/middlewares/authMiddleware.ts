@@ -65,8 +65,8 @@ export default async function authMiddleware(
   // Nhóm /auth/*
   if (isAuthPage) {
     if (accessTokenValid.status) {
-      // đã đăng nhập → về /app (theo locale)
-      return redirectIfChanged("/app");
+      // đã đăng nhập → về /app/feeds (theo locale)
+      return redirectIfChanged("/app/feeds");
     }
     return NextResponse.next(); // chưa đăng nhập → vào trang auth bình thường
   }
@@ -74,7 +74,7 @@ export default async function authMiddleware(
   // Trang /auth/verify-email
   if (isVerifyEmailPage) {
     if (isVerified) {
-      return redirectIfChanged("/app");
+      return redirectIfChanged("/app/feeds");
     }
     if (!accessTokenValid.status && !refreshTokenValid.status) {
       return redirectIfChanged("/auth/signin");
@@ -82,7 +82,7 @@ export default async function authMiddleware(
     return NextResponse.next();
   }
 
-  // Các route khác (ví dụ /app)
+  // Các route khác (ví dụ /app/feeds)
   if (!accessTokenValid.status) {
     if (!refreshTokenValid.status) {
       return redirectIfChanged("/auth/signin");
@@ -113,7 +113,7 @@ export default async function authMiddleware(
   }
 
   if (isProfile && isOnboardingPage) {
-    return redirectIfChanged("/app");
+    return redirectIfChanged("/app/feeds");
   }
 
   return NextResponse.next();

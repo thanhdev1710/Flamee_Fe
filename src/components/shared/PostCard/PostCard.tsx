@@ -105,7 +105,7 @@ const PostCard = memo(function PostCard({
 
   const handleCardClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent opening lightbox if it's an image click
-    router.push(`/feeds/${id}`);
+    router.push(`/app/feeds/${id}`);
   };
 
   const handleImageLoad = (imageId: string) => {
@@ -223,7 +223,7 @@ const PostCard = memo(function PostCard({
             <Button
               onClick={(e) => {
                 e.stopPropagation();
-                router.push(`/feeds/${id}`);
+                router.push(`/app/feeds/${id}`);
               }}
               variant="ghost"
               size="sm"

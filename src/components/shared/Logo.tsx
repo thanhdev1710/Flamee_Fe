@@ -11,7 +11,7 @@ export function Logo({
   isText?: boolean;
 }) {
   return (
-    <Link href="/feeds" className={classname + " flex gap-1"}>
+    <Link href="/app/feeds" className={classname + " flex gap-1"}>
       {isText && (
         <span
           className="text-flamee-primary font-semibold"
