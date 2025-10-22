@@ -1,6 +1,7 @@
 import { CONFIG } from "@/global/config";
 import { CardStudent, CreateUserType } from "@/types/user.type";
 import { refreshAccessToken } from "@/utils/jwt";
+import { redirect } from "next/navigation";
 import { toast } from "sonner";
 
 export async function createProfile(profile: CreateUserType) {
@@ -27,6 +28,7 @@ export async function createProfile(profile: CreateUserType) {
 
     toast.success("Tạo hồ sơ thành công");
     await refreshAccessToken();
+    redirect("/app/feeds");
   } catch (error) {
     console.error("createProfile error:", error);
     toast.error("Lỗi kết nối máy chủ");

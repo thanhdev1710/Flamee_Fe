@@ -33,6 +33,7 @@ import {
   MoreHorizontal,
   AtSign,
 } from "lucide-react";
+import Image from "next/image";
 
 interface User {
   id: string;
@@ -509,7 +510,9 @@ export function RichTextEditor({
                     className="w-full flex items-center gap-2 p-2 rounded text-left transition-colors"
                   >
                     {user.avatar ? (
-                      <img
+                      <Image
+                        width={50}
+                        height={50}
                         src={user.avatar || "/placeholder.svg"}
                         alt={user.displayName}
                         className="w-6 h-6 rounded-full flex-shrink-0"

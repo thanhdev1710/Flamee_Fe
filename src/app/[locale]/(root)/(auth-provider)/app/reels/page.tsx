@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { Logo } from "@/components/shared/Logo";
 import { formatNumber } from "@/lib/utils";
 import Link from "next/link";
+import Image from "next/image";
 
 interface Reel {
   id: number;
@@ -180,7 +181,9 @@ export default function ReelsPage() {
               className="w-full h-full bg-gradient-to-br from-orange-400 to-red-600 flex items-center justify-center cursor-pointer"
               onClick={togglePlayPause}
             >
-              <img
+              <Image
+                width={50}
+                height={50}
                 src={currentReel.video.thumbnail || "/placeholder.svg"}
                 alt="Video thumbnail"
                 className="w-full h-full object-cover"

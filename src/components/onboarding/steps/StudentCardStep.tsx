@@ -9,12 +9,7 @@ import { base64ToFile } from "@/utils/image";
 
 export default function StudentCardStep() {
   const nextStep = useOnboardingStore((state) => state.nextStep);
-  const setLastName = useOnboardingStore((state) => state.setLastName);
-  const setFirstName = useOnboardingStore((state) => state.setFirstName);
-  const setDob = useOnboardingStore((state) => state.setDob);
-  const setCourse = useOnboardingStore((state) => state.setCourse);
   const setMSSV = useOnboardingStore((state) => state.setMSSV);
-  const setMajor = useOnboardingStore((state) => state.setMajor);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -53,26 +48,11 @@ export default function StudentCardStep() {
         const data = await confirmCard(file);
 
         const cardSchema = createUserSchema.pick({
-          course: true,
-          dob: true,
           mssv: true,
-          major: true,
-          lastName: true,
-          firstName: true,
         });
 
-        const [lastName, ...rest] = data.name.trim().split(" ");
-        const firstName = rest.join(" ");
-        const [day, month, year] = data.dob.split("/").map(Number);
-        const dob = new Date(year, month - 1, day);
-
         const card = {
-          lastName,
-          firstName,
-          major: data.major,
           mssv: data.mssv,
-          course: data.course,
-          dob,
         };
 
         const result = cardSchema.safeParse(card);
@@ -80,13 +60,7 @@ export default function StudentCardStep() {
           toast.error(result.error.errors[0].message, { richColors: true });
           return;
         }
-
-        setLastName(lastName);
-        setFirstName(firstName);
-        setDob(dob);
         setMSSV(data.mssv);
-        setMajor(data.major);
-        setCourse(data.course);
 
         nextStep();
       } catch (error) {
@@ -95,15 +69,7 @@ export default function StudentCardStep() {
         toast.error(message, { richColors: true });
       }
     }
-  }, [
-    nextStep,
-    setCourse,
-    setDob,
-    setFirstName,
-    setLastName,
-    setMSSV,
-    setMajor,
-  ]);
+  }, [nextStep, setMSSV]);
 
   useEffect(() => {
     if (videoRef.current && stream) {

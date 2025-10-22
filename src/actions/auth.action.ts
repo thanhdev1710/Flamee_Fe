@@ -78,14 +78,44 @@ export async function Logout() {
 
 export async function sendResetPassword(formData: AuthFormData) {
   return await withErrorHandler(async () => {
-    console.log(formData);
+    const res = await fetch(
+      `${CONFIG.API.BASE_URL}${CONFIG.API.VERSION}/auth/reset-password/${formData.email}`,
+      {
+        method: "POST",
+        headers: {
+          "X-API-KEY": CONFIG.API.X_API_KEY,
+        },
+      }
+    );
+
+    if (!res.ok) {
+      const error = await res.json();
+      return error.message;
+    }
+
     return null;
   });
 }
 
-export async function resetPassword(formData: AuthFormData) {
+export async function resetPassword(formData: AuthFormData, token: string) {
   return await withErrorHandler(async () => {
-    console.log(formData);
+    const body = JSON.stringify({ password: formData.password, token });
+    const res = await fetch(
+      `${CONFIG.API.BASE_URL}${CONFIG.API.VERSION}/auth/change-password/${token}`,
+      {
+        method: "POST",
+        headers: {
+          "X-API-KEY": CONFIG.API.X_API_KEY,
+        },
+        body: body,
+      }
+    );
+
+    if (!res.ok) {
+      const error = await res.json();
+      return error.message;
+    }
+
     return null;
   });
 }

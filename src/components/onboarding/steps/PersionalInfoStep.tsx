@@ -17,24 +17,34 @@ import { createUserSchema } from "@/types/user.type";
 
 export default function PersonalInfoStep() {
   const nextStep = useOnboardingStore((state) => state.nextStep);
-  const gender = useOnboardingStore((state) => state.gender);
-  const firstName = useOnboardingStore((state) => state.firstName);
-  const lastName = useOnboardingStore((state) => state.lastName);
-  const phone = useOnboardingStore((state) => state.phone);
-  const address = useOnboardingStore((state) => state.address);
-  const dob = useOnboardingStore((state) => state.dob);
-  const setGender = useOnboardingStore((state) => state.setGender);
-  const setPhone = useOnboardingStore((state) => state.setPhone);
-  const setAddress = useOnboardingStore((state) => state.setAddress);
+  const {
+    firstName,
+    lastName,
+    dob,
+    gender,
+    phone,
+    address,
+    setFirstName,
+    setLastName,
+    setDob,
+    setGender,
+    setPhone,
+    setAddress,
+  } = useOnboardingStore();
 
-  const [localGender, setLocalGender] = useState(gender);
+  const [localFirstName, setLocalFirstName] = useState(firstName || "");
+  const [localLastName, setLocalLastName] = useState(lastName || "");
+  const [localDob, setLocalDob] = useState(
+    dob ? dob.toISOString().split("T")[0] : ""
+  );
+  const [localGender, setLocalGender] = useState(gender || "");
   const [localPhone, setLocalPhone] = useState(phone || "");
   const [localAddress, setLocalAddress] = useState(address || "");
 
   const genders = ["Nam", "Nữ", "Khác"];
 
   function handleNext() {
-    if (!localGender) {
+    if (!localFirstName || !localLastName || !localDob || !localGender) {
       toast.error("Vui lòng điền đầy đủ thông tin cá nhân", {
         richColors: true,
       });
@@ -42,29 +52,33 @@ export default function PersonalInfoStep() {
     }
 
     const partialUserSchema = createUserSchema.pick({
+      firstName: true,
+      lastName: true,
       phone: true,
       gender: true,
       address: true,
+      dob: true,
     });
 
-    // Xác thực thông tin với createUserSchema
     const result = partialUserSchema.safeParse({
+      firstName: localFirstName,
+      lastName: localLastName,
       phone: localPhone,
-      address: localAddress,
       gender: localGender,
+      address: localAddress,
+      dob: localDob,
     });
 
-    // Kiểm tra nếu có lỗi khi xác thực schema
     if (!result.success) {
-      // Lấy lỗi đầu tiên để thông báo cho người dùng
       const errorMessage = result.error.errors[0].message;
-      toast.error(errorMessage, {
-        richColors: true,
-      });
+      toast.error(errorMessage, { richColors: true });
       return;
     }
 
-    setGender(localGender);
+    setFirstName(localFirstName);
+    setLastName(localLastName);
+    setDob(new Date(localDob));
+    setGender(localGender as "Nam" | "Nữ" | "Khác");
     setPhone(localPhone);
     setAddress(localAddress);
 
@@ -72,27 +86,25 @@ export default function PersonalInfoStep() {
   }
 
   return (
-    <LayoutStep isPrev={false} onClickNext={() => handleNext()}>
+    <LayoutStep isPrev={false} onClickNext={handleNext}>
       <div className="space-y-6">
         <h1 className="text-2xl font-bold">Thông tin cá nhân</h1>
 
+        {/* Họ và tên */}
         <div className="flex gap-4">
-          {/* Họ */}
           <div className="space-y-1 w-1/3">
             <Label htmlFor="lastName" className="text-sm text-muted-foreground">
               Họ của bạn
             </Label>
             <Input
-              type="text"
               id="lastName"
+              type="text"
               placeholder="Nhập họ"
-              value={lastName}
-              disabled
-              className="w-full"
+              value={localLastName}
+              onChange={(e) => setLocalLastName(e.target.value)}
             />
           </div>
 
-          {/* Tên */}
           <div className="space-y-1 w-2/3">
             <Label
               htmlFor="firstName"
@@ -104,9 +116,8 @@ export default function PersonalInfoStep() {
               id="firstName"
               type="text"
               placeholder="Nhập tên"
-              value={firstName}
-              disabled
-              className="w-full"
+              value={localFirstName}
+              onChange={(e) => setLocalFirstName(e.target.value)}
             />
           </div>
         </div>
@@ -121,12 +132,8 @@ export default function PersonalInfoStep() {
             type="date"
             min="1920-01-01"
             max={new Date().toISOString().split("T")[0]}
-            value={
-              new Date(dob.getTime() - dob.getTimezoneOffset() * 60000)
-                .toISOString()
-                .split("T")[0]
-            }
-            disabled
+            value={localDob}
+            onChange={(e) => setLocalDob(e.target.value)}
             className="w-full"
           />
         </div>
@@ -166,7 +173,6 @@ export default function PersonalInfoStep() {
             placeholder="Nhập số điện thoại"
             value={localPhone}
             onChange={(e) => setLocalPhone(e.target.value)}
-            className="w-full"
           />
         </div>
 
@@ -181,7 +187,6 @@ export default function PersonalInfoStep() {
             placeholder="Nhập địa chỉ"
             value={localAddress}
             onChange={(e) => setLocalAddress(e.target.value)}
-            className="w-full"
           />
         </div>
       </div>

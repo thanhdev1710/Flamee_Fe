@@ -60,12 +60,13 @@ COPY --from=builder /app/.next/static ./.next/static
 
 # Tạo thư mục cache và gán quyền cho user non-root
 RUN mkdir -p /app/.next/cache \
-    && chown -R nextjs:nodejs /app/.next
+    && mkdir -p /app/public/uploads \
+    && chown -R nextjs:nodejs /app/.next /app/public/uploads \
+    && chmod -R 755 /app/public/uploads
 
 # Chạy app bằng user non-root
 USER nextjs
-ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
-ENV NEXT_PUBLIC_API_VERSION=${NEXT_PUBLIC_API_VERSION}
+
 # Cổng và CMD
 EXPOSE 3000
 CMD ["node", "server.js"]

@@ -102,7 +102,7 @@ export function SearchCommand() {
                   <CommandItem
                     key={person.name}
                     onSelect={() => {
-                      router.push(`/users/${person.name}`);
+                      router.push(`/app/users/${person.name}`);
                       setOpen(false);
                     }}
                   >
