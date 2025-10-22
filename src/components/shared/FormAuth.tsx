@@ -31,7 +31,13 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import ButtonSignin from "./ButtonSignin";
 
-export default function FormAuth({ type }: { type: FormType }) {
+export default function FormAuth({
+  type,
+  token,
+}: {
+  type: FormType;
+  token?: string;
+}) {
   const router = useRouter();
   const [isShowPass, setIsShowPass] = useState(false);
   const [isSubmitLoading, setIsSubmitLoading] = useState(false);
@@ -83,42 +89,48 @@ export default function FormAuth({ type }: { type: FormType }) {
     setIsSubmitLoading(true);
     let error: string | null = null;
 
-    // Xử lý từng loại form
     switch (data.type) {
-      case "signin":
+      case "signin": {
         error = await signin(data);
         if (!error) {
           toast.success("Đăng nhập thành công!");
-          router.replace("/app/feeds");
+          setTimeout(() => {
+            router.push("/app/feeds");
+          }, 800);
         }
         break;
-      case "signup":
+      }
+      case "signup": {
         error = await signup(data);
         if (!error) {
           toast.success("Đăng ký thành công!");
-          router.replace("/app/feeds");
+          setTimeout(() => {
+            router.push("/auth/signin");
+          }, 800);
         }
         break;
-      case "send-reset-password":
+      }
+      case "send-reset-password": {
         error = await sendResetPassword(data);
         if (!error) toast.success("Đã gửi email khôi phục mật khẩu!");
         break;
-      case "reset-password":
-        error = await resetPassword(data);
-        if (!error) toast.success("Đổi mật khẩu thành công!");
+      }
+      case "reset-password": {
+        if (!token) {
+          toast.error("Không có token", { richColors: true });
+        } else {
+          error = await resetPassword(data, token);
+          if (!error) toast.success("Đổi mật khẩu thành công!");
+        }
         break;
+      }
       default:
         error = "Đã xảy ra lỗi không xác định";
-        break;
     }
 
-    // Nếu có lỗi thì show toast
-    if (error) {
-      toast.error(error.toUpperCase(), { richColors: true });
-    }
-    setTimeout(() => {
-      setIsSubmitLoading(false);
-    }, 300);
+    if (error) toast.error(error.toUpperCase(), { richColors: true });
+
+    setTimeout(() => setIsSubmitLoading(false), 300);
   }
 
   return (

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 import { compressImage } from "./compressFile";
 
@@ -18,6 +19,6 @@ export async function base64ToFile(base64: string, fileName = "cropped") {
     quality: 100,
   });
 
-  const blob = new Blob([compressedBuffer], { type: mime });
+  const blob = new Blob([compressedBuffer as any], { type: mime });
   return new File([blob], fileName, { type: mime });
 }

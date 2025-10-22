@@ -31,10 +31,10 @@ export async function getSuggestUsername(username: string) {
 }
 
 // Hàm lấy thông tin hồ sơ người dùng
-export async function getMyProfiles(username: string): Promise<CreateUserType> {
+export async function getMyProfiles(): Promise<CreateUserType> {
   try {
     const res = await fetch(
-      `${CONFIG.API.BASE_URL}${CONFIG.API.VERSION}/profiles/suggest-username/${username}`,
+      `${CONFIG.API.BASE_URL}${CONFIG.API.VERSION}/profiles`,
       {
         method: "GET",
         headers: {

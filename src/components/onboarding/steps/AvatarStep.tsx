@@ -8,10 +8,8 @@ import LayoutStep from "./LayoutStep";
 import CropImage from "@/components/shared/CropImage";
 
 export default function AvatarUploader() {
-  const avatar = useOnboardingStore((state) => state.avatar);
-  const setAvatar = useOnboardingStore((state) => state.setAvatar);
-  const lastName = useOnboardingStore((state) => state.lastName);
-  const firstName = useOnboardingStore((state) => state.firstName);
+  const avatarUrl = useOnboardingStore((state) => state.avatar_url);
+  const setAvatarUrl = useOnboardingStore((state) => state.setAvatarUrl);
   const nextStep = useOnboardingStore((state) => state.nextStep);
   const prevStep = useOnboardingStore((state) => state.prevStep);
   const [isUploading, setIsUploading] = useState(false);
@@ -23,18 +21,16 @@ export default function AvatarUploader() {
       setIsUploading(true);
 
       const formData = new FormData();
-      formData.append("avatar", file);
-      formData.append("lastName", lastName);
-      formData.append("firstName", firstName);
+      formData.append("file", file);
 
       try {
-        const res = await fetch("/api/upload", {
+        const res = await fetch("/api/upload-file", {
           method: "POST",
           body: formData,
         });
 
         const { url } = await res.json();
-        setAvatar(url);
+        setAvatarUrl(url);
         toast.success("Ảnh đã được cập nhật!");
       } catch {
         toast.error("Tải ảnh lên thất bại. Vui lòng thử lại.", {
@@ -44,11 +40,11 @@ export default function AvatarUploader() {
         setIsUploading(false);
       }
     },
-    [isUploading, setAvatar, firstName, lastName]
+    [isUploading, setAvatarUrl]
   );
 
   const handleNext = () => {
-    if (!avatar) {
+    if (!avatarUrl) {
       toast.error("Vui lòng chọn trước khi tiếp tục.", {
         richColors: true,
       });
@@ -68,7 +64,7 @@ export default function AvatarUploader() {
         </p>
 
         <CropImage
-          imgDefault={avatar}
+          imgDefault={avatarUrl}
           action={async (file) => {
             await handleFileChange(file);
           }}
@@ -76,7 +72,7 @@ export default function AvatarUploader() {
           isCircular
         />
 
-        {avatar && (
+        {avatarUrl && (
           <p className="text-green-600 font-medium">
             ✅ Ảnh đã được lưu! Bạn có thể tiếp tục.
           </p>

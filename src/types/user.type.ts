@@ -43,7 +43,7 @@ export const createUserSchema = z.object({
     .array(z.string())
     .max(5, "Bạn chỉ có thể chọn tối đa 5 sở thích"),
 
-  avatar: z.string(),
+  avatar_url: z.string(),
 
   bio: z.string().max(500, "Giới thiệu bản thân tối đa 500 ký tự").optional(),
 
@@ -75,7 +75,7 @@ export interface CreateUserStateType extends CreateUserType {
   setDob: (dob: Date) => void;
   setGender: (gender: "Nam" | "Nữ" | "Khác") => void;
   setFavorites: (favorites: string[]) => void;
-  setAvatar: (avatar: string) => void;
+  setAvatarUrl: (avatar_url: string) => void;
   setBio: (bio: string) => void;
   setUsername: (username: string) => void;
   setMSSV: (mssv: string) => void;
