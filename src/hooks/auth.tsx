@@ -1,30 +1,11 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { checkSession } from "@/actions/auth.action";
 
 export function useSessionCheck(intervalInMinutes: number = 15) {
   const router = useRouter();
 
   useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const res = await fetch("/api/auth/check", {
-          method: "GET",
-          credentials: "include",
-        });
-
-        const msg = await res.json();
-
-        console.log(msg.message);
-
-        if (res.status === 401) {
-          router.push("/auth/signin");
-        }
-      } catch (err) {
-        console.error("Lỗi khi kiểm tra session", err);
-        router.push("/auth/signin");
-      }
-    };
-
     // Gọi lần đầu
     checkSession();
 

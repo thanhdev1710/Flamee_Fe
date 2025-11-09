@@ -1,0 +1,29 @@
+import { CONFIG } from "@/global/config";
+import { withErrorHandler } from "@/lib/utils";
+import { CreatePost } from "@/types/post.type";
+
+export async function createPost(post: CreatePost) {
+  return await withErrorHandler(async () => {
+    const body = JSON.stringify(post);
+
+    const res = await fetch(
+      `${CONFIG.API.BASE_URL}${CONFIG.API.VERSION}/posts`,
+      {
+        method: "POST",
+        body,
+        headers: {
+          "X-API-KEY": CONFIG.API.X_API_KEY,
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      }
+    );
+
+    if (!res.ok) {
+      const error = await res.json();
+      return error.message;
+    }
+
+    return null;
+  });
+}

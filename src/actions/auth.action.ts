@@ -3,6 +3,7 @@ import { getAccessToken } from "@/utils/auth";
 import { withErrorHandler } from "@/lib/utils";
 import { AuthFormData } from "@/types/formAuth.type";
 import { GetMeResponse } from "@/types/jwt";
+import { redirect } from "next/navigation";
 
 export async function signin(formData: AuthFormData): Promise<string | null> {
   return await withErrorHandler(async () => {
@@ -167,3 +168,27 @@ export async function getMe() {
 
   return data;
 }
+
+export const checkSession = async (to?: string) => {
+  try {
+    const res = await fetch("/api/auth/check", {
+      method: "GET",
+      credentials: "include",
+    });
+
+    const msg = await res.json();
+
+    console.log(msg.message);
+
+    if (res.status === 401) {
+      redirect("/auth/signin");
+    } else {
+      if (to) {
+        redirect(to);
+      }
+    }
+  } catch (err) {
+    console.error("Lỗi khi kiểm tra session", err);
+    redirect("/auth/signin");
+  }
+};

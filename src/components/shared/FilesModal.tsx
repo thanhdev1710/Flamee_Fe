@@ -2,48 +2,52 @@
 import type React from "react";
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { X, Eye, Download } from "lucide-react";
+import { X, Eye, Download, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FileItem, getFileIcon, formatFileSize } from "@/utils/fileHelpers";
 
 interface FilesModalProps {
   images: FileItem[];
+  videos: FileItem[];
   files: FileItem[];
   onClose: () => void;
   postTitle: string;
 }
 
+type TabKey = "images" | "videos" | "files";
+
 export function FilesModal({
   images,
+  videos,
   files,
   onClose,
   postTitle,
 }: FilesModalProps) {
-  const [activeTab, setActiveTab] = useState<"images" | "files">("images");
+  const [activeTab, setActiveTab] = useState<TabKey>(
+    images.length > 0 ? "images" : videos.length > 0 ? "videos" : "files"
+  );
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  // Handle backdrop click
+  // backdrop click
   const handleBackdropClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
+    if (e.target === e.currentTarget) onClose();
   };
 
-  // Handle escape key
+  // Esc key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        if (selectedImage) {
-          setSelectedImage(null);
-        } else {
-          onClose();
-        }
+        if (selectedImage) setSelectedImage(null);
+        else onClose();
       }
     };
-
     document.addEventListener("keydown", handleEscape);
     return () => document.removeEventListener("keydown", handleEscape);
   }, [onClose, selectedImage]);
+
+  const hasImages = images.length > 0;
+  const hasVideos = videos.length > 0;
+  const hasFiles = files.length > 0;
 
   return (
     <>
@@ -58,7 +62,7 @@ export function FilesModal({
             <div>
               <h3 className="font-semibold text-lg">Media & Files</h3>
               <p className="text-sm text-muted-foreground mt-1 line-clamp-1">
-                From: {postTitle}
+                From: {postTitle || "Post"}
               </p>
             </div>
             <Button
@@ -75,7 +79,7 @@ export function FilesModal({
           <div className="flex border-b">
             <button
               onClick={() => setActiveTab("images")}
-              className={`flex-1 px-6 py-4 text-sm font-medium ${
+              className={`flex-1 px-6 py-3 text-sm font-medium ${
                 activeTab === "images"
                   ? "border-b-2 border-primary bg-muted/50"
                   : "text-muted-foreground hover:text-foreground"
@@ -84,8 +88,18 @@ export function FilesModal({
               Images ({images.length})
             </button>
             <button
+              onClick={() => setActiveTab("videos")}
+              className={`flex-1 px-6 py-3 text-sm font-medium ${
+                activeTab === "videos"
+                  ? "border-b-2 border-primary bg-muted/50"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Videos ({videos.length})
+            </button>
+            <button
               onClick={() => setActiveTab("files")}
-              className={`flex-1 px-6 py-4 text-sm font-medium ${
+              className={`flex-1 px-6 py-3 text-sm font-medium ${
                 activeTab === "files"
                   ? "border-b-2 border-primary bg-muted/50"
                   : "text-muted-foreground hover:text-foreground"
@@ -97,20 +111,21 @@ export function FilesModal({
 
           {/* Content */}
           <div className="p-6 max-h-[60vh] overflow-y-auto">
+            {/* Images Tab */}
             {activeTab === "images" && (
               <div className="space-y-6">
-                {images.length > 0 ? (
+                {hasImages ? (
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {images.map((img, index) => (
                       <div
-                        key={img.id}
+                        key={img.id ?? img.url ?? index}
                         className="relative aspect-square rounded-lg overflow-hidden cursor-pointer bg-muted"
                         onClick={() => setSelectedImage(img.url)}
                       >
                         <Image
                           fill
                           src={img.url || "/placeholder.svg"}
-                          alt={img.name}
+                          alt={img.name || "Image"}
                           className="object-cover"
                         />
                         <div className="absolute bottom-2 left-2 right-2">
@@ -127,36 +142,96 @@ export function FilesModal({
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-12">
-                    <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                      <span className="text-3xl">🖼️</span>
-                    </div>
-                    <p className="text-muted-foreground font-medium">
-                      No images to display
-                    </p>
-                  </div>
+                  <EmptyState icon="🖼️" label="No images to display" />
                 )}
               </div>
             )}
 
+            {/* Videos Tab */}
+            {activeTab === "videos" && (
+              <div className="space-y-4">
+                {hasVideos ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {videos.map((vid, index) => (
+                      <div
+                        key={vid.id ?? vid.url ?? index}
+                        className="relative rounded-lg overflow-hidden bg-muted flex items-center gap-3 p-3"
+                      >
+                        <div className="relative w-20 h-14 rounded-md overflow-hidden bg-black/60 flex items-center justify-center">
+                          {vid.url ? (
+                            <Image
+                              src={vid.url}
+                              alt={vid.name || "Video"}
+                              fill
+                              className="object-cover opacity-80"
+                            />
+                          ) : null}
+                          <Play className="w-6 h-6 text-white relative z-10" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm truncate">
+                            {vid.name || "Video"}
+                          </p>
+                          {vid.size && (
+                            <p className="text-xs text-muted-foreground">
+                              {formatFileSize(vid.size)}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            asChild
+                            size="sm"
+                            variant="outline"
+                            className="gap-1"
+                          >
+                            <a href={vid.url} target="_blank" rel="noreferrer">
+                              <Eye className="w-4 h-4" />
+                              View
+                            </a>
+                          </Button>
+                          <Button
+                            asChild
+                            size="sm"
+                            variant="ghost"
+                            className="p-2"
+                          >
+                            <a href={vid.url} download>
+                              <Download className="w-4 h-4" />
+                            </a>
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <EmptyState icon="🎬" label="No videos to display" />
+                )}
+              </div>
+            )}
+
+            {/* Files Tab */}
             {activeTab === "files" && (
               <div className="space-y-3">
-                {files.length > 0 ? (
+                {hasFiles ? (
                   files.map((file) => {
                     const Icon = getFileIcon(file.type);
                     return (
                       <div
-                        key={file.id}
-                        className="flex items-center gap-4 p-4 border rounded-lg hover:bg-muted/50 cursor-pointer"
+                        key={file.id ?? file.url}
+                        className="flex items-center gap-4 p-4 border rounded-lg hover:bg-muted/50"
                       >
                         <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center text-2xl">
                           <Icon />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium truncate">{file.name}</p>
+                          <p className="font-medium truncate">
+                            {file.name || "File"}
+                          </p>
                           <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
                             <span className="bg-muted px-2 py-1 rounded text-xs">
-                              {file.type.split("/")[1]?.toUpperCase() || "FILE"}
+                              {file.type?.split("/")[1]?.toUpperCase() ||
+                                "FILE"}
                             </span>
                             {file.size && (
                               <span>{formatFileSize(file.size)}</span>
@@ -164,26 +239,33 @@ export function FilesModal({
                           </div>
                         </div>
                         <div className="flex gap-2">
-                          <Button variant="outline" size="sm">
-                            <Eye className="w-4 h-4 mr-1" />
-                            View
+                          <Button
+                            asChild
+                            variant="outline"
+                            size="sm"
+                            className="gap-1"
+                          >
+                            <a href={file.url} target="_blank" rel="noreferrer">
+                              <Eye className="w-4 h-4" />
+                              View
+                            </a>
                           </Button>
-                          <Button variant="ghost" size="sm">
-                            <Download className="w-4 h-4" />
+                          <Button
+                            asChild
+                            variant="ghost"
+                            size="sm"
+                            className="p-2"
+                          >
+                            <a href={file.url} download>
+                              <Download className="w-4 h-4" />
+                            </a>
                           </Button>
                         </div>
                       </div>
                     );
                   })
                 ) : (
-                  <div className="text-center py-12">
-                    <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                      <span className="text-3xl">📎</span>
-                    </div>
-                    <p className="text-muted-foreground font-medium">
-                      No files to display
-                    </p>
-                  </div>
+                  <EmptyState icon="📎" label="No files to display" />
                 )}
               </div>
             )}
@@ -193,13 +275,16 @@ export function FilesModal({
           <div className="border-t p-4">
             <div className="flex items-center justify-between">
               <div className="text-sm text-muted-foreground">
-                Total: {images.length} images, {files.length} files
+                Total: {images.length} images, {videos.length} videos,{" "}
+                {files.length} files
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm">
                   Download All
                 </Button>
-                <Button onClick={onClose}>Close</Button>
+                <Button size="sm" onClick={onClose}>
+                  Close
+                </Button>
               </div>
             </div>
           </div>
@@ -233,5 +318,16 @@ export function FilesModal({
         </div>
       )}
     </>
+  );
+}
+
+function EmptyState({ icon, label }: { icon: string; label: string }) {
+  return (
+    <div className="text-center py-12">
+      <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+        <span className="text-3xl">{icon}</span>
+      </div>
+      <p className="text-muted-foreground font-medium">{label}</p>
+    </div>
   );
 }

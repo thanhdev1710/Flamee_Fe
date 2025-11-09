@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { hostname: "picsum.photos" },
       { hostname: "placehold.co" },
+      { hostname: "cdn-icons-png.flaticon.com" },
     ],
     dangerouslyAllowSVG: true,
   },

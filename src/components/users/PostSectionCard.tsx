@@ -1,6 +1,5 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@radix-ui/react-tabs";
 import { User } from "lucide-react";
-import PostCard from "../shared/PostCard/PostCard";
 import { Card, CardContent } from "../ui/card";
 
 export default function PostSectionCard() {
@@ -29,7 +28,7 @@ export default function PostSectionCard() {
             </TabsTrigger>
           </TabsList>
           <TabsContent value="posts" className="p-6 flex flex-col gap-6">
-            <PostCard
+            {/* <PostCard
               body="dsafs fds afsd fdsa"
               id={60}
               title="dsa"
@@ -46,7 +45,7 @@ export default function PostSectionCard() {
               id={60}
               title="dsa"
               userId={1}
-            />
+            /> */}
           </TabsContent>
           <TabsContent value="followers" className="p-6">
             <div className="text-center py-8 text-muted-foreground">

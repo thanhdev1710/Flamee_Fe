@@ -5,8 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Download } from "lucide-react";
+import { Dispatch, SetStateAction } from "react";
 
-export default function AsideDirectoryPanel() {
+export default function AsideDirectoryPanel({
+  openAside,
+  setOpenAside,
+}: {
+  openAside: boolean;
+  setOpenAside: Dispatch<SetStateAction<boolean>>;
+}) {
   const teamMembers = [
     {
       name: "Florencio Dorrance",
@@ -107,10 +114,18 @@ export default function AsideDirectoryPanel() {
 
   return (
     <>
+      {openAside && (
+        <div
+          onClick={() => setOpenAside((prev) => !prev)}
+          className="absolute top-0 left-0 inset-0 bg-black/50"
+        ></div>
+      )}
       <div
         className={`
-          fixed xl:relative transition-transform duration-300 ease-in-out translate-x-full xl:translate-x-0
-          w-80 bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700 flex flex-col z-50 xl:z-0 right-0 h-full
+          fixed xl:relative transition-transform duration-300 ease-in-out ${
+            !openAside && "translate-x-full"
+          } xl:translate-x-0
+           w-80 bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700 flex flex-col z-50 xl:z-0 right-0 h-full
         `}
       >
         {/* Header */}

@@ -13,10 +13,13 @@ import {
   Smile,
   Send,
 } from "lucide-react";
-import Link from "next/link";
-import React, { useState } from "react";
+import React, { Dispatch, SetStateAction, useState } from "react";
 
-export default function MainMessage() {
+export default function MainMessage({
+  setOpenAside,
+}: {
+  setOpenAside: Dispatch<SetStateAction<boolean>>;
+}) {
   const [message, setMessage] = useState("");
   const { setIsSidebarOpen } = useMenuStore();
   const [showFileMenu, setShowFileMenu] = useState(false);
@@ -144,9 +147,12 @@ export default function MainMessage() {
               <span className="hidden md:inline ml-2">Call</span>
             </Button>
             <Button asChild variant="ghost" size="sm">
-              <Link href={""}>
+              <Button
+                variant="ghost"
+                onClick={() => setOpenAside((prev) => !prev)}
+              >
                 <MoreVertical className="w-4 h-4" />
-              </Link>
+              </Button>
             </Button>
           </div>
         </div>
@@ -155,7 +161,7 @@ export default function MainMessage() {
       {/* Messages */}
       <div className="flex-1 min-h-0 overflow-hidden dark:bg-gray-900">
         <ScrollArea className="h-full p-4">
-          <div className="space-y-4 max-w-4xl mx-auto">
+          <div className="space-y-4">
             {chatMessages.map((msg) => (
               <div
                 key={msg.id}
@@ -190,7 +196,7 @@ export default function MainMessage() {
 
       {/* Message Input */}
       <div className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 p-4 flex-shrink-0 h-[65px]">
-        <div className="flex items-end space-x-2 max-w-4xl mx-auto">
+        <div className="flex items-end space-x-2">
           {/* File Upload Menu */}
           <div className="relative">
             <Button
