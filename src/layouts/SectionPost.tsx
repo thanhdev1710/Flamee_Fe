@@ -8,6 +8,7 @@ import { PAGE_SIZE } from "@/global/base";
 import SkeletonPostCard from "@/components/shared/PostCard/SkeletonPostCard";
 // import { CONFIG } from "@/global/config";
 import { Post } from "@/types/post.type";
+import { CONFIG } from "@/global/config";
 interface SectionPostProps {
   scrollRef: React.RefObject<HTMLDivElement | null>;
 }
@@ -25,10 +26,16 @@ export default function SectionPost({ scrollRef }: SectionPostProps) {
       if (previousPageData && previousPageData.length < PAGE_SIZE) return null;
       const start = pageIndex * PAGE_SIZE;
 
-      return `http://localhost:4100/feed/hot?start=${start}&limit=${PAGE_SIZE}`;
+      return `${CONFIG.API.BASE_URL}${CONFIG.API.VERSION}/search/hot?start=${start}&limit=${PAGE_SIZE}`;
     },
     (url) =>
-      fetch(url)
+      fetch(url, {
+        credentials: "include",
+        headers: {
+          "X-API-KEY": CONFIG.API.X_API_KEY,
+          "Content-Type": "application/json",
+        },
+      })
         .then((res) => res.json())
         .then((data) => data.items)
   );
@@ -94,25 +101,27 @@ export default function SectionPost({ scrollRef }: SectionPostProps) {
         position: "relative",
       }}
     >
-      {posts.map((post, index) => {
-        if (index < visibleRange.start || index > visibleRange.end) return null;
+      {posts.length > 0 &&
+        posts.map((post, index) => {
+          if (index < visibleRange.start || index > visibleRange.end)
+            return null;
 
-        return (
-          <div
-            key={post.id}
-            style={{
-              position: "absolute",
-              top: index * itemHeight,
-              left: 0,
-              width: "100%",
-              height: itemHeight,
-              padding: "1rem 0 1rem 0",
-            }}
-          >
-            <PostCard {...post} />
-          </div>
-        );
-      })}
+          return (
+            <div
+              key={post.id}
+              style={{
+                position: "absolute",
+                top: index * itemHeight,
+                left: 0,
+                width: "100%",
+                height: itemHeight,
+                padding: "1rem 0 1rem 0",
+              }}
+            >
+              <PostCard {...post} />
+            </div>
+          );
+        })}
     </div>
   );
 }
