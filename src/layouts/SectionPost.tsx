@@ -6,14 +6,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useWindowSize } from "react-use";
 import { PAGE_SIZE } from "@/global/base";
 import SkeletonPostCard from "@/components/shared/PostCard/SkeletonPostCard";
-
-interface Post {
-  id: number;
-  title: string;
-  body: string;
-  userId: number;
-}
-
+// import { CONFIG } from "@/global/config";
+import { Post } from "@/types/post.type";
 interface SectionPostProps {
   scrollRef: React.RefObject<HTMLDivElement | null>;
 }
@@ -24,18 +18,25 @@ export default function SectionPost({ scrollRef }: SectionPostProps) {
   const { width } = useWindowSize();
   const itemHeight = width < 700 ? width : 640;
 
-  const { data, setSize, isValidating, error, isLoading } = useSWRInfinite(
-    (pageIndex, previousPageData: Post[] | null) => {
+  const { data, setSize, isValidating, error, isLoading } = useSWRInfinite<
+    Post[]
+  >(
+    (pageIndex, previousPageData) => {
       if (previousPageData && previousPageData.length < PAGE_SIZE) return null;
       const start = pageIndex * PAGE_SIZE;
 
-      return `https://jsonplaceholder.typicode.com/posts?_start=${start}&_limit=${PAGE_SIZE}`;
+      return `http://localhost:4100/feed/hot?start=${start}&limit=${PAGE_SIZE}`;
     },
-    (url) => fetch(url).then((res) => res.json())
+    (url) =>
+      fetch(url)
+        .then((res) => res.json())
+        .then((data) => data.items)
   );
 
   const posts = data ? data.flat() : [];
   const hasMore = data ? data[data.length - 1]?.length === PAGE_SIZE : true;
+
+  console.log(posts);
 
   const [visibleRange, setVisibleRange] = useState({ start: 0, end: 20 });
 

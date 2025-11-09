@@ -50,6 +50,9 @@ RUN npm run build && npm cache clean --force
 FROM base AS runner
 WORKDIR /app
 
+# Cài đặt ffmpeg
+RUN apk add --no-cache ffmpeg
+
 # Tạo user không có quyền root
 RUN addgroup -g 1001 nodejs && adduser -D -u 1001 nextjs -G nodejs
 
@@ -67,6 +70,5 @@ RUN mkdir -p /app/.next/cache \
 # Chạy app bằng user non-root
 USER nextjs
 
-# Cổng và CMD
 EXPOSE 3000
 CMD ["node", "server.js"]

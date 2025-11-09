@@ -20,12 +20,15 @@ import { MAX_SIZE } from "@/global/base";
 import { toast } from "sonner";
 import TagInput from "@/components/shared/TagInput";
 import { Input } from "@/components/ui/input";
+import { createPost } from "@/actions/post.action";
+import { Media, VisibilityEnum } from "@/types/post.type";
 
 interface FileWithProgress {
   id: string;
   file: File;
   progress: number;
   uploaded: boolean;
+  url?: string;
 }
 
 interface FileInputProps {
@@ -48,7 +51,7 @@ export default function CreatePostPage() {
   const [files, setFiles] = useState<FileWithProgress[]>([]);
   const [uploading, setUploading] = useState<boolean>(false);
   const [content, setContent] = useState<string>("");
-  const [privacy, setPrivacy] = useState<string>("public");
+  const [privacy, setPrivacy] = useState<VisibilityEnum>("public");
   const [hideStats, setHideStats] = useState<boolean>(false);
   const [turnOffComments, setTurnOffComments] = useState<boolean>(false);
   const [isDragOver, setIsDragOver] = useState<boolean>(false);
@@ -157,7 +160,7 @@ export default function CreatePostPage() {
 
   async function handleUpload(): Promise<typeof files> {
     if (files.length === 0 || uploading) return files;
-    setUploading(true);
+
     const updatedFiles = [...files];
 
     const uploadPromises = files.map(async (fileWithProgress, index) => {
@@ -178,10 +181,10 @@ export default function CreatePostPage() {
           },
         });
 
-        console.log(res.data);
         updatedFiles[index] = {
           ...updatedFiles[index],
           uploaded: true,
+          url: res.data.url,
         };
         setFiles([...updatedFiles]);
       } catch (error) {
@@ -190,12 +193,11 @@ export default function CreatePostPage() {
     });
 
     await Promise.all(uploadPromises);
-    await new Promise((res) => setTimeout(res, 500));
-    setUploading(false);
     return updatedFiles;
   }
 
   async function handleCreatePost() {
+    setUploading(true);
     let uploadedFiles = files;
     // Upload nếu chưa upload hết
     if (files.length > 0 && !files.every((f) => f.uploaded)) {
@@ -203,16 +205,33 @@ export default function CreatePostPage() {
     }
 
     // Bây giờ dùng uploadedFiles thay vì state cũ
-    const uploadedOnly = uploadedFiles.filter((f) => f.uploaded);
-    console.log({
-      title,
+    const uploadedOnly: Media[] = uploadedFiles
+      .filter((f) => f.uploaded)
+      .map((f) => ({
+        mediaUrl: f.url || "",
+        mediaType: f.file.type.startsWith("image")
+          ? "image"
+          : f.file.type.startsWith("video")
+          ? "video"
+          : "file",
+      }));
+
+    const err = await createPost({
+      postType: "post",
       content,
-      files: uploadedOnly,
-      privacy,
-      hideStats,
-      turnOffComments,
-      tags,
+      hashtags: tags,
+      title,
+      visibility: privacy,
+      mediaUrls: uploadedOnly,
     });
+
+    if (err) {
+      toast.error(`Đăng bài thất bại: `, err);
+    } else {
+      toast.success("Đăng bài thành công");
+    }
+
+    setUploading(false);
   }
 
   return (
@@ -345,7 +364,12 @@ export default function CreatePostPage() {
 
                 {/* Privacy Setting */}
                 <div className="space-y-2">
-                  <Select value={privacy} onValueChange={setPrivacy}>
+                  <Select
+                    value={privacy}
+                    onValueChange={(e: VisibilityEnum) => {
+                      setPrivacy(e);
+                    }}
+                  >
                     <SelectTrigger className="w-full">
                       <SelectValue />
                     </SelectTrigger>
@@ -403,7 +427,7 @@ export default function CreatePostPage() {
               onClick={handleCreatePost}
               disabled={(!content.trim() && files.length === 0) || uploading}
             >
-              {uploading ? "Uploading..." : "Preview"}
+              {uploading ? "Uploading..." : "Upload"}
             </Button>
           </div>
         </div>

@@ -21,6 +21,7 @@ import { AuthFormData, authSchema, FormType } from "@/types/formAuth.type";
 import { PasswordTooltip } from "./PasswordTooltip";
 import PasswordStrength from "./PasswordStrength";
 import {
+  checkSession,
   resetPassword,
   sendResetPassword,
   signin,
@@ -28,8 +29,8 @@ import {
 } from "@/actions/auth.action";
 import FullScreenLoader from "../loading/FullScreenLoader";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 import ButtonSignin from "./ButtonSignin";
+import { useRouter } from "next/navigation";
 
 export default function FormAuth({
   type,
@@ -94,9 +95,7 @@ export default function FormAuth({
         error = await signin(data);
         if (!error) {
           toast.success("Đăng nhập thành công!");
-          setTimeout(() => {
-            router.push("/app/feeds");
-          }, 800);
+          await checkSession("/app/feeds");
         }
         break;
       }
@@ -104,9 +103,7 @@ export default function FormAuth({
         error = await signup(data);
         if (!error) {
           toast.success("Đăng ký thành công!");
-          setTimeout(() => {
-            router.push("/auth/signin");
-          }, 800);
+          router.push("/auth/signin");
         }
         break;
       }
