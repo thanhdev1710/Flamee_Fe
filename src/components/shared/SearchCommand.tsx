@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Search, User, MessageCircle, Hash } from "lucide-react";
 import {
@@ -13,6 +12,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Input } from "../ui/input";
+import { useEffect, useState } from "react";
 
 // Dummy data
 const people = [{ name: "ChiThanh1710" }, { name: "JaneDoe" }];
@@ -23,12 +23,12 @@ const posts = [
 const hashtags = ["NextJS", "UIUX"];
 
 export function SearchCommand() {
-  const [open, setOpen] = React.useState(false);
-  const [query, setQuery] = React.useState("");
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
   const router = useRouter();
 
   // ⌘ + J shortcut
-  React.useEffect(() => {
+  useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === "j" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
