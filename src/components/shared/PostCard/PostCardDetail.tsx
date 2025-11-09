@@ -108,7 +108,7 @@ export default function PostCardDetail(props: Post) {
     <>
       <Card className="flex flex-col w-full h-full bg-background">
         {/* HEADER */}
-        <CardContent className="flex items-center justify-between px-4 py-4 border-b bg-background sticky top-0 z-10">
+        <CardContent className="flex items-center justify-between px-4 py-4 border-b bg-background sticky top-0">
           <div className="flex items-center gap-3">
             <Avatar className="h-11 w-11 ring-2 ring-border">
               <AvatarImage src={displayAvatar} alt={displayName} />
