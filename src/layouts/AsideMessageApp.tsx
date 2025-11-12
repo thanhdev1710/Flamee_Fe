@@ -2,267 +2,152 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useMenuStore } from "@/store/onMenuStore";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MessageCircle, ChevronDown, Plus, X } from "lucide-react";
-import React, { useState } from "react";
-import Link from "next/link";
-import { navigationItems } from "@/global/const";
+import { MessageCircle, Plus, X } from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
+import axios from "axios";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
+type Conversation = {
+  id: string;
+  name?: string;
+  is_group?: boolean;
+  updated_at?: string | Date;
+  last_message?: string;
+  unread_count?: number;
+};
 
 export default function AsideMessageApp() {
-  const [selectedChat, setSelectedChat] = useState("florencio");
-  const { isSidebarOpen, setIsSidebarOpen } = useMenuStore();
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const router = useRouter();
+  const pathname = usePathname();
+  const qs = useSearchParams();
 
-  const conversations = [
-    {
-      id: "elmer",
-      name: "Elmer Laverty",
-      message: "Haha oh man 😊",
-      time: "12m",
-      avatar: "/placeholder.svg?height=40&width=40",
-      tags: [
-        {
-          text: "Question",
-          color:
-            "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300",
-        },
-        {
-          text: "Help wanted",
-          color:
-            "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
-        },
-      ],
-    },
-    {
-      id: "florencio",
-      name: "Florencio Dorrance",
-      message: "woohoooo",
-      time: "24m",
-      avatar: "/placeholder.svg?height=40&width=40",
-      tags: [
-        {
-          text: "Some content",
-          color:
-            "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200",
-        },
-      ],
-    },
-    {
-      id: "lavern",
-      name: "Lavern Laboy",
-      message: "Haha that's terrifying 😊",
-      time: "1h",
-      avatar: "/placeholder.svg?height=40&width=40",
-      tags: [
-        {
-          text: "Bug",
-          color: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
-        },
-        {
-          text: "Hacktoberfest",
-          color:
-            "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
-        },
-      ],
-    },
-    {
-      id: "titus",
-      name: "Titus Kitamura",
-      message: "omg, this is amazing",
-      time: "5h",
-      avatar: "/placeholder.svg?height=40&width=40",
-      tags: [
-        {
-          text: "Question",
-          color:
-            "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300",
-        },
-        {
-          text: "Some content",
-          color:
-            "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200",
-        },
-      ],
-    },
-    {
-      id: "geoffrey",
-      name: "Geoffrey Mott",
-      message: "aww 😊",
-      time: "2d",
-      avatar: "/placeholder.svg?height=40&width=40",
-      tags: [
-        {
-          text: "Request",
-          color:
-            "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
-        },
-      ],
-    },
-    {
-      id: "alfonzo",
-      name: "Alfonzo Schuessler",
-      message: "perfect!",
-      time: "1m",
-      avatar: "/placeholder.svg?height=40&width=40",
-      tags: [
-        {
-          text: "Follow up",
-          color:
-            "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
-        },
-      ],
-    },
-  ];
+  const apiBase = process.env.NEXT_PUBLIC_CHAT_API || "http://localhost:3000/chat";
+  const userId = qs.get("me") || "";
+
+  async function fetchConversations() {
+    try {
+      setLoading(true);
+      let url = `${apiBase}/conversations${
+        userId ? `?user_id=${encodeURIComponent(userId)}` : ""
+      }`;
+      let res = await axios.get(url);
+      let data: Conversation[] =
+        Array.isArray(res.data) ? res.data : res.data.data || res.data.conversations || [];
+      if (!data?.length && userId) {
+        url = `${apiBase}/conversations?userId=${encodeURIComponent(userId)}`;
+        res = await axios.get(url);
+        data = Array.isArray(res.data)
+          ? res.data
+          : res.data.data || res.data.conversations || [];
+      }
+      setConversations(data || []);
+    } catch (e) {
+      console.error("load conversations error", e);
+      setConversations([]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchConversations();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [apiBase, userId]);
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return conversations;
+    return conversations.filter((c) =>
+      (c.name || `Room ${c.id}`).toLowerCase().includes(q)
+    );
+  }, [search, conversations]);
+
+  function openConversation(c: Conversation) {
+    const query = new URLSearchParams(qs.toString());
+    query.set("conv", c.id);
+    if (userId) query.set("me", userId);
+    router.push(`${pathname}?${query.toString()}`);
+  }
 
   return (
-    <>
-      {/* Mobile Sidebar Overlay */}
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/60 z-40 lg:hidden"
-          onClick={() => setIsSidebarOpen()}
-        />
-      )}
-
-      {/* Left Sidebar */}
-      <div
-        className={`
-          fixed lg:relative lg:translate-x-0 transition-transform duration-300 ease-in-out
-          ${
-            isSidebarOpen
-              ? "translate-x-0"
-              : "-translate-x-full lg:translate-x-0"
-          }
-          w-80 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 flex flex-col z-50 lg:z-0 h-full
-        `}
-      >
-        {/* Sidebar Header */}
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-                <MessageCircle className="w-5 h-5 text-white" />
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className="font-semibold text-gray-900 dark:text-white">
-                  Messages
-                </span>
-                <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                <Badge variant="secondary" className="text-xs">
-                  12
-                </Badge>
-              </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Button
-                size="sm"
-                className="w-8 h-8 p-0 bg-indigo-600 hover:bg-indigo-700"
-              >
-                <Plus className="w-4 h-4 text-white" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="lg:hidden"
-                onClick={() => setIsSidebarOpen()}
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
+    <aside className="hidden md:flex w-80 flex-col border-r bg-white">
+      <div className="h-14 border-b px-3 flex items-center justify-between">
+        <div className="font-semibold flex items-center gap-2">
+          <MessageCircle className="w-5 h-5" /> Chats
+          <Badge variant="secondary" className="ml-2">
+            {loading ? "…" : filtered.length}
+          </Badge>
         </div>
-
-        {/* Search */}
-        <div className="p-4 flex-shrink-0">
-          <Input
-            placeholder="Search messages"
-            className="bg-gray-100 dark:bg-gray-800 border-0 text-gray-900 dark:text-white"
-          />
-        </div>
-
-        {/* Conversations List */}
-        <ScrollArea className="flex-1 min-h-0">
-          <div className="space-y-1 p-2">
-            {conversations.map((conv) => (
-              <div
-                key={conv.id}
-                className={`
-                  p-3 rounded-lg cursor-pointer transition-colors
-                  ${
-                    selectedChat === conv.id
-                      ? "bg-indigo-50 dark:bg-indigo-800/30 border border-indigo-200 dark:border-indigo-500"
-                      : "hover:bg-gray-50 dark:hover:bg-gray-800"
-                  }
-                `}
-                onClick={() => {
-                  setSelectedChat(conv.id);
-                  setIsSidebarOpen();
-                }}
-              >
-                <div className="flex items-start space-x-3">
-                  <Avatar className="w-10 h-10 flex-shrink-0">
-                    <AvatarImage src={conv.avatar || "/placeholder.svg"} />
-                    <AvatarFallback>
-                      {conv.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                        {conv.name}
-                      </p>
-                      <span className="text-xs text-gray-500 dark:text-gray-400 ml-2 flex-shrink-0">
-                        {conv.time}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-300 truncate mt-1">
-                      {conv.message}
-                    </p>
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {conv.tags.map((tag, index) => (
-                        <Badge
-                          key={index}
-                          variant="secondary"
-                          className={`text-xs ${tag.color}`}
-                        >
-                          {tag.text}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </ScrollArea>
-
-        {/* Navigation Icons */}
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
-          <div className="flex justify-around">
-            {navigationItems.map((item) => (
-              <Button
-                key={item.href}
-                variant="ghost"
-                size="sm"
-                className={`${
-                  item.href.includes("/messages")
-                    ? "bg-flamee-primary text-white hover:bg-flamee-primary! hover:text-white"
-                    : ""
-                } p-2 flex flex-col items-center`}
-                asChild
-              >
-                <Link href={item.href}>
-                  <item.icon className="w-5 h-5" />
-                </Link>
-              </Button>
-            ))}
-          </div>
+        <div className="flex items-center gap-1">
+          <Button size="icon" variant="ghost">
+            <Plus className="w-5 h-5" />
+          </Button>
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={() => {
+              if (typeof window !== "undefined" && window.history.length > 1) {
+                window.history.back();
+              }
+            }}
+          >
+            <X className="w-5 h-5" />
+          </Button>
         </div>
       </div>
-    </>
+
+      <div className="p-3">
+        <Input
+          placeholder="Search…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+
+      <ScrollArea className="flex-1">
+        <div className="px-2 pb-4 space-y-1">
+          {!loading && filtered.length === 0 && (
+            <div className="text-sm text-gray-500 px-2 py-3">
+              Không có cuộc trò chuyện
+            </div>
+          )}
+          {filtered.map((c) => {
+            const title = c.name || `Room ${c.id}`;
+            const unread = c.unread_count || 0;
+            return (
+              <button
+                key={c.id}
+                onClick={() => openConversation(c)}
+                className="w-full text-left px-2 py-2 rounded-lg hover:bg-gray-100 flex items-center gap-3"
+              >
+                <Avatar className="h-9 w-9">
+                  <AvatarImage
+                    src="/placeholder.svg?height=36&width=36"
+                    alt={title}
+                  />
+                  <AvatarFallback>
+                    {title.slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="min-w-0 flex-1">
+                  <div className="font-medium truncate">{title}</div>
+                  <div className="text-xs text-gray-500 truncate">
+                    {c.last_message || "—"}
+                  </div>
+                </div>
+                {unread > 0 && (
+                  <Badge className="bg-indigo-600 text-white">{unread}</Badge>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </ScrollArea>
+    </aside>
   );
 }
