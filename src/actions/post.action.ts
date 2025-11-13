@@ -27,3 +27,26 @@ export async function createPost(post: CreatePost) {
     return null;
   });
 }
+
+export async function likeOrDislikePostById(id: string) {
+  return await withErrorHandler(async () => {
+    const res = await fetch(
+      `${CONFIG.API.BASE_URL}${CONFIG.API.VERSION}/interactions/like/${id}`,
+      {
+        method: "POST",
+        headers: {
+          "X-API-KEY": CONFIG.API.X_API_KEY,
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      }
+    );
+
+    if (!res.ok) {
+      const error = await res.json();
+      return error.message;
+    }
+
+    return null;
+  });
+}

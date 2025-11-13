@@ -70,7 +70,7 @@ export default function HeaderApp() {
             size="sm"
             className="hidden md:flex text-slate-300 hover:text-blue-400 hover:bg-slate-700"
           >
-            <Link href="/friends">
+            <Link href="/app/friends">
               <UserPlus className="h-5 w-5" />
             </Link>
           </Button>
@@ -80,7 +80,7 @@ export default function HeaderApp() {
             size="sm"
             className="hidden md:flex text-slate-300 hover:text-blue-400 hover:bg-slate-700"
           >
-            <Link href="/messages">
+            <Link href="/app/messages">
               <MessageCircleMore className="h-5 w-5" />
             </Link>
           </Button>
@@ -118,7 +118,7 @@ export default function HeaderApp() {
                     {isLoading ? "..." : fullName || "Người dùng"}
                   </span>
                   <span className="text-xs text-slate-400">
-                    @{profile?.username || "user"}
+                    {profile?.username || "user"}
                   </span>
                 </div>
               </Button>
@@ -130,14 +130,17 @@ export default function HeaderApp() {
             >
               {/* Profile Section */}
               <DropdownMenuItem asChild className="hover:bg-slate-700">
-                <Link href="/profile" className="flex items-center gap-2">
+                <Link href="/app/users" className="flex items-center gap-2">
                   <User className="h-4 w-4 text-blue-400" />
                   <span>Trang cá nhân</span>
                 </Link>
               </DropdownMenuItem>
 
               <DropdownMenuItem asChild className="hover:bg-slate-700">
-                <Link href="/profile/edit" className="flex items-center gap-2">
+                <Link
+                  href="/app/profile/edit"
+                  className="flex items-center gap-2"
+                >
                   <Settings className="h-4 w-4 text-slate-400" />
                   <span>Chỉnh sửa thông tin</span>
                 </Link>

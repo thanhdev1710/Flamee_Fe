@@ -21,7 +21,7 @@ export default function PostModalPage({
   return (
     <div className="p-3">
       <ScrollArea className="h-full">
-        <PostCardDetail {...post} />
+        <PostCardDetail post={post} />
       </ScrollArea>
     </div>
   );
