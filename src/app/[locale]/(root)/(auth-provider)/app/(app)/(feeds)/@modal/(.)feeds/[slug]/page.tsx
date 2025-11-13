@@ -37,7 +37,7 @@ export default function PostModalPage({
       >
         <DialogContent className="p-0 max-w-xl w-full">
           <ScrollArea className="max-h-[80vh] z-10">
-            <PostCardDetail {...post} />
+            <PostCardDetail post={post} />
           </ScrollArea>
         </DialogContent>
       </Dialog>

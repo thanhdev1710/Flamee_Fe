@@ -3,7 +3,6 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import type React from "react";
 
 import {
-  MoreHorizontal,
   Heart,
   MessageSquare,
   FileText,
@@ -18,41 +17,51 @@ import { useRouter } from "next/navigation";
 import { useState, memo } from "react";
 import { FilesModal } from "@/components/shared/FilesModal";
 import { PostImageGrid } from "./PostImageGrid";
-import { Post } from "@/types/post.type"; // Đảm bảo Post có: images, videos, files, shares,...
+import { Post } from "@/types/post.type";
+import { SWRInfiniteKeyedMutator } from "swr/infinite";
+import { likeOrDislikePostById } from "@/actions/post.action";
+import { toast } from "sonner";
 
 const PostCard = memo(function PostCard({
-  id,
-  title,
-  body,
-  userId,
-  userName,
-  userAvatar,
-  tags = [],
-  files = [],
-  videos = [],
-  images = [],
-  shares = 0,
-  likes = 0,
-  comments = 0,
-  createdAt,
-  hideStats,
-}: Post) {
+  post,
+  mutatePost,
+}: {
+  post: Post;
+  mutatePost: SWRInfiniteKeyedMutator<Post[][]>;
+}) {
   const router = useRouter();
-  const [isLiked, setIsLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(likes);
   const [showMediaModal, setShowMediaModal] = useState(false);
   const [imageLoadStates, setImageLoadStates] = useState<
     Record<string, boolean>
   >({});
 
-  const handleLike = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsLiked((prev) => {
-      const next = !prev;
-      setLikeCount((curr) => (next ? curr + 1 : curr - 1));
-      // TODO: gọi API like/unlike ở đây
-      return next;
-    });
+  const {
+    author_avatar,
+    author_id,
+    author_username,
+    comment_count,
+    content,
+    created_at,
+    files,
+    hashtags,
+    id,
+    images,
+    isLiked,
+    isShared,
+    like_count,
+    share_count,
+    title,
+    videos,
+  } = post;
+
+  const handleLike = async () => {
+    const err = await likeOrDislikePostById(id);
+    if (!err) {
+      await mutatePost();
+      toast.success("Thành công", { richColors: true });
+    } else {
+      toast.error("Đã xảy ra lỗi", { richColors: true });
+    }
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
@@ -64,45 +73,46 @@ const PostCard = memo(function PostCard({
     setImageLoadStates((prev) => ({ ...prev, [imageId]: true }));
   };
 
+  if (!post) {
+    return null;
+  }
+
   const hasAnyMedia =
     images.length > 0 || videos.length > 0 || files.length > 0;
 
   return (
     <>
-      <Card className="h-full py-3! cursor-pointer" onClick={handleCardClick}>
-        <CardContent className="h-full flex flex-col max-sm:px-3 p-6">
+      <Card className="h-full py-3!">
+        <CardContent
+          onClick={handleCardClick}
+          className="h-full flex flex-col max-sm:px-3 p-6 cursor-pointer"
+        >
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10">
                 <AvatarImage
                   src={
-                    userAvatar || `https://i.pravatar.cc/150?u=user-${userId}`
+                    author_avatar ||
+                    `https://i.pravatar.cc/150?u=user-${author_id}`
                   }
-                  alt={userName || `User ${userId}`}
+                  alt={author_username || `User ${author_id}`}
                 />
                 <AvatarFallback>
-                  {userName?.[0]?.toUpperCase() || "U"}
+                  {author_username?.[0]?.toUpperCase() || "U"}
                 </AvatarFallback>
               </Avatar>
               <div>
                 <div className="font-semibold">
-                  {userName || `User #${userId}`}
+                  {author_username || `User #${author_id}`}
                 </div>
-                {createdAt && (
+                {created_at && (
                   <div className="text-sm text-muted-foreground">
-                    {createdAt}
+                    {created_at}
                   </div>
                 )}
               </div>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <MoreHorizontal className="h-5 w-5" />
-            </Button>
           </div>
 
           {/* Images Grid */}
@@ -156,25 +166,25 @@ const PostCard = memo(function PostCard({
           )}
 
           {/* Content */}
-          {(title || body) && (
+          {(title || content) && (
             <div className="mb-4 flex-1">
               {title && (
                 <p className="font-semibold text-sm line-clamp-1 mb-1">
                   {title}
                 </p>
               )}
-              {body && (
+              {content && (
                 <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
-                  {body}
+                  {content}
                 </p>
               )}
             </div>
           )}
 
           {/* Tags */}
-          {tags.length > 0 && (
+          {hashtags.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mb-4">
-              {tags.slice(0, 3).map((tag) => (
+              {hashtags.slice(0, 3).map((tag) => (
                 <Badge
                   key={tag}
                   variant="secondary"
@@ -189,13 +199,13 @@ const PostCard = memo(function PostCard({
                   {tag}
                 </Badge>
               ))}
-              {tags.length > 3 && (
+              {hashtags.length > 3 && (
                 <Badge
                   variant="outline"
                   className="text-xs px-2 py-0.5 cursor-pointer"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  +{tags.length - 3} more
+                  +{hashtags.length - 3} more
                 </Badge>
               )}
             </div>
@@ -208,14 +218,13 @@ const PostCard = memo(function PostCard({
               variant="ghost"
               size="sm"
               className={`gap-2 p-0 h-auto ${isLiked ? "text-red-500" : ""}`}
-              onClick={handleLike}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleLike();
+              }}
             >
               <Heart className={`h-5 w-5 ${isLiked ? "fill-current" : ""}`} />
-              {!hideStats && (
-                <span className="font-medium">
-                  {likeCount.toLocaleString()}
-                </span>
-              )}
+              <span className="font-medium">{like_count.toLocaleString()}</span>
             </Button>
 
             {/* Comment */}
@@ -226,28 +235,31 @@ const PostCard = memo(function PostCard({
               }}
               variant="ghost"
               size="sm"
-              className="gap-2 p-0 h-auto"
+              className="gap-2 p-0 h-auto cursor-pointer"
             >
               <MessageSquare className="h-5 w-5" />
-              {!hideStats && (
-                <span className="font-medium">{comments.toLocaleString()}</span>
-              )}
+
+              <span className="font-medium">
+                {comment_count.toLocaleString()}
+              </span>
             </Button>
 
             {/* Shares */}
             <Button
               onClick={(e) => {
                 e.stopPropagation();
-                // TODO: mở modal share / gọi API share
               }}
               variant="ghost"
               size="sm"
-              className="gap-2 p-0 h-auto"
+              className={`gap-2 p-0 h-auto cursor-pointer ${
+                isShared ? "text-red-500" : ""
+              }`}
             >
-              <Share2 className="h-5 w-5" />
-              {!hideStats && (
-                <span className="font-medium">{shares.toLocaleString()}</span>
-              )}
+              <Share2 className={`h-5 w-5 ${isShared ? "fill-current" : ""}`} />
+
+              <span className="font-medium">
+                {share_count.toLocaleString()}
+              </span>
             </Button>
           </div>
 
@@ -257,7 +269,7 @@ const PostCard = memo(function PostCard({
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-xs text-muted-foreground px-0"
+                className="text-xs text-muted-foreground px-0 cursor-pointer"
                 onClick={(e) => {
                   e.stopPropagation();
                   setShowMediaModal(true);

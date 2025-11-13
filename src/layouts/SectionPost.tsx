@@ -19,31 +19,29 @@ export default function SectionPost({ scrollRef }: SectionPostProps) {
   const { width } = useWindowSize();
   const itemHeight = width < 700 ? width : 640;
 
-  const { data, setSize, isValidating, error, isLoading } = useSWRInfinite<
-    Post[]
-  >(
-    (pageIndex, previousPageData) => {
-      if (previousPageData && previousPageData.length < PAGE_SIZE) return null;
-      const start = pageIndex * PAGE_SIZE;
+  const { data, setSize, isValidating, error, isLoading, mutate } =
+    useSWRInfinite<Post[]>(
+      (pageIndex, previousPageData) => {
+        if (previousPageData && previousPageData.length < PAGE_SIZE)
+          return null;
+        const start = pageIndex * PAGE_SIZE;
 
-      return `${CONFIG.API.BASE_URL}${CONFIG.API.VERSION}/search/hot?start=${start}&limit=${PAGE_SIZE}`;
-    },
-    (url) =>
-      fetch(url, {
-        credentials: "include",
-        headers: {
-          "X-API-KEY": CONFIG.API.X_API_KEY,
-          "Content-Type": "application/json",
-        },
-      })
-        .then((res) => res.json())
-        .then((data) => data.items)
-  );
+        return `${CONFIG.API.BASE_URL}${CONFIG.API.VERSION}/search/hot?start=${start}&limit=${PAGE_SIZE}`;
+      },
+      (url) =>
+        fetch(url, {
+          credentials: "include",
+          headers: {
+            "X-API-KEY": CONFIG.API.X_API_KEY,
+            "Content-Type": "application/json",
+          },
+        })
+          .then((res) => res.json())
+          .then((data) => data.items)
+    );
 
   const posts = data ? data.flat() : [];
   const hasMore = data ? data[data.length - 1]?.length === PAGE_SIZE : true;
-
-  console.log(posts);
 
   const [visibleRange, setVisibleRange] = useState({ start: 0, end: 20 });
 
@@ -118,7 +116,7 @@ export default function SectionPost({ scrollRef }: SectionPostProps) {
                 padding: "1rem 0 1rem 0",
               }}
             >
-              <PostCard {...post} />
+              <PostCard mutatePost={mutate} post={post} />
             </div>
           );
         })}

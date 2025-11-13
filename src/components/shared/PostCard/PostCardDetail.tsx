@@ -27,30 +27,28 @@ import { PostImageGrid } from "./PostImageGrid";
 import { FilesModal } from "@/components/shared/FilesModal";
 import { Post } from "@/types/post.type";
 
-export default function PostCardDetail(props: Post) {
+export default function PostCardDetail({ post }: { post: Post }) {
   const {
     title,
-    body,
-    userId,
-    userName,
-    userAvatar,
-    tags = [],
     files = [],
     images = [],
     videos = [],
-    likes = 0,
-    comments = 0,
-    shares = 0,
-    createdAt,
-    hideStats,
-  } = props;
+    author_avatar,
+    author_id,
+    author_username,
+    comment_count,
+    content,
+    created_at,
+    hashtags,
+    isLiked,
+    like_count,
+    share_count,
+  } = post;
 
-  const displayName = userName || `User #${userId}`;
+  const displayName = author_username || `User #${author_id}`;
   const displayAvatar =
-    userAvatar || `https://i.pravatar.cc/150?u=user-${userId}`;
+    author_avatar || `https://i.pravatar.cc/150?u=user-${author_id}`;
 
-  const [isLiked, setIsLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(likes);
   const [newComment, setNewComment] = useState("");
   const [imageLoadStates, setImageLoadStates] = useState<
     Record<string, boolean>
@@ -64,16 +62,6 @@ export default function PostCardDetail(props: Post) {
   const hasFiles = files.length > 0;
   const hasVideos = videos.length > 0;
   const hasAnyMedia = hasImages || hasFiles || hasVideos;
-
-  // Like
-  const handleLike = () => {
-    setIsLiked((prev) => {
-      const next = !prev;
-      setLikeCount((curr) => (next ? curr + 1 : curr - 1));
-      // TODO: call like/unlike API
-      return next;
-    });
-  };
 
   // Comment
   const handleSendComment = () => {
@@ -121,7 +109,7 @@ export default function PostCardDetail(props: Post) {
                 {displayName}
               </span>
               <span className="text-sm text-muted-foreground">
-                {createdAt || ""}
+                {created_at || ""}
               </span>
             </div>
           </div>
@@ -177,25 +165,25 @@ export default function PostCardDetail(props: Post) {
               )}
 
               {/* NỘI DUNG */}
-              {(title || body) && (
+              {(title || content) && (
                 <div className="space-y-3">
                   {title && (
                     <h1 className="text-xl font-bold text-foreground leading-tight">
                       {title}
                     </h1>
                   )}
-                  {body && (
+                  {content && (
                     <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-                      {body}
+                      {content}
                     </p>
                   )}
                 </div>
               )}
 
               {/* TAGS */}
-              {tags.length > 0 && (
+              {hashtags.length > 0 && (
                 <div className="flex flex-wrap gap-1.5">
-                  {tags.map((tag) => (
+                  {hashtags.map((tag) => (
                     <Badge
                       key={tag}
                       variant="secondary"
@@ -231,26 +219,21 @@ export default function PostCardDetail(props: Post) {
                   className={`gap-2 p-0 h-auto ${
                     isLiked ? "text-red-500" : ""
                   }`}
-                  onClick={handleLike}
                 >
                   <Heart
                     className={`h-5 w-5 ${isLiked ? "fill-current" : ""}`}
                   />
-                  {!hideStats && (
-                    <span className="font-medium">
-                      {likeCount.toLocaleString()}
-                    </span>
-                  )}
+                  <span className="font-medium">
+                    {like_count.toLocaleString()}
+                  </span>
                 </Button>
 
                 {/* Comments */}
                 <Button variant="ghost" size="sm" className="gap-2 p-0 h-auto">
                   <MessageSquare className="h-5 w-5" />
-                  {!hideStats && (
-                    <span className="font-medium">
-                      {comments.toLocaleString()}
-                    </span>
-                  )}
+                  <span className="font-medium">
+                    {comment_count.toLocaleString()}
+                  </span>
                 </Button>
 
                 {/* Shares */}
@@ -261,11 +244,9 @@ export default function PostCardDetail(props: Post) {
                   // TODO: mở modal chia sẻ / gọi API share
                 >
                   <Share2 className="h-5 w-5" />
-                  {!hideStats && (
-                    <span className="font-medium">
-                      {shares.toLocaleString()}
-                    </span>
-                  )}
+                  <span className="font-medium">
+                    {share_count.toLocaleString()}
+                  </span>
                 </Button>
 
                 {/* Bookmark */}
@@ -284,7 +265,7 @@ export default function PostCardDetail(props: Post) {
               {/* COMMENTS LIST (mock demo, hook vào API sau) */}
               <div className="pb-2">
                 <h3 className="font-semibold text-foreground mb-4">
-                  Comments ({comments})
+                  Comments ({comment_count})
                 </h3>
                 <div className="space-y-4">
                   {[

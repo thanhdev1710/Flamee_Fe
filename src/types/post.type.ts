@@ -1,21 +1,33 @@
 import { FileItem } from "@/utils/fileHelpers";
 
 export interface Post {
-  id: number;
+  id: string;
+
   title: string;
-  body: string;
-  userId: number;
-  userName: string;
-  userAvatar?: string;
-  tags?: string[];
-  files?: FileItem[];
-  images?: FileItem[];
-  videos?: FileItem[];
-  likes?: number;
-  comments?: number;
-  shares?: number;
-  createdAt?: string;
-  hideStats?: boolean;
+  content: string;
+  hashtags: string[];
+
+  author_id: string;
+  author_username: string;
+  author_avatar: string;
+
+  images: FileItem[];
+  videos: FileItem[];
+  files: FileItem[];
+
+  like_count: number;
+  comment_count: number;
+  share_count: number;
+
+  created_at: string;
+  updated_at: string;
+  visibility: "public" | "friends" | "private";
+
+  isLiked: boolean;
+  isShared: boolean;
+
+  score: number;
+  highlight: Record<string, string[]>;
 }
 
 export type VisibilityEnum = "public" | "private" | "friends";
