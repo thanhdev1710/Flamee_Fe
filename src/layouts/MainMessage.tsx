@@ -3,7 +3,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useMenuStore } from "@/store/onMenuStore";
 import {
   Menu,
   Phone,
@@ -13,284 +12,304 @@ import {
   Smile,
   Send,
 } from "lucide-react";
-import React, { Dispatch, SetStateAction, useState } from "react";
+import React, {
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import axios from "axios";
+import { io, Socket } from "socket.io-client";
+
+type Props = {
+  setOpenAside: Dispatch<SetStateAction<boolean>>;
+  conversationId: string;
+  userId: string;
+  apiBase: string;
+  socketUrl: string;
+  authToken?: string;
+};
+
+type Attachment = {
+  id: string;
+  file_url: string;
+  file_type?: "image" | "video" | "file" | "audio";
+};
+
+type Message = {
+  id: string;
+  conversation_id: string;
+  sender_id: string;
+  message: string;
+  message_type: "text" | "file";
+  created_at: string | Date;
+  updated_at?: string | Date;
+  attachments?: Attachment[];
+  read_at?: string | Date;
+  status?: "show" | "recall" | "delete" | "sent";
+};
+
+function authHeaders(token?: string) {
+  const h: Record<string, string> = { "Content-Type": "application/json" };
+  if (token) h.Authorization = `Bearer ${token}`;
+  return h;
+}
 
 export default function MainMessage({
   setOpenAside,
-}: {
-  setOpenAside: Dispatch<SetStateAction<boolean>>;
-}) {
+  conversationId,
+  userId,
+  apiBase,
+  socketUrl,
+  authToken,
+}: Props) {
   const [message, setMessage] = useState("");
-  const { setIsSidebarOpen } = useMenuStore();
-  const [showFileMenu, setShowFileMenu] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [typing, setTyping] = useState(false);
+  const listRef = useRef<HTMLDivElement | null>(null);
+  const socketRef = useRef<Socket | null>(null);
 
-  const chatMessages = [
-    {
-      id: 1,
-      sender: "florencio",
-      message: "omg, this is amazing",
-      time: "2:30 PM",
-      avatar: "/placeholder.svg?height=32&width=32",
-    },
-    {
-      id: 2,
-      sender: "florencio",
-      message: "perfect! ✅",
-      time: "2:31 PM",
-      avatar: "/placeholder.svg?height=32&width=32",
-    },
-    {
-      id: 3,
-      sender: "florencio",
-      message: "Wow, this is really epic",
-      time: "2:32 PM",
-      avatar: "/placeholder.svg?height=32&width=32",
-    },
-    {
-      id: 4,
-      sender: "me",
-      message: "How are you?",
-      time: "2:33 PM",
-      isMe: true,
-    },
-    {
-      id: 5,
-      sender: "florencio",
-      message: "just ideas for next time",
-      time: "2:34 PM",
-      avatar: "/placeholder.svg?height=32&width=32",
-    },
-    {
-      id: 6,
-      sender: "florencio",
-      message: "I'll be there in 2 mins ⏰",
-      time: "2:35 PM",
-      avatar: "/placeholder.svg?height=32&width=32",
-    },
-    {
-      id: 7,
-      sender: "me",
-      message: "woohoooo",
-      time: "2:36 PM",
-      isMe: true,
-    },
-    {
-      id: 8,
-      sender: "me",
-      message: "Haha oh man",
-      time: "2:37 PM",
-      isMe: true,
-    },
-    {
-      id: 9,
-      sender: "me",
-      message: "Haha that's terrifying 😊",
-      time: "2:38 PM",
-      isMe: true,
-    },
-    {
-      id: 10,
-      sender: "florencio",
-      message: "aww",
-      time: "2:39 PM",
-      avatar: "/placeholder.svg?height=32&width=32",
-    },
-    {
-      id: 11,
-      sender: "florencio",
-      message: "omg, this is amazing",
-      time: "2:40 PM",
-      avatar: "/placeholder.svg?height=32&width=32",
-    },
-    {
-      id: 12,
-      sender: "florencio",
-      message: "woohoooo 🔥",
-      time: "2:41 PM",
-      avatar: "/placeholder.svg?height=32&width=32",
-    },
-  ];
+  const isMine = (m: Message) => String(m.sender_id) === String(userId);
+  const created = (m: Message) => new Date(m.created_at);
+  const isRead = (m: Message) => !!m.read_at || m.status === "sent";
+
+  // Load message history
+  useEffect(() => {
+    if (!conversationId) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get(
+          `${apiBase}/${encodeURIComponent(conversationId)}/history`,
+          { headers: authHeaders(authToken) }
+        );
+        const arr: Message[] = Array.isArray(res.data)
+          ? res.data
+          : res.data.messages || res.data.data || [];
+        if (!cancelled) setMessages(arr);
+      } catch (e) {
+        console.error("load history error", e);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [conversationId, apiBase, authToken]);
+
+  // Auto scroll
+  useEffect(() => {
+    if (listRef.current) {
+      listRef.current.scrollTop = listRef.current.scrollHeight;
+    }
+  }, [messages.length]);
+
+  // Socket.IO realtime
+  useEffect(() => {
+    const s = io(socketUrl, {
+      auth: authToken ? { token: authToken } : undefined,
+      transports: ["websocket"],
+    });
+    socketRef.current = s;
+
+    s.on("connect", () => {
+      if (conversationId && userId) {
+        s.emit("join", { conversation_id: conversationId, user_id: userId });
+      }
+    });
+
+    s.on("message:new", (m: Message) => setMessages((prev) => [...prev, m]));
+
+    s.on("typing", (p: any) => {
+      const active = p?.is_typing && String(p.user_id) !== String(userId);
+      setTyping(!!active);
+    });
+
+    s.on("read", () => {
+      setMessages((prev) =>
+        prev.map((x) => ({ ...x, read_at: new Date().toISOString() }))
+      );
+    });
+
+    return () => {
+      s.disconnect();
+    };
+  }, [socketUrl, conversationId, userId, authToken]);
+
+  async function sendText() {
+    const text = message.trim();
+    if (!text || !conversationId) return;
+    try {
+      const body = {
+        conversation_id: conversationId,
+        sender_id: userId,
+        message: text,
+        message_type: "text" as const,
+      };
+      const res = await axios.post(`${apiBase}/send`, body, {
+        headers: authHeaders(authToken),
+      });
+      const saved: Message = res.data?.data || res.data?.message || body;
+      setMessages((prev) => [...prev, saved]);
+      setMessage("");
+      socketRef.current?.emit("read", {
+        conversation_id: conversationId,
+        user_id: userId,
+      });
+    } catch (e) {
+      console.error("send error", e);
+    }
+  }
+
+  function renderBubbleContent(m: Message) {
+    if (m.message_type === "file" && m.attachments?.length) {
+      const a = m.attachments[0];
+      if (a.file_type === "image")
+        return (
+          <img
+            src={a.file_url}
+            alt="image"
+            className="max-w-[240px] rounded-xl"
+          />
+        );
+      if (a.file_type === "video")
+        return (
+          <video
+            src={a.file_url}
+            controls
+            className="max-w-[260px] rounded-xl"
+          />
+        );
+      if (a.file_type === "audio") return <audio src={a.file_url} controls />;
+      return (
+        <a
+          href={a.file_url}
+          target="_blank"
+          rel="noreferrer"
+          className="underline"
+        >
+          Tệp đính kèm
+        </a>
+      );
+    }
+    return <div className="whitespace-pre-wrap break-words">{m.message}</div>;
+  }
+
+  function emitTyping() {
+    socketRef.current?.emit("typing", {
+      conversation_id: conversationId,
+      user_id: userId,
+      is_typing: true,
+    });
+    setTimeout(() => {
+      socketRef.current?.emit("typing", {
+        conversation_id: conversationId,
+        user_id: userId,
+        is_typing: false,
+      });
+    }, 1200);
+  }
 
   return (
-    <div className="flex-1 flex flex-col min-w-0 min-h-0">
-      {/* Chat Header */}
-      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 p-4 flex-shrink-0 h-[65px]">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3 min-w-0 flex-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="lg:hidden flex-shrink-0"
-              onClick={() => setIsSidebarOpen()}
-            >
-              <Menu className="w-5 h-5" />
-            </Button>
-            <Avatar className="w-10 h-10 flex-shrink-0">
-              <AvatarImage src="/placeholder.svg?height=40&width=40" />
-              <AvatarFallback>FD</AvatarFallback>
-            </Avatar>
-            <div className="min-w-0 flex-1">
-              <h2 className="font-semibold text-gray-900 dark:text-white truncate">
-                Florencio Dorrance
-              </h2>
-              <div className="flex items-center space-x-1">
-                <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
-                <span className="text-sm text-gray-500 dark:text-gray-400">
-                  Online
-                </span>
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center space-x-2 flex-shrink-0">
-            <Button variant="outline" size="sm" className="flex bg-transparent">
-              <Phone className="w-4 h-4 mr-0" />
-              <span className="hidden md:inline ml-2">Call</span>
-            </Button>
-            <Button asChild variant="ghost" size="sm">
-              <Button
-                variant="ghost"
-                onClick={() => setOpenAside((prev) => !prev)}
-              >
-                <MoreVertical className="w-4 h-4" />
-              </Button>
-            </Button>
+    <div className="flex-1 flex flex-col">
+      <div className="border-b bg-white">
+        <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
+          <button className="md:hidden" onClick={() => setOpenAside(true)}>
+            <Menu className="w-5 h-5" />
+          </button>
+          <div className="font-semibold">Messages</div>
+          <div className="flex items-center gap-2">
+            <Phone className="w-5 h-5" />
+            <MoreVertical className="w-5 h-5" />
           </div>
         </div>
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 min-h-0 overflow-hidden dark:bg-gray-900">
-        <ScrollArea className="h-full p-4">
-          <div className="space-y-4">
-            {chatMessages.map((msg) => (
+      <ScrollArea className="flex-1">
+        <div ref={listRef} className="max-w-3xl mx-auto p-4 space-y-4">
+          {loading && (
+            <div className="text-sm text-gray-500">Đang tải lịch sử…</div>
+          )}
+          {messages.map((m) => (
+            <div
+              key={m.id}
+              className={`flex items-end gap-2 ${
+                isMine(m) ? "justify-end" : ""
+              }`}
+            >
+              {!isMine(m) && (
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src="/placeholder.svg" alt="@u" />
+                  <AvatarFallback>U</AvatarFallback>
+                </Avatar>
+              )}
               <div
-                key={msg.id}
-                className={`flex ${msg.isMe ? "justify-end" : "justify-start"}`}
+                className={`rounded-2xl px-4 py-2 shadow ${
+                  isMine(m)
+                    ? "bg-indigo-600 text-white"
+                    : "bg-gray-200 text-gray-900"
+                }`}
               >
+                {renderBubbleContent(m)}
                 <div
-                  className={`flex items-end space-x-2 max-w-xs sm:max-w-md lg:max-w-lg ${
-                    msg.isMe ? "flex-row-reverse space-x-reverse" : ""
+                  className={`mt-1 text-[11px] ${
+                    isMine(m) ? "text-indigo-100/90" : "text-gray-600"
                   }`}
                 >
-                  {!msg.isMe && (
-                    <Avatar className="w-8 h-8">
-                      <AvatarImage src={msg.avatar || "/placeholder.svg"} />
-                      <AvatarFallback>FD</AvatarFallback>
-                    </Avatar>
-                  )}
-                  <div
-                    className={`px-4 py-2 rounded-2xl ${
-                      msg.isMe
-                        ? "bg-indigo-600 text-white rounded-br-md"
-                        : "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-bl-md"
-                    }`}
-                  >
-                    <p className="text-sm">{msg.message}</p>
-                  </div>
+                  {created(m).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                  <span className="mx-2">•</span>
+                  {isRead(m) ? "Đã đọc" : "Đã gửi"}
                 </div>
               </div>
-            ))}
-          </div>
-        </ScrollArea>
-      </div>
+              {isMine(m) && (
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src="/placeholder.svg" alt="@me" />
+                  <AvatarFallback>ME</AvatarFallback>
+                </Avatar>
+              )}
+            </div>
+          ))}
+          {typing && <div className="text-xs text-gray-500">Đang nhập…</div>}
+        </div>
+      </ScrollArea>
 
-      {/* Message Input */}
-      <div className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 p-4 flex-shrink-0 h-[65px]">
-        <div className="flex items-end space-x-2">
-          {/* File Upload Menu */}
-          <div className="relative">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="p-2"
-              onClick={() => setShowFileMenu(!showFileMenu)}
-            >
-              <Paperclip className="w-5 h-5" />
-            </Button>
-
-            {showFileMenu && (
-              <div className="absolute bottom-full left-0 mb-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg p-2 min-w-[160px] z-10">
-                <div className="space-y-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="w-full justify-start text-sm"
-                    onClick={() => {
-                      const input = document.createElement("input");
-                      input.type = "file";
-                      input.multiple = true;
-                      input.accept = "*/*";
-                      input.onchange = (e) => {
-                        const files = (e.target as HTMLInputElement).files;
-                        if (files) {
-                          console.log("Files selected:", files);
-                        }
-                      };
-                      input.click();
-                      setShowFileMenu(false);
-                    }}
-                  >
-                    <Paperclip className="w-4 h-4 mr-2" />
-                    Upload File
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="w-full justify-start text-sm"
-                    onClick={() => {
-                      const input = document.createElement("input");
-                      input.type = "file";
-                      input.multiple = true;
-                      input.accept = "image/*";
-                      input.onchange = (e) => {
-                        const files = (e.target as HTMLInputElement).files;
-                        if (files) {
-                          console.log("Images selected:", files);
-                        }
-                      };
-                      input.click();
-                      setShowFileMenu(false);
-                    }}
-                  >
-                    <ImageIcon className="w-4 h-4 mr-2" />
-                    Upload Image
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Input */}
-          <div className="flex-1 relative">
-            <Input
-              placeholder="Type a message"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              className="pr-10 bg-gray-100 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400"
-              onKeyPress={(e) => {
-                if (e.key === "Enter") {
-                  setMessage("");
-                  setShowFileMenu(false);
-                }
-              }}
-            />
-            <Button
-              variant="ghost"
-              size="sm"
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1"
-            >
-              <Smile className="w-4 h-4" />
-            </Button>
-          </div>
-
-          {/* Send Button */}
+      <div className="border-t bg-white">
+        <div className="max-w-3xl mx-auto p-3 flex items-center gap-2">
+          <button className="p-2">
+            <Paperclip className="w-5 h-5" />
+          </button>
+          <button className="p-2">
+            <ImageIcon className="w-5 h-5" />
+          </button>
+          <Input
+            placeholder="Type your message..."
+            className="flex-1"
+            value={message}
+            onChange={(e) => {
+              setMessage(e.target.value);
+              emitTyping();
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                sendText();
+              }
+            }}
+          />
+          <button className="p-2">
+            <Smile className="w-5 h-5" />
+          </button>
           <Button
             size="sm"
             className="bg-indigo-600 hover:bg-indigo-700 text-white px-4"
-            onClick={() => {
-              setMessage("");
-              setShowFileMenu(false);
-            }}
+            onClick={sendText}
           >
             <Send className="w-4 h-4" />
           </Button>
