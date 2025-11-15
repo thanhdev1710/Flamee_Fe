@@ -11,6 +11,7 @@ const nextConfig: NextConfig = {
     dangerouslyAllowSVG: true,
   },
   output: "standalone",
+  experimental: { serverActions: { bodySizeLimit: "10mb" } },
 };
 
 const withNextIntl = createNextIntlPlugin();

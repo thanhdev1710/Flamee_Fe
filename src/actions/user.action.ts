@@ -1,11 +1,9 @@
 import { CONFIG } from "@/global/config";
+import { withErrorHandler } from "@/lib/utils";
 import { CardStudent, CreateUserType } from "@/types/user.type";
-import { refreshAccessToken } from "@/utils/jwt";
-import { redirect } from "next/navigation";
-import { toast } from "sonner";
 
 export async function createProfile(profile: CreateUserType) {
-  try {
+  return await withErrorHandler(async () => {
     const res = await fetch(
       `${CONFIG.API.BASE_URL}${CONFIG.API.VERSION}/profiles`,
       {
@@ -19,20 +17,15 @@ export async function createProfile(profile: CreateUserType) {
       }
     );
 
-    const data = await res.json();
-
+    // ❌ Lỗi từ server → trả message để client xử lý
     if (!res.ok) {
-      toast.error(data.message || "Tạo hồ sơ thất bại", { richColors: true });
-      return;
+      const error = await res.json();
+      return error.message || "Tạo hồ sơ thất bại";
     }
 
-    toast.success("Tạo hồ sơ thành công");
-    await refreshAccessToken();
-    redirect("/app/feeds");
-  } catch (error) {
-    console.error("createProfile error:", error);
-    toast.error("Lỗi kết nối máy chủ");
-  }
+    // ✔ Thành công → trả null
+    return null;
+  });
 }
 
 export async function confirmCard(image: File): Promise<CardStudent> {

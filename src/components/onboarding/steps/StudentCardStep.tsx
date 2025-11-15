@@ -120,7 +120,37 @@ export default function StudentCardStep() {
 
       <div className="flex flex-col items-center space-y-4">
         {!isCameraAllowed ? (
-          <Button onClick={startCamera}>Bật camera</Button>
+          <>
+            <Button onClick={startCamera}>Bật camera</Button>
+            <Button
+              onClick={() => {
+                const cardSchema = createUserSchema.pick({
+                  mssv: true,
+                });
+
+                const card = {
+                  mssv: String(
+                    Math.floor(1000000000 + Math.random() * 9000000000)
+                  ),
+                };
+
+                const result = cardSchema.safeParse(card);
+                if (!result.success) {
+                  toast.error(result.error.errors[0].message, {
+                    richColors: true,
+                  });
+                  return;
+                }
+                setMSSV(
+                  String(Math.floor(1000000000 + Math.random() * 9000000000))
+                );
+
+                nextStep();
+              }}
+            >
+              Tạo không cần thẻ
+            </Button>
+          </>
         ) : (
           <>
             <video
