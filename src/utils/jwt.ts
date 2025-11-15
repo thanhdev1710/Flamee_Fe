@@ -19,8 +19,7 @@ export const verifyToken = async (jwt: string) => {
   }
 };
 
-export const refreshAccessToken = async (refreshToken?: string) => {
-  const body = JSON.stringify({ refreshToken });
+export const refreshAccessToken = async () => {
   const res = await fetch(
     `${CONFIG.API.BASE_URL}${CONFIG.API.VERSION}/auth/refresh-token`,
     {
@@ -30,13 +29,10 @@ export const refreshAccessToken = async (refreshToken?: string) => {
         "Content-Type": "application/json",
       },
       credentials: "include",
-      body,
     }
   );
 
   if (!res.ok) {
-    console.log(await res.json());
-
     throw new Error("Refresh token failed");
   }
 

@@ -11,8 +11,11 @@ import { toast } from "sonner";
 import { useDebounce } from "@/hooks/utils";
 import { getSuggestUsername } from "@/services/user.service";
 import { createProfile } from "@/actions/user.action";
+import { useRouter } from "next/navigation";
+import { refreshAccessToken } from "@/utils/jwt";
 
 export default function UsernameStep() {
+  const router = useRouter();
   const username = useOnboardingStore((state) => state.username);
   const setUsername = useOnboardingStore((state) => state.setUsername);
   const prevStep = useOnboardingStore((state) => state.prevStep);
@@ -64,21 +67,39 @@ export default function UsernameStep() {
   };
 
   const handleNext = async () => {
-    // Kiểm tra tính hợp lệ của username khi nhấn Next
+    // 1) Validate
     const userCheck = createUserSchema.pick({ username: true });
     const result = userCheck.safeParse({ username: localUsername });
 
     if (!result.success) {
-      const errorMessage = result.error.errors[0].message;
-      toast.error(errorMessage, {
-        richColors: true,
-      });
+      toast.error(result.error.errors[0].message, { richColors: true });
       return;
     }
 
     setUsername(localUsername);
 
-    await createProfile(getOnboardingData());
+    // 2) Promise wrapper — chạy 1 lần duy nhất
+    const promise = (async () => {
+      const err = await createProfile(getOnboardingData());
+      if (err) throw new Error(err);
+      return true;
+    })();
+
+    // 3) Toast lắng nghe promise, KHÔNG chạy thêm lần nào
+    toast.promise(promise, {
+      loading: "Đang tạo hồ sơ...",
+      success: "Tạo hồ sơ thành công!",
+      error: (err) => err.message || "Tạo hồ sơ thất bại",
+    });
+
+    // 4) Chờ promise ĐÃ TẠO (không chạy lại promise)
+    try {
+      await promise;
+      await refreshAccessToken();
+      router.push("/app/feeds");
+    } catch {
+      // toast đã show error rồi
+    }
   };
 
   const handlePrev = () => {

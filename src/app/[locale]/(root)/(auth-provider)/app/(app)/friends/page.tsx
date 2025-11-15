@@ -1,181 +1,106 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { MessageCircle, UserPlus, UserCheck } from "lucide-react";
+import { UserPlus } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import useSWR, { mutate } from "swr";
+import { ProfileSummary } from "@/types/follow.type";
+import { getFriendSuggestions } from "@/services/follow.service";
+import { addOrUnFollowById } from "@/actions/follow.actions";
+import { toast } from "sonner";
 
-interface User {
-  id: number;
-  name: string;
-  avatar: string;
-  status: "follow" | "following";
-}
+type UserSectionVariant = "followers" | "suggestions" | "following" | "mutual";
 
-const followMeUsers: User[] = [
-  {
-    id: 1,
-    name: "Chí Thành",
-    avatar: "/diverse-avatars.png",
-    status: "follow",
-  },
-  {
-    id: 2,
-    name: "Chí Thành",
-    avatar: "/diverse-avatars.png",
-    status: "follow",
-  },
-  {
-    id: 3,
-    name: "Chí Thành",
-    avatar: "/diverse-avatars.png",
-    status: "follow",
-  },
-  {
-    id: 4,
-    name: "Chí Thành",
-    avatar: "/diverse-avatars.png",
-    status: "follow",
-  },
-  {
-    id: 5,
-    name: "Chí Thành",
-    avatar: "/diverse-avatars.png",
-    status: "follow",
-  },
-  {
-    id: 6,
-    name: "Chí Thành",
-    avatar: "/diverse-avatars.png",
-    status: "follow",
-  },
-  {
-    id: 7,
-    name: "Chí Thành",
-    avatar: "/diverse-avatars.png",
-    status: "follow",
-  },
-  {
-    id: 8,
-    name: "Chí Thành",
-    avatar: "/diverse-avatars.png",
-    status: "follow",
-  },
-];
-
-const invitationUsers: User[] = [
-  {
-    id: 9,
-    name: "Chí Thành",
-    avatar: "/diverse-avatars.png",
-    status: "follow",
-  },
-  {
-    id: 10,
-    name: "Chí Thành",
-    avatar: "/diverse-avatars.png",
-    status: "follow",
-  },
-  {
-    id: 11,
-    name: "Chí Thành",
-    avatar: "/diverse-avatars.png",
-    status: "follow",
-  },
-  {
-    id: 12,
-    name: "Chí Thành",
-    avatar: "/diverse-avatars.png",
-    status: "follow",
-  },
-  {
-    id: 13,
-    name: "Chí Thành",
-    avatar: "/diverse-avatars.png",
-    status: "follow",
-  },
-  {
-    id: 14,
-    name: "Chí Thành",
-    avatar: "/diverse-avatars.png",
-    status: "follow",
-  },
-  {
-    id: 15,
-    name: "Chí Thành",
-    avatar: "/diverse-avatars.png",
-    status: "follow",
-  },
-  {
-    id: 16,
-    name: "Chí Thành",
-    avatar: "/diverse-avatars.png",
-    status: "follow",
-  },
-];
-
-function UserCard({ user }: { user: User }) {
-  const [isFollowing, setIsFollowing] = useState(false);
-
-  const handleFollow = () => {
-    setIsFollowing(!isFollowing);
+function UserCard({
+  user,
+  variant,
+}: {
+  user: ProfileSummary;
+  variant: UserSectionVariant;
+}) {
+  const handleFollow = async () => {
+    const err = await addOrUnFollowById(user.user_id);
+    if (!err) {
+      await mutate("invitationUsers");
+      toast.success("Thành công", { richColors: true });
+    } else {
+      toast.error("Đã xảy ra lỗi", { richColors: true });
+    }
   };
+
+  const isFollowerSection = variant === "followers";
+
+  // Chuẩn hoá username nếu bạn muốn bỏ @ trên URL,
+  // còn nếu backend xử lý được @ thì có thể dùng luôn user.username
+  const usernameSlug = user.username?.replace(/^@/, "") || user.user_id;
 
   return (
     <Card className="flex flex-col items-center p-5 gap-4 hover:shadow-xl hover:border-primary/50 transition-all duration-300 border border-border">
       <div className="relative">
         <Avatar className="h-20 w-20 ring-2 ring-border">
           <AvatarImage
-            src={user.avatar || "/placeholder.svg"}
-            alt={user.name}
+            src={user.avatar_url || "/placeholder.svg"}
+            alt={user.lastName || ""}
           />
           <AvatarFallback className="bg-secondary text-secondary-foreground font-semibold">
-            {user.name.charAt(0)}
+            {user.firstName?.charAt(0)}
           </AvatarFallback>
         </Avatar>
       </div>
 
       <div className="text-center w-full">
         <h3 className="font-semibold text-base text-foreground leading-tight">
-          {user.name}
+          {user.firstName}
         </h3>
+        {user.username && (
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {user.username}
+          </p>
+        )}
       </div>
 
       <div className="w-full flex flex-col gap-2.5">
-        <Button
-          onClick={handleFollow}
-          className="w-full transition-all duration-200 font-medium flex items-center justify-center gap-2"
-          size="sm"
-          variant={isFollowing ? "default" : "default"}
-        >
-          {isFollowing ? (
-            <>
-              <UserCheck className="h-4 w-4" />
-              Following
-            </>
-          ) : (
-            <>
-              <UserPlus className="h-4 w-4" />
-              Follow
-            </>
-          )}
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full bg-secondary/30 border-border hover:bg-secondary/50 transition-colors duration-200"
-        >
-          <MessageCircle className="h-4 w-4 mr-2" />
-          Message
-        </Button>
+        {variant === "mutual" ? (
+          // 👉 Đã là bạn chung: chỉ cho đi tới trang cá nhân
+          <Button
+            asChild
+            className="w-full transition-all duration-200 font-medium flex items-center justify-center gap-2"
+            size="sm"
+            variant="outline"
+          >
+            <Link href={`/app/users/${usernameSlug}`}>View profile</Link>
+          </Button>
+        ) : (
+          // 👉 Các case còn lại: Follow / Follow back
+          <Button
+            onClick={handleFollow}
+            className="w-full transition-all duration-200 font-medium flex items-center justify-center gap-2"
+            size="sm"
+          >
+            <UserPlus className="h-4 w-4" />
+            {isFollowerSection ? "Follow back" : "Follow"}
+          </Button>
+        )}
       </div>
     </Card>
   );
 }
 
-function UserSection({ title, users }: { title: string; users: User[] }) {
+function UserSection({
+  title,
+  subtitle,
+  users,
+  variant,
+}: {
+  title: string;
+  subtitle: string;
+  users: ProfileSummary[];
+  variant: UserSectionVariant;
+}) {
   const [showAll, setShowAll] = useState(false);
   const displayUsers = showAll ? users : users.slice(0, 8);
 
@@ -185,40 +110,72 @@ function UserSection({ title, users }: { title: string; users: User[] }) {
         <h2 className="text-3xl font-bold text-foreground tracking-tight">
           {title}
         </h2>
-        <p className="text-muted-foreground text-sm mt-1">
-          Connect with friends and expand your network
+        <p className="text-muted-foreground text-sm mt-1">{subtitle}</p>
+      </div>
+
+      {users.length === 0 ? (
+        <p className="text-sm text-muted-foreground">
+          No users to show in this section.
         </p>
-      </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+            {displayUsers.map((user) => (
+              <UserCard key={user.user_id} user={user} variant={variant} />
+            ))}
+          </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-        {displayUsers.map((user) => (
-          <UserCard key={user.id} user={user} />
-        ))}
-      </div>
-
-      {users.length > 8 && (
-        <div className="flex justify-center pt-4">
-          <button
-            onClick={() => setShowAll(!showAll)}
-            className="px-6 py-2 rounded-lg font-medium text-primary hover:bg-secondary/50 transition-colors duration-200 text-sm border border-border"
-          >
-            {showAll ? "Show Less" : "Show More"}
-          </button>
-        </div>
+          {users.length > 8 && (
+            <div className="flex justify-center pt-4">
+              <button
+                onClick={() => setShowAll(!showAll)}
+                className="px-6 py-2 rounded-lg font-medium text-primary hover:bg-secondary/50 transition-colors duration-200 text-sm border border-border"
+              >
+                {showAll ? "Show Less" : "Show More"}
+              </button>
+            </div>
+          )}
+        </>
       )}
     </section>
   );
 }
 
 export default function FriendsPage() {
+  const { data } = useSWR("invitationUsers", getFriendSuggestions);
+
   return (
     <ScrollArea className="h-full py-8">
-      <div className="px-4">
-        <UserSection title="Follow me" users={followMeUsers} />
-        <div className="mt-8">
-          <UserSection title="Invitation to follow" users={invitationUsers} />
-        </div>
-        <div className="h-[90px]"></div>
+      <div className="px-4 space-y-8">
+        <UserSection
+          title="Followers (Follow You)"
+          subtitle="These people are already following you. Follow them back to connect."
+          users={data?.followers || []}
+          variant="followers"
+        />
+
+        <UserSection
+          title="People You May Know"
+          subtitle="Suggested profiles you might want to connect with."
+          users={data?.suggestions || []}
+          variant="suggestions"
+        />
+
+        <UserSection
+          title="Following"
+          subtitle="People whose updates you’re currently following."
+          users={data?.following || []}
+          variant="following"
+        />
+
+        <UserSection
+          title="Mutual Friends"
+          subtitle="You follow each other — your closest connections."
+          users={data?.mutualFriends || []}
+          variant="mutual"
+        />
+
+        <div className="h-[90px]" />
       </div>
     </ScrollArea>
   );
