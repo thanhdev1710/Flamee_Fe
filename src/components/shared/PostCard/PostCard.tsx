@@ -2,6 +2,8 @@
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import type React from "react";
 
+import parse from "html-react-parser";
+
 import {
   Heart,
   MessageSquare,
@@ -9,6 +11,7 @@ import {
   Hash,
   Share2,
   Play,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,10 +20,11 @@ import { useRouter } from "next/navigation";
 import { useState, memo } from "react";
 import { FilesModal } from "@/components/shared/FilesModal";
 import { PostImageGrid } from "./PostImageGrid";
-import { Post } from "@/types/post.type";
-import { SWRInfiniteKeyedMutator } from "swr/infinite";
-import { likeOrDislikePostById } from "@/actions/post.action";
+import type { Post } from "@/types/post.type";
+import type { SWRInfiniteKeyedMutator } from "swr/infinite";
+import { likeOrDislikePostById, sharePost } from "@/actions/post.action";
 import { toast } from "sonner";
+import { formatTimeAgo } from "@/utils/utils";
 
 const PostCard = memo(function PostCard({
   post,
@@ -34,10 +38,11 @@ const PostCard = memo(function PostCard({
   const [imageLoadStates, setImageLoadStates] = useState<
     Record<string, boolean>
   >({});
+  const [loadingLike, setLoadingLike] = useState(false);
+  const [loadingShare, setLoadingShare] = useState(false);
 
   const {
     author_avatar,
-    author_id,
     author_username,
     comment_count,
     content,
@@ -55,12 +60,30 @@ const PostCard = memo(function PostCard({
   } = post;
 
   const handleLike = async () => {
-    const err = await likeOrDislikePostById(id);
-    if (!err) {
-      await mutatePost();
-      toast.success("Thành công", { richColors: true });
-    } else {
-      toast.error("Đã xảy ra lỗi", { richColors: true });
+    setLoadingLike(true);
+    try {
+      const err = await likeOrDislikePostById(id);
+      if (!err) {
+        await mutatePost();
+      } else {
+        toast.error(err, { richColors: true });
+      }
+    } finally {
+      setLoadingLike(false);
+    }
+  };
+
+  const handleShare = async () => {
+    setLoadingShare(true);
+    try {
+      const err = await sharePost(id);
+      if (!err) {
+        await mutatePost();
+      } else {
+        toast.error(err, { richColors: true });
+      }
+    } finally {
+      setLoadingShare(false);
     }
   };
 
@@ -92,23 +115,18 @@ const PostCard = memo(function PostCard({
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10">
                 <AvatarImage
-                  src={
-                    author_avatar ||
-                    `https://i.pravatar.cc/150?u=user-${author_id}`
-                  }
-                  alt={author_username || `User ${author_id}`}
+                  src={author_avatar || "/placeholder.svg"}
+                  alt={author_username}
                 />
                 <AvatarFallback>
-                  {author_username?.[0]?.toUpperCase() || "U"}
+                  {author_username?.[1]?.toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div>
-                <div className="font-semibold">
-                  {author_username || `User #${author_id}`}
-                </div>
+                <div className="font-semibold">{author_username}</div>
                 {created_at && (
                   <div className="text-sm text-muted-foreground">
-                    {created_at}
+                    {formatTimeAgo(created_at)}
                   </div>
                 )}
               </div>
@@ -135,7 +153,7 @@ const PostCard = memo(function PostCard({
               <Button
                 variant="outline"
                 size="sm"
-                className="w-full justify-start gap-2"
+                className="w-full justify-start gap-2 bg-transparent"
                 onClick={(e) => {
                   e.stopPropagation();
                   setShowMediaModal(true);
@@ -169,14 +187,13 @@ const PostCard = memo(function PostCard({
           {(title || content) && (
             <div className="mb-4 flex-1">
               {title && (
-                <p className="font-semibold text-sm line-clamp-1 mb-1">
+                <h3 className="text-xl font-bold text-foreground leading-tight">
                   {title}
-                </p>
+                </h3>
               )}
+              <hr className="my-3" />
               {content && (
-                <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
-                  {content}
-                </p>
+                <div className="text-foreground prose">{parse(content)}</div>
               )}
             </div>
           )}
@@ -191,8 +208,6 @@ const PostCard = memo(function PostCard({
                   className="text-xs px-2 py-0.5 cursor-pointer"
                   onClick={(e) => {
                     e.stopPropagation();
-                    // Điều hướng search hashtag nếu muốn
-                    // router.push(`/app/search?tag=${encodeURIComponent(tag)}`);
                   }}
                 >
                   <Hash className="w-2.5 h-2.5 mr-1" />
@@ -222,8 +237,13 @@ const PostCard = memo(function PostCard({
                 e.stopPropagation();
                 handleLike();
               }}
+              disabled={loadingLike}
             >
-              <Heart className={`h-5 w-5 ${isLiked ? "fill-current" : ""}`} />
+              {loadingLike ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <Heart className={`h-5 w-5 ${isLiked ? "fill-current" : ""}`} />
+              )}
               <span className="font-medium">{like_count.toLocaleString()}</span>
             </Button>
 
@@ -238,7 +258,6 @@ const PostCard = memo(function PostCard({
               className="gap-2 p-0 h-auto cursor-pointer"
             >
               <MessageSquare className="h-5 w-5" />
-
               <span className="font-medium">
                 {comment_count.toLocaleString()}
               </span>
@@ -248,22 +267,29 @@ const PostCard = memo(function PostCard({
             <Button
               onClick={(e) => {
                 e.stopPropagation();
+                handleShare();
               }}
               variant="ghost"
               size="sm"
               className={`gap-2 p-0 h-auto cursor-pointer ${
                 isShared ? "text-red-500" : ""
               }`}
+              disabled={loadingShare}
             >
-              <Share2 className={`h-5 w-5 ${isShared ? "fill-current" : ""}`} />
-
+              {loadingShare ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <Share2
+                  className={`h-5 w-5 ${isShared ? "fill-current" : ""}`}
+                />
+              )}
               <span className="font-medium">
                 {share_count.toLocaleString()}
               </span>
             </Button>
           </div>
 
-          {/* Nếu muốn có nút xem toàn bộ media khi có bất kỳ media */}
+          {/* View all media & files button */}
           {hasAnyMedia && (
             <div className="mt-3">
               <Button
