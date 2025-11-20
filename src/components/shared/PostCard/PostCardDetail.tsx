@@ -35,6 +35,7 @@ import {
 } from "@/actions/post.action";
 import { toast } from "sonner";
 import type { Interaction } from "@/types/interaction.type";
+import Link from "next/link";
 
 export default function PostCardDetail({
   post,
@@ -156,19 +157,24 @@ export default function PostCardDetail({
         {/* HEADER - Enhanced with more professional styling */}
         <CardContent className="flex items-center justify-between px-6 py-5 border-b border-border">
           <div className="flex items-center gap-4">
-            <Avatar className="h-12 w-12 ring-2 ring-border">
-              <AvatarImage
-                src={author_avatar || "/placeholder.svg"}
-                alt={author_username}
-              />
-              <AvatarFallback className="bg-muted text-muted-foreground font-semibold">
-                {author_username.charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
+            <Link href={`/app/users/${author_username}`}>
+              <Avatar className="h-12 w-12 ring-2 ring-border">
+                <AvatarImage
+                  src={author_avatar || "/placeholder.svg"}
+                  alt={author_username}
+                />
+                <AvatarFallback className="bg-muted text-muted-foreground font-semibold">
+                  {author_username.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            </Link>
             <div className="flex flex-col gap-1">
-              <span className="font-semibold text-foreground text-base">
+              <Link
+                href={`/app/users/${author_username}`}
+                className="font-semibold text-foreground text-base"
+              >
                 {author_username}
-              </span>
+              </Link>
               <span className="text-xs text-muted-foreground">
                 {formatTimeAgo(created_at)}
               </span>
@@ -181,7 +187,7 @@ export default function PostCardDetail({
 
         {/* BODY */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          <div className="p-6 space-y-5">
+          <div className="px-6 pb-6 space-y-5">
             {/* TITLE & CONTENT - Improved typography */}
             {(title || content) && (
               <div className="space-y-3">
@@ -190,6 +196,7 @@ export default function PostCardDetail({
                     {title}
                   </h2>
                 )}
+                <hr className="my-3" />
                 {content && (
                   <div className="text-base text-muted-foreground leading-relaxed whitespace-pre-line">
                     {parse(content)}

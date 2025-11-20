@@ -34,10 +34,12 @@ export async function getPostById(id: string): Promise<Post> {
   }
 }
 
-export async function searchPost(q: string): Promise<Post> {
+export async function searchPost(q: string, limit?: number): Promise<Post[]> {
   try {
     const res = await fetch(
-      `${CONFIG.API.BASE_URL}${CONFIG.API.VERSION}/search/posts?q=${q}`,
+      `${CONFIG.API.BASE_URL}${CONFIG.API.VERSION}/search/posts?q=${q}${
+        limit ? "&limit=" + limit : ""
+      }`,
       {
         method: "GET",
         headers: {
