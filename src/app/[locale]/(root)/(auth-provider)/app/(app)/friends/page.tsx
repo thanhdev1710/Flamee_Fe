@@ -42,10 +42,7 @@ function UserCard({
     <Card className="flex flex-col items-center p-5 gap-4 hover:shadow-xl hover:border-primary/50 transition-all duration-300 border border-border">
       <div className="relative">
         <Avatar className="h-20 w-20 ring-2 ring-border">
-          <AvatarImage
-            src={user.avatar_url || "/placeholder.svg"}
-            alt={user.lastName || ""}
-          />
+          <AvatarImage src={user.avatar_url || ""} alt={user.lastName || ""} />
           <AvatarFallback className="bg-secondary text-secondary-foreground font-semibold">
             {user.firstName?.charAt(0)}
           </AvatarFallback>

@@ -56,7 +56,7 @@ export default function PostDetail({
                   <Image
                     width={50}
                     height={50}
-                    src={post.avatar || "/placeholder.svg"}
+                    src={post.avatar}
                     alt={post.author}
                     className="w-10 h-10 rounded-full"
                   />
@@ -84,7 +84,7 @@ export default function PostDetail({
             <Image
               width={50}
               height={50}
-              src={post.image || "/placeholder.svg"}
+              src={post.image}
               alt={post.title}
               className="w-full h-64 object-cover rounded-lg mb-6"
             />

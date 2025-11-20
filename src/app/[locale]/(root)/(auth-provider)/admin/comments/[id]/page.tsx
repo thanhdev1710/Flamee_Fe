@@ -52,7 +52,7 @@ export default function CommentDetail({
               <Image
                 width={50}
                 height={50}
-                src={comment.avatar || "/placeholder.svg"}
+                src={comment.avatar}
                 alt={comment.author}
                 className="w-12 h-12 rounded-full"
               />

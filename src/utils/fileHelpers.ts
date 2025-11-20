@@ -15,9 +15,8 @@ import {
 export interface FileItem {
   id: string;
   name: string;
-  type: string;
-  url: string;
-  size?: number;
+  mediaType: string;
+  mediaUrl: string;
 }
 
 export function formatFileSize(bytes: number): string {

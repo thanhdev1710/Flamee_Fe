@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
       { hostname: "picsum.photos" },
       { hostname: "placehold.co" },
       { hostname: "cdn-icons-png.flaticon.com" },
+      { hostname: "thanhdevne.s3.us-east-005.backblazeb2.com" },
     ],
     dangerouslyAllowSVG: true,
   },
