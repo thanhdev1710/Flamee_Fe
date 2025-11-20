@@ -2,23 +2,17 @@
 
 import PostCard from "@/components/shared/PostCard/PostCard";
 import useSWRInfinite from "swr/infinite";
-import { useEffect, useMemo, useState } from "react";
-import { useWindowSize } from "react-use";
+import { useEffect } from "react";
 import { PAGE_SIZE } from "@/global/base";
 import SkeletonPostCard from "@/components/shared/PostCard/SkeletonPostCard";
-// import { CONFIG } from "@/global/config";
 import { Post } from "@/types/post.type";
 import { CONFIG } from "@/global/config";
+
 interface SectionPostProps {
   scrollRef: React.RefObject<HTMLDivElement | null>;
 }
 
-const BUFFER = 5; // Số lượng item để giữ thêm mỗi phía
-
 export default function SectionPost({ scrollRef }: SectionPostProps) {
-  const { width } = useWindowSize();
-  const itemHeight = width < 700 ? width : 640;
-
   const { data, setSize, isValidating, error, isLoading, mutate } =
     useSWRInfinite<Post[]>(
       (pageIndex, previousPageData) => {
@@ -43,83 +37,61 @@ export default function SectionPost({ scrollRef }: SectionPostProps) {
   const posts = data ? data.flat() : [];
   const hasMore = data ? data[data.length - 1]?.length === PAGE_SIZE : true;
 
-  const [visibleRange, setVisibleRange] = useState({ start: 0, end: 20 });
-
-  // Handle scroll để cập nhật range hiển thị
+  // Infinite scroll dựa trên scrollRef
   useEffect(() => {
     const container = scrollRef.current;
     if (!container) return;
 
     const onScroll = () => {
-      const scrollTop = container.scrollTop;
-      const containerHeight = container.clientHeight;
+      const { scrollTop, clientHeight, scrollHeight } = container;
+      const distanceToBottom = scrollHeight - (scrollTop + clientHeight);
 
-      const firstVisibleIndex = Math.floor(scrollTop / itemHeight);
-      const visibleCount = Math.ceil(containerHeight / itemHeight);
-
-      const start = Math.max(0, firstVisibleIndex - BUFFER);
-      const end = firstVisibleIndex + visibleCount + BUFFER;
-
-      setVisibleRange({ start, end });
-
-      if (end >= posts.length - 5 && hasMore && !isValidating) {
+      // còn < 400px là load thêm
+      if (distanceToBottom < 400 && hasMore && !isValidating) {
         setSize((s) => s + 1);
       }
     };
 
     container.addEventListener("scroll", onScroll);
-    onScroll(); // initial
-
     return () => container.removeEventListener("scroll", onScroll);
-  }, [scrollRef, posts.length, itemHeight, hasMore, isValidating, setSize]);
-
-  const totalHeight = useMemo(
-    () => posts.length * itemHeight,
-    [posts.length, itemHeight]
-  );
+  }, [scrollRef, hasMore, isValidating, setSize]);
 
   if (error) {
     return (
-      <div className="text-center text-red-600">
+      <div className="text-center text-red-500 py-4">
         Lỗi tải dữ liệu: {error.message}
       </div>
     );
   }
 
-  if (isLoading) {
-    return Array.from({ length: 6 }).map((_, i) => (
-      <SkeletonPostCard key={i} />
-    ));
+  if (isLoading && posts.length === 0) {
+    return (
+      <div className="space-y-3">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <SkeletonPostCard key={i} />
+        ))}
+      </div>
+    );
   }
 
   return (
-    <div
-      style={{
-        height: totalHeight,
-        position: "relative",
-      }}
-    >
-      {posts.length > 0 &&
-        posts.map((post, index) => {
-          if (index < visibleRange.start || index > visibleRange.end)
-            return null;
+    <div className="flex flex-col gap-3">
+      {posts.map((post) => (
+        <PostCard key={post.id} post={post} mutatePost={mutate} />
+      ))}
 
-          return (
-            <div
-              key={post.id}
-              style={{
-                position: "absolute",
-                top: index * itemHeight,
-                left: 0,
-                width: "100%",
-                height: itemHeight,
-                padding: "1rem 0 1rem 0",
-              }}
-            >
-              <PostCard mutatePost={mutate} post={post} />
-            </div>
-          );
-        })}
+      {/* Loading indicator dưới cùng */}
+      {isValidating && (
+        <div className="py-4 text-center text-sm text-muted-foreground">
+          Đang tải thêm...
+        </div>
+      )}
+
+      {!hasMore && posts.length > 0 && (
+        <div className="py-4 text-center text-xs text-muted-foreground">
+          Hết bài viết rồi
+        </div>
+      )}
     </div>
   );
 }
