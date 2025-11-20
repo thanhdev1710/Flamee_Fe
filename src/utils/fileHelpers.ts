@@ -17,6 +17,7 @@ export interface FileItem {
   name: string;
   mediaType: string;
   mediaUrl: string;
+  size?: number;
 }
 
 export function formatFileSize(bytes: number): string {
