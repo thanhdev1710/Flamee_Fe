@@ -15,8 +15,8 @@ import {
 export interface FileItem {
   id: string;
   name: string;
-  type: string;
-  url: string;
+  mediaType: string;
+  mediaUrl: string;
   size?: number;
 }
 

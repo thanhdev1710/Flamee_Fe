@@ -4,6 +4,8 @@ import Image from "next/image";
 
 async function SocialMedia() {
   const t = await getTranslations("HomePage");
+  console.log(t("title"));
+
   return (
     <section className="flex flex-col items-center justify-center py-20 px-4 bg-gradient-to-b from-background to-muted/30">
       <div className="container mx-auto text-center">

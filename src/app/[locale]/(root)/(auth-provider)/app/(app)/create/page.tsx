@@ -16,12 +16,15 @@ import axios from "axios";
 import { CompactFileItem } from "@/components/shared/CompactFileItem";
 import { RichTextEditor } from "@/components/shared/RichTextEditor";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MAX_SIZE } from "@/global/base";
+import { MAX_SIZE, PAGE_SIZE } from "@/global/base";
 import { toast } from "sonner";
 import TagInput from "@/components/shared/TagInput";
 import { Input } from "@/components/ui/input";
 import { createPost } from "@/actions/post.action";
 import { Media, VisibilityEnum } from "@/types/post.type";
+import { useRouter } from "next/navigation";
+import { mutate } from "swr";
+import { CONFIG } from "@/global/config";
 
 interface FileWithProgress {
   id: string;
@@ -48,6 +51,7 @@ interface FileListProps {
 }
 
 export default function CreatePostPage() {
+  const router = useRouter();
   const [files, setFiles] = useState<FileWithProgress[]>([]);
   const [uploading, setUploading] = useState<boolean>(false);
   const [content, setContent] = useState<string>("");
@@ -228,6 +232,12 @@ export default function CreatePostPage() {
     if (err) {
       toast.error(`Đăng bài thất bại: `, err);
     } else {
+      await mutate(
+        `${CONFIG.API.BASE_URL}${
+          CONFIG.API.VERSION
+        }/search/hot?start=${0}&limit=${PAGE_SIZE}`
+      );
+      router.push("/app/feeds");
       toast.success("Đăng bài thành công");
     }
 

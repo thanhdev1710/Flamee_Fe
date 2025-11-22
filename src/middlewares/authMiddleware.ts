@@ -6,7 +6,8 @@ import { routing } from "../i18n/routing";
 
 export default async function authMiddleware(
   request: NextRequest,
-  locale: string
+  locale: string,
+  i18nResponse: NextResponse<unknown>
 ) {
   const { pathname } = request.nextUrl;
 
@@ -29,9 +30,16 @@ export default async function authMiddleware(
   // helper: tránh tự-redirect (đang ở đúng URL rồi thì next)
   const redirectIfChanged = (destPath: string) => {
     const dest = new URL(withLocale(destPath), request.url);
-    if (dest.pathname === pathname) return NextResponse.next();
-    return NextResponse.redirect(dest);
-    // (giữ nguyên search/query hiện tại nếu muốn: dest.search = request.nextUrl.search)
+    if (dest.pathname === pathname) return i18nResponse;
+
+    const res = NextResponse.redirect(dest);
+
+    // GIỮ LẠI TẤT CẢ HEADER CỦA i18nMiddleware
+    for (const [key, value] of i18nResponse.headers) {
+      res.headers.set(key, value);
+    }
+
+    return res;
   };
 
   // Lấy token
@@ -59,7 +67,7 @@ export default async function authMiddleware(
 
   // Bỏ qua verify-email bằng token
   if (!isVerified && isVerifyEmailTokenRoute) {
-    return NextResponse.next();
+    return i18nResponse;
   }
 
   // Nhóm /auth/*
@@ -68,7 +76,7 @@ export default async function authMiddleware(
       // đã đăng nhập → về /app/feeds (theo locale)
       return redirectIfChanged("/app/feeds");
     }
-    return NextResponse.next(); // chưa đăng nhập → vào trang auth bình thường
+    return i18nResponse; // chưa đăng nhập → vào trang auth bình thường
   }
 
   // Trang /auth/verify-email
@@ -79,7 +87,7 @@ export default async function authMiddleware(
     if (!accessTokenValid.status && !refreshTokenValid.status) {
       return redirectIfChanged("/auth/signin");
     }
-    return NextResponse.next();
+    return i18nResponse;
   }
 
   // Các route khác (ví dụ /app/feeds)
@@ -89,7 +97,7 @@ export default async function authMiddleware(
     }
     try {
       const newAccessToken = await refreshAccessToken();
-      const res = NextResponse.next();
+      const res = i18nResponse;
       res.cookies.set(COOKIE.access_token, newAccessToken, {
         httpOnly: true,
         path: "/",
@@ -116,5 +124,5 @@ export default async function authMiddleware(
     return redirectIfChanged("/app/feeds");
   }
 
-  return NextResponse.next();
+  return i18nResponse;
 }

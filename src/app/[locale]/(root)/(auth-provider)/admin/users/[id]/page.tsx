@@ -56,7 +56,7 @@ export default function UserDetail({
               <Image
                 width={50}
                 height={50}
-                src={user.avatar || "/placeholder.svg"}
+                src={user.avatar}
                 alt={user.name}
                 className="w-24 h-24 rounded-full"
               />

@@ -118,13 +118,13 @@ export function FilesModal({
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {images.map((img, index) => (
                       <div
-                        key={img.id ?? img.url ?? index}
+                        key={img.id ?? img.mediaUrl ?? index}
                         className="relative aspect-square rounded-lg overflow-hidden cursor-pointer bg-muted"
-                        onClick={() => setSelectedImage(img.url)}
+                        onClick={() => setSelectedImage(img.mediaUrl)}
                       >
                         <Image
                           fill
-                          src={img.url || "/placeholder.svg"}
+                          src={img.mediaUrl || "/placeholder.svg"}
                           alt={img.name || "Image"}
                           className="object-cover"
                         />
@@ -154,13 +154,13 @@ export function FilesModal({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {videos.map((vid, index) => (
                       <div
-                        key={vid.id ?? vid.url ?? index}
+                        key={vid.id ?? vid.mediaUrl ?? index}
                         className="relative rounded-lg overflow-hidden bg-muted flex items-center gap-3 p-3"
                       >
                         <div className="relative w-20 h-14 rounded-md overflow-hidden bg-black/60 flex items-center justify-center">
-                          {vid.url ? (
+                          {vid.mediaUrl ? (
                             <Image
-                              src={vid.url}
+                              src={vid.mediaUrl}
                               alt={vid.name || "Video"}
                               fill
                               className="object-cover opacity-80"
@@ -185,7 +185,11 @@ export function FilesModal({
                             variant="outline"
                             className="gap-1"
                           >
-                            <a href={vid.url} target="_blank" rel="noreferrer">
+                            <a
+                              href={vid.mediaUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
                               <Eye className="w-4 h-4" />
                               View
                             </a>
@@ -196,7 +200,7 @@ export function FilesModal({
                             variant="ghost"
                             className="p-2"
                           >
-                            <a href={vid.url} download>
+                            <a href={vid.mediaUrl} download>
                               <Download className="w-4 h-4" />
                             </a>
                           </Button>
@@ -215,10 +219,10 @@ export function FilesModal({
               <div className="space-y-3">
                 {hasFiles ? (
                   files.map((file) => {
-                    const Icon = getFileIcon(file.type);
+                    const Icon = getFileIcon(file.mediaType);
                     return (
                       <div
-                        key={file.id ?? file.url}
+                        key={file.id ?? file.mediaUrl}
                         className="flex items-center gap-4 p-4 border rounded-lg hover:bg-muted/50"
                       >
                         <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center text-2xl">
@@ -230,8 +234,7 @@ export function FilesModal({
                           </p>
                           <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
                             <span className="bg-muted px-2 py-1 rounded text-xs">
-                              {file.type?.split("/")[1]?.toUpperCase() ||
-                                "FILE"}
+                              {file.mediaType}
                             </span>
                             {file.size && (
                               <span>{formatFileSize(file.size)}</span>
@@ -245,7 +248,11 @@ export function FilesModal({
                             size="sm"
                             className="gap-1"
                           >
-                            <a href={file.url} target="_blank" rel="noreferrer">
+                            <a
+                              href={file.mediaUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
                               <Eye className="w-4 h-4" />
                               View
                             </a>
@@ -256,7 +263,7 @@ export function FilesModal({
                             size="sm"
                             className="p-2"
                           >
-                            <a href={file.url} download>
+                            <a href={file.mediaUrl} download>
                               <Download className="w-4 h-4" />
                             </a>
                           </Button>

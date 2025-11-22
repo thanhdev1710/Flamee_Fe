@@ -1,5 +1,12 @@
 import { z } from "zod";
 
+export interface SearchUsername {
+  user_id: string;
+  username: string;
+  avatar_url: string;
+  isFollowed: boolean;
+}
+
 export const createUserSchema = z.object({
   username: z
     .string()
