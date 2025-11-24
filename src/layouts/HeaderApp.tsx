@@ -31,9 +31,7 @@ export default function HeaderApp() {
   const { setIsSidebarOpen } = useMenuStore();
   const { data: profile, isLoading } = useProfile();
 
-  const avatarSrc =
-    profile?.avatar_url ||
-    "https://placehold.co/600x400/6366f1/ffffff?text=Avatar";
+  const avatarSrc = profile?.avatar_url || "";
   const fullName = profile
     ? `${profile.lastName || ""} ${profile.firstName || ""}`.trim()
     : "Đang tải...";
@@ -100,16 +98,16 @@ export default function HeaderApp() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="flex items-center gap-2 sm:gap-3 hover:bg-slate-700 transition-colors"
+                className="flex items-center gap-2 sm:gap-3 cursor-pointer"
               >
-                <Avatar className="h-9 w-9 border-2 border-blue-400 cursor-pointer">
+                <Avatar className="h-9 w-9 border-2 border-blue-400 flex items-center justify-center rounded-full overflow-hidden">
                   <AvatarImage
-                    src={avatarSrc || "/placeholder.svg"}
+                    src={avatarSrc}
                     alt={profile?.username || "user avatar"}
                     className="object-cover"
                   />
-                  <AvatarFallback className="bg-gradient-to-br from-blue-500 to-cyan-500 text-white font-bold">
-                    {profile?.username?.charAt(0)?.toUpperCase() || "?"}
+                  <AvatarFallback>
+                    {profile?.lastName?.charAt(0)?.toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
 

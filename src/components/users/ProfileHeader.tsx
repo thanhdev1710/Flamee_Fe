@@ -13,9 +13,14 @@ import type { GetFriendSuggestionsResult } from "@/types/follow.type";
 type Props = {
   profile?: CreateUserType;
   friend?: GetFriendSuggestionsResult;
+  notMe?: boolean;
 };
 
-export default function ProfileHeader({ profile, friend }: Props) {
+export default function ProfileHeader({
+  profile,
+  friend,
+  notMe = false,
+}: Props) {
   const fullName = `${profile?.lastName ?? ""} ${
     profile?.firstName ?? ""
   }`.trim();
@@ -92,14 +97,15 @@ export default function ProfileHeader({ profile, friend }: Props) {
             </div>
           </div>
 
-          {/* Nút Edit profile */}
-          <Button
-            asChild
-            variant="outline"
-            className="rounded-full px-4 py-2 text-sm font-medium border-border hover:border-purple-500 hover:text-purple-600 dark:hover:text-purple-300 hover:shadow-md transition-all"
-          >
-            <Link href="/app/users/edit">Edit profile</Link>
-          </Button>
+          {!notMe && (
+            <Button
+              asChild
+              variant="outline"
+              className="rounded-full px-4 py-2 text-sm font-medium border-border hover:border-purple-500 hover:text-purple-600 dark:hover:text-purple-300 hover:shadow-md transition-all"
+            >
+              <Link href="/app/users/edit">Edit profile</Link>
+            </Button>
+          )}
         </div>
       </div>
     </Card>

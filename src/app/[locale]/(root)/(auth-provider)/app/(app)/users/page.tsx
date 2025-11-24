@@ -9,8 +9,22 @@ import { getMyProfiles } from "@/services/user.service";
 import { getFriendSuggestions } from "@/services/follow.service";
 
 export default function UserPage() {
-  const { data: profile } = useSWR("my-profile", getMyProfiles);
-  const { data: friend } = useSWR("invitationUsers", getFriendSuggestions);
+  const { data: profile, isLoading: isLoadingProfile } = useSWR(
+    "my-profile",
+    getMyProfiles
+  );
+  const { data: friend, isLoading: isLoadingFriend } = useSWR(
+    "invitationUsers",
+    getFriendSuggestions
+  );
+
+  if (isLoadingFriend || isLoadingProfile) {
+    return (
+      <div className="flex justify-center items-center py-10">
+        <div className="h-6 w-6 border-4 border-gray-300 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <ScrollArea className="h-full">

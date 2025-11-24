@@ -9,9 +9,10 @@ import { mutate } from "swr";
 
 type Props = {
   friend?: GetFriendSuggestionsResult;
+  notMe?: boolean;
 };
 
-export default function YouMightKnow({ friend }: Props) {
+export default function YouMightKnow({ friend, notMe = false }: Props) {
   const suggestions = friend?.suggestions ?? [];
 
   const handleFollow = (user_id: string) => {
@@ -31,6 +32,10 @@ export default function YouMightKnow({ friend }: Props) {
       richColors: true,
     });
   };
+
+  if (notMe) {
+    return null;
+  }
 
   return (
     <Card className="shadow-lg border-0 bg-gradient-to-br from-background via-background to-muted/20 backdrop-blur-sm">
@@ -55,6 +60,7 @@ export default function YouMightKnow({ friend }: Props) {
           <div className="space-y-3">
             {suggestions.map((item) => (
               <FriendRow
+                key={item.user_id}
                 item={item}
                 variant="suggest"
                 onAction={handleFollow}

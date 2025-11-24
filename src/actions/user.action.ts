@@ -28,6 +28,32 @@ export async function createProfile(profile: CreateUserType) {
   });
 }
 
+export async function updateProfile(profile: CreateUserType) {
+  return await withErrorHandler(async () => {
+    const res = await fetch(
+      `${CONFIG.API.BASE_URL}${CONFIG.API.VERSION}/profiles`,
+      {
+        method: "PUT",
+        headers: {
+          "X-API-KEY": CONFIG.API.X_API_KEY,
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(profile),
+      }
+    );
+
+    // ❌ Lỗi từ server → trả message để client xử lý
+    if (!res.ok) {
+      const error = await res.json();
+      return error.message || "Sửa hồ sơ thất bại";
+    }
+
+    // ✔ Thành công → trả null
+    return null;
+  });
+}
+
 export async function confirmCard(image: File): Promise<CardStudent> {
   try {
     const formData = new FormData();

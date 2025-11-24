@@ -4,10 +4,12 @@ import { CreateUserType } from "@/types/user.type";
 
 export default function AboutCard({
   profile,
+  notMe = false,
 }: {
   profile: CreateUserType | undefined;
+  notMe?: boolean;
 }) {
-  console.log(profile);
+  console.log(notMe);
 
   const formattedDob = profile?.dob
     ? new Date(profile.dob).toLocaleDateString("vi-VN", {

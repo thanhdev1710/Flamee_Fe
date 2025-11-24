@@ -8,6 +8,7 @@ export interface SearchUsername {
 }
 
 export const createUserSchema = z.object({
+  user_id: z.string().optional(),
   username: z
     .string()
     .min(3, "Username phải có ít nhất 3 ký tự")

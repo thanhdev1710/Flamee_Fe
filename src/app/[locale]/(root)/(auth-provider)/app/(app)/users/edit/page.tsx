@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -35,6 +36,7 @@ import {
 import CropImage from "@/components/shared/CropImage";
 import { getMyProfiles } from "@/services/user.service";
 import useSWR from "swr";
+import { updateProfile } from "@/actions/user.action";
 
 export default function EditProfilePage() {
   const { data: profile } = useSWR("my-profile", getMyProfiles);
@@ -71,8 +73,10 @@ export default function EditProfilePage() {
 
   const onSubmit: SubmitHandler<CreateUserType> = (values) => {
     const promise = (async () => {
-      console.log("submit profile", values);
-      await new Promise((r) => setTimeout(r, 800));
+      const err = await updateProfile(values);
+      if (err) {
+        throw err;
+      }
       return true;
     })();
 
@@ -86,7 +90,6 @@ export default function EditProfilePage() {
   useEffect(() => {
     if (!profile) return;
 
-    // Nếu API trả dob là string thì convert về Date cho khớp CreateUserType
     const safeProfile: CreateUserType = {
       ...profile,
       username: profile.username.replace("@", ""),
@@ -112,15 +115,6 @@ export default function EditProfilePage() {
               Cập nhật thông tin cá nhân, học tập và giới thiệu bản thân.
             </p>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            type="button"
-            className="rounded-full border border-slate-800/60 bg-slate-900/40 hover:bg-slate-800/80 text-xs"
-            onClick={() => form.reset()}
-          >
-            Đặt lại
-          </Button>
         </div>
 
         <Card className="border-0 shadow-xl bg-gradient-to-br from-background via-background to-muted/20 backdrop-blur">
@@ -223,7 +217,7 @@ export default function EditProfilePage() {
 
                   {/* RIGHT: username + email */}
                   <div className="flex-1 space-y-4">
-                    <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-4">
                       <FormField
                         control={form.control}
                         name="username"
@@ -287,11 +281,7 @@ export default function EditProfilePage() {
                         <FormItem>
                           <FormLabel>Họ</FormLabel>
                           <FormControl>
-                            <Input
-                              {...field}
-                              placeholder="Nguyễn"
-                              className="bg-slate-950/40 border-slate-800"
-                            />
+                            <Input {...field} placeholder="Nguyễn" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -304,11 +294,7 @@ export default function EditProfilePage() {
                         <FormItem>
                           <FormLabel>Tên</FormLabel>
                           <FormControl>
-                            <Input
-                              {...field}
-                              placeholder="Văn A"
-                              className="bg-slate-950/40 border-slate-800"
-                            />
+                            <Input {...field} placeholder="Văn A" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -324,11 +310,7 @@ export default function EditProfilePage() {
                         <FormItem>
                           <FormLabel>Số điện thoại</FormLabel>
                           <FormControl>
-                            <Input
-                              {...field}
-                              placeholder="09xx xxx xxx"
-                              className="bg-slate-950/40 border-slate-800"
-                            />
+                            <Input {...field} placeholder="09xx xxx xxx" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -344,7 +326,6 @@ export default function EditProfilePage() {
                             <Input
                               {...field}
                               placeholder="Quận, Thành phố..."
-                              className="bg-slate-950/40 border-slate-800"
                             />
                           </FormControl>
                           <FormMessage />
@@ -375,7 +356,6 @@ export default function EditProfilePage() {
                                     : new Date("2000-01-01")
                                 )
                               }
-                              className="bg-slate-950/40 border-slate-800"
                             />
                           </FormControl>
                           <FormMessage />
@@ -394,7 +374,7 @@ export default function EditProfilePage() {
                               value={field.value}
                               onValueChange={field.onChange}
                             >
-                              <SelectTrigger className="bg-slate-950/40 border-slate-800">
+                              <SelectTrigger>
                                 <SelectValue placeholder="Chọn giới tính" />
                               </SelectTrigger>
                               <SelectContent>
@@ -428,11 +408,7 @@ export default function EditProfilePage() {
                         <FormItem>
                           <FormLabel>MSSV</FormLabel>
                           <FormControl>
-                            <Input
-                              {...field}
-                              placeholder="10 chữ số"
-                              className="bg-slate-950/40 border-slate-800"
-                            />
+                            <Input {...field} placeholder="10 chữ số" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -445,11 +421,7 @@ export default function EditProfilePage() {
                         <FormItem>
                           <FormLabel>Khóa học</FormLabel>
                           <FormControl>
-                            <Input
-                              {...field}
-                              placeholder="2022-2026"
-                              className="bg-slate-950/40 border-slate-800"
-                            />
+                            <Input {...field} placeholder="2022-2026" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -465,7 +437,6 @@ export default function EditProfilePage() {
                             <Input
                               {...field}
                               placeholder="Logistics, CNTT..."
-                              className="bg-slate-950/40 border-slate-800"
                             />
                           </FormControl>
                           <FormMessage />
@@ -495,7 +466,6 @@ export default function EditProfilePage() {
                             {...field}
                             rows={4}
                             placeholder="Viết vài dòng về bản thân, mục tiêu, dự định..."
-                            className="bg-slate-950/40 border-slate-800 resize-none"
                           />
                         </FormControl>
                         <FormMessage />
@@ -508,7 +478,7 @@ export default function EditProfilePage() {
                 <div className="flex items-center justify-between pt-2 gap-3">
                   <Link
                     href="/app/users"
-                    className="inline-flex items-center text-xs text-muted-foreground hover:text-foreground"
+                    className="inline-flex items-center max-sm:flex-col max-sm:text-center text-xs text-muted-foreground hover:text-foreground"
                   >
                     <User className="w-4 h-4 mr-1" />
                     Xem trang cá nhân
@@ -525,7 +495,7 @@ export default function EditProfilePage() {
                     </Button>
                     <Button
                       type="submit"
-                      className="rounded-full bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-xs font-medium shadow-md hover:opacity-90"
+                      className="rounded-full bg-gradient-to-r text-white from-blue-600 via-purple-600 to-pink-600 text-xs font-medium shadow-md hover:opacity-90"
                     >
                       Lưu hồ sơ
                     </Button>

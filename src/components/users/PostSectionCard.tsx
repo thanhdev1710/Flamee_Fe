@@ -10,9 +10,10 @@ import { mutate } from "swr";
 
 type Props = {
   friend?: GetFriendSuggestionsResult;
+  notMe?: boolean;
 };
 
-export default function PostSectionCard({ friend }: Props) {
+export default function PostSectionCard({ friend, notMe = false }: Props) {
   // Nếu chưa có dữ liệu thì coi như mảng rỗng
   const mutualFriends = friend?.mutualFriends ?? [];
   const followersOnly = friend?.followers ?? [];
@@ -44,6 +45,8 @@ export default function PostSectionCard({ friend }: Props) {
       richColors: true,
     });
   };
+
+  console.log(notMe);
 
   return (
     <Card className="shadow-lg py-0 overflow-hidden border-0 bg-gradient-to-br from-background via-background to-muted/20 backdrop-blur-sm rounded-t-none">

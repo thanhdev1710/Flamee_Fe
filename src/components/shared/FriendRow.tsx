@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ProfileSummary } from "@/types/follow.type";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 type FriendRowProps = {
   item: ProfileSummary;
@@ -17,7 +18,7 @@ export default function FriendRow({
   onAction,
 }: FriendRowProps) {
   const fullName = `${item.lastName ?? ""} ${item.firstName ?? ""}`.trim();
-  const displayName = fullName || item.username || "Người dùng";
+  const displayName = item.username || fullName;
 
   // Nút theo variant
   const buttonLabel = {
@@ -43,29 +44,40 @@ export default function FriendRow({
       <Avatar className="h-11 w-11 ring-2 ring-transparent group-hover:ring-primary/30 transition-all duration-300 shadow-sm">
         <AvatarImage src={item.avatar_url || ""} alt={displayName} />
         <AvatarFallback className="bg-gradient-to-br from-violet-500 to-purple-700 text-white font-semibold">
-          {displayName.charAt(0)?.toUpperCase()}
+          {displayName.charAt(1)?.toUpperCase()}
         </AvatarFallback>
       </Avatar>
 
       <div className="flex-1 min-w-0">
         <p className="font-medium text-sm truncate text-foreground">
-          {displayName}
+          {fullName}
         </p>
-        <p className="text-xs truncate text-muted-foreground">
-          {item.bio || "Chưa có mô tả"}
-        </p>
+        <p className="text-xs truncate text-muted-foreground">{displayName}</p>
       </div>
 
-      <Button
-        size="sm"
-        className={cn(
-          "text-xs rounded-lg px-3 py-1 transition-all shadow-sm",
-          buttonStyle
-        )}
-        onClick={() => onAction?.(item.user_id)}
-      >
-        {buttonLabel}
-      </Button>
+      {variant === "mutual" ? (
+        <Button
+          size="sm"
+          className={cn(
+            "text-xs rounded-lg px-3 py-1 transition-all shadow-sm",
+            buttonStyle
+          )}
+          asChild
+        >
+          <Link href={`/app/users/${item.username}`}>{buttonLabel}</Link>
+        </Button>
+      ) : (
+        <Button
+          size="sm"
+          className={cn(
+            "text-xs rounded-lg px-3 py-1 transition-all shadow-sm",
+            buttonStyle
+          )}
+          onClick={() => onAction?.(item.user_id)}
+        >
+          {buttonLabel}
+        </Button>
+      )}
     </div>
   );
 }

@@ -61,12 +61,12 @@ export default function MessagesPage() {
 
   if (!conversationId) {
     return (
-      <div className="flex h-screen overflow-hidden bg-white dark:bg-slate-950">
+      <div className="flex h-screen overflow-hidden bg-slate-950">
         {/* Sidebar Trái */}
         <AsideMessageApp currentUserId={userId} />
 
         {/* Khu vực chính hiển thị hướng dẫn chọn đoạn chat */}
-        <div className="flex-1 min-w-0 flex items-center justify-center border-l border-slate-200 dark:border-slate-800">
+        <div className="flex-1 min-w-0 flex items-center justify-center border-l border-slate-800">
           <div className="max-w-md text-center">
             <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
               Chọn một đoạn hội thoại
