@@ -131,30 +131,30 @@ export default function HeaderApp() {
               {/* Profile Section */}
               <DropdownMenuItem asChild className="hover:bg-slate-700">
                 <Link href="/app/users" className="flex items-center gap-2">
-                  <User className="h-4 w-4 text-blue-400" />
+                  <User className="h-4 w-4" />
                   <span>Trang cá nhân</span>
                 </Link>
               </DropdownMenuItem>
 
               <DropdownMenuItem asChild className="hover:bg-slate-700">
                 <Link
-                  href="/app/profile/edit"
+                  href="/app/users/edit"
                   className="flex items-center gap-2"
                 >
-                  <Settings className="h-4 w-4 text-slate-400" />
+                  <Settings className="h-4 w-4" />
                   <span>Chỉnh sửa thông tin</span>
                 </Link>
               </DropdownMenuItem>
-
+              {/* 
               <DropdownMenuSeparator className="bg-slate-700" />
 
-              {/* Account Settings Section */}
               <DropdownMenuItem asChild className="hover:bg-slate-700">
                 <Link href="/settings" className="flex items-center gap-2">
                   <Settings className="h-4 w-4 text-slate-400" />
                   <span>Cài đặt tài khoản</span>
                 </Link>
-              </DropdownMenuItem>
+              </DropdownMenuItem> 
+              */}
 
               <DropdownMenuSeparator className="bg-slate-700" />
 

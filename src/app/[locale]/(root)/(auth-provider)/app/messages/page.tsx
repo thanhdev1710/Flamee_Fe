@@ -17,9 +17,6 @@ async function getMe() {
   }
 }
 
-// SWR fetcher
-const fetcher = (url: string) => fetch(url).then((r) => r.json());
-
 export default function MessagesPage() {
   const searchParams = useSearchParams();
   const conversationId = searchParams.get("conv") || "";
@@ -106,4 +103,3 @@ export default function MessagesPage() {
     </div>
   );
 }
-import { formatLastSeen } from "@/utils/time";

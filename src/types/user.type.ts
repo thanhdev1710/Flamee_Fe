@@ -16,6 +16,8 @@ export const createUserSchema = z.object({
       /^(?!.*[_.]{2})(?![_.])[a-zA-Z0-9._]+(?<![_.])$/,
       "Username chỉ được chứa chữ cái, số, dấu _ và ., không được bắt đầu/kết thúc bằng _ hoặc ., và không có dấu liên tiếp"
     ),
+
+  email: z.string().optional(),
   firstName: z
     .string()
     .min(2, "Tên phải có ít nhất 2 ký tự")
