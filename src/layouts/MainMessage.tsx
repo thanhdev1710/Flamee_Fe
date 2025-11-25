@@ -24,6 +24,7 @@ import {
   X,
   CheckCheck,
   Pencil,
+  Menu,
 } from "lucide-react";
 import { formatLastSeen, formatMessageTime } from "@/utils/time";
 import { toast } from "sonner";
@@ -86,6 +87,8 @@ type Props = {
   socketUrl: string;
   conversationId: string;
   userId: string;
+  setIsShow: React.Dispatch<React.SetStateAction<boolean>>;
+  isShow: boolean;
 };
 
 const TypingBubble = () => (
@@ -134,6 +137,8 @@ export default function MainMessage({
   socketUrl,
   conversationId,
   userId,
+  isShow,
+  setIsShow,
 }: Props) {
   // [CẤU HÌNH] API Base riêng cho Video Call
   const videoApiBase =
@@ -705,11 +710,16 @@ export default function MainMessage({
     : conversation?.members?.find((m) => String(m.user_id) !== String(userId))
         ?.user?.username || "Đối tác";
 
+  console.log(isShow, setIsShow);
+
   return (
     <div className="flex flex-col h-full bg-gradient-to-b from-[#050816] via-[#020617] to-[#000000] text-slate-50">
       {/* HEADER */}
       <div className="h-16 border-b border-slate-800 px-4 flex items-center justify-between bg-gradient-to-r from-slate-900 via-slate-900 to-slate-800 z-10">
         <div className="flex items-center gap-3">
+          <div>
+            <Menu onClick={() => setIsShow(true)} className="block md:hidden" />
+          </div>
           <div className="relative">
             <Avatar className="h-10 w-10 shadow-sm">
               <AvatarImage src="" />

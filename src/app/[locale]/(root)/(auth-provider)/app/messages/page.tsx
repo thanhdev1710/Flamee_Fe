@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import useSWR from "swr";
 import AsideMessageApp from "@/layouts/AsideMessageApp";
@@ -18,6 +18,7 @@ async function getMe() {
 }
 
 export default function MessagesPage() {
+  const [isShow, setIsShow] = useState(false);
   const searchParams = useSearchParams();
   const conversationId = searchParams.get("conv") || "";
 
@@ -63,7 +64,11 @@ export default function MessagesPage() {
     return (
       <div className="flex h-screen overflow-hidden bg-slate-950">
         {/* Sidebar Trái */}
-        <AsideMessageApp currentUserId={userId} />
+        <AsideMessageApp
+          isShow={isShow}
+          setIsShow={setIsShow}
+          currentUserId={userId}
+        />
 
         {/* Khu vực chính hiển thị hướng dẫn chọn đoạn chat */}
         <div className="flex-1 min-w-0 flex items-center justify-center border-l border-slate-800">
@@ -86,7 +91,11 @@ export default function MessagesPage() {
   return (
     <div className="flex h-screen overflow-hidden bg-white dark:bg-slate-950">
       {/* Sidebar Trái */}
-      <AsideMessageApp currentUserId={userId} />
+      <AsideMessageApp
+        isShow={isShow}
+        setIsShow={setIsShow}
+        currentUserId={userId}
+      />
 
       {/* Chat Chính */}
       <main className="flex-1 min-w-0 border-r border-slate-200 dark:border-slate-800">
@@ -95,6 +104,8 @@ export default function MessagesPage() {
           socketUrl={socketUrl}
           conversationId={conversationId}
           userId={userId}
+          isShow={isShow}
+          setIsShow={setIsShow}
         />
       </main>
 

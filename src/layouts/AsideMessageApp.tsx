@@ -43,6 +43,8 @@ import Link from "next/link";
 
 type AsideMessageAppProps = {
   currentUserId: string;
+  setIsShow: React.Dispatch<React.SetStateAction<boolean>>;
+  isShow: boolean;
 };
 
 type UserSummary = {
@@ -86,6 +88,8 @@ type FriendSuggestionsResponse = {
 
 export default function AsideMessageAppEnhanced({
   currentUserId,
+  isShow,
+  setIsShow,
 }: AsideMessageAppProps) {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [userStatus, setUserStatus] = useState<Record<string, UserPresence>>(
@@ -302,7 +306,17 @@ export default function AsideMessageAppEnhanced({
 
   return (
     <>
-      <aside className="hidden md:flex w-80 flex-col bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 border-r border-slate-800 h-full shadow-xl">
+      {isShow && (
+        <div
+          onClick={() => setIsShow(false)}
+          className="absolute top-0 left-0 inset-0 z-20 bg-slate-950/70"
+        ></div>
+      )}
+      <aside
+        className={`flex w-80 flex-col bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 border-r border-slate-800 h-full shadow-xl max-md:absolute top-0 z-30 transition-all ease-in-out duration-300 ${
+          isShow ? "left-0" : "-left-full"
+        }`}
+      >
         {/* Header */}
         <div className="h-16 px-4 flex items-center justify-between border-b border-slate-800 bg-gradient-to-r from-blue-600/20 via-slate-900 to-slate-900 backdrop-blur-sm">
           <div className="font-semibold flex items-center gap-2 text-slate-100">
