@@ -1,6 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 "use client";
 
-import React, { useEffect, useState, useRef, useMemo } from "react";
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  useMemo,
+  useCallback,
+} from "react";
 import axios from "axios";
 import { Socket } from "socket.io-client";
 import { cn } from "@/lib/utils";
@@ -14,9 +22,9 @@ import {
   Trash2,
   Reply,
   X,
-  Check,
   CheckCheck,
   Pencil,
+  Menu,
 } from "lucide-react";
 import { formatLastSeen, formatMessageTime } from "@/utils/time";
 import { toast } from "sonner";
@@ -33,19 +41,54 @@ import {
 type ChatMessage = {
   id: string;
   conversationId: string;
-  senderId: string;
-  sender_id: string;
+  senderId: string | number;
+  sender_id: string | number;
   message: string;
   status: "show" | "recall";
   createdAt: string;
   readBy?: { userId: string; read_at: string | null }[];
   sender?: {
-    id: string;
+    id: string | number;
     username: string;
     fullname: string;
     avatarUrl: string;
   };
   replyTo?: { id: string; message: string; sender: { username: string } };
+};
+
+type PartnerStatus = {
+  isOnline: boolean;
+  lastSeen: string | null;
+};
+
+type ConversationUser = {
+  id: string | number;
+  username?: string;
+  fullname?: string;
+  avatarUrl?: string;
+  is_online?: boolean;
+  last_seen?: string | null;
+};
+
+type ConversationMember = {
+  user_id: string | number;
+  user?: ConversationUser;
+};
+
+type Conversation = {
+  id: string;
+  is_group: boolean;
+  name?: string | null;
+  members?: ConversationMember[];
+};
+
+type Props = {
+  apiBase: string;
+  socketUrl: string;
+  conversationId: string;
+  userId: string;
+  setIsShow: React.Dispatch<React.SetStateAction<boolean>>;
+  isShow: boolean;
 };
 
 const TypingBubble = () => (
@@ -56,11 +99,37 @@ const TypingBubble = () => (
   </div>
 );
 
-type Props = {
-  apiBase: string;
-  socketUrl: string;
-  conversationId: string;
-  userId: string;
+// Skeleton khi đang tải tin nhắn lần đầu
+const MessageSkeletonList = ({ count = 4 }: { count?: number }) => {
+  return (
+    <div className="flex flex-col gap-3">
+      {Array.from({ length: count }).map((_, idx) => (
+        <div
+          key={idx}
+          className={cn(
+            "flex w-full gap-2",
+            idx % 2 === 0 ? "justify-start" : "justify-end"
+          )}
+        >
+          {idx % 2 === 0 && (
+            <div className="h-7 w-7 rounded-full bg-slate-800 animate-pulse mt-2" />
+          )}
+          <div
+            className={cn(
+              "max-w-[70%] flex flex-col gap-1",
+              idx % 2 !== 0 ? "items-end" : "items-start"
+            )}
+          >
+            <div className="px-4 py-3 rounded-2xl bg-slate-800/70 animate-pulse w-40 sm:w-56" />
+            <div className="h-2 w-10 bg-slate-800/60 rounded-full animate-pulse" />
+          </div>
+          {idx % 2 !== 0 && (
+            <div className="h-7 w-7 rounded-full bg-slate-800 animate-pulse mt-2" />
+          )}
+        </div>
+      ))}
+    </div>
+  );
 };
 
 export default function MainMessage({
@@ -68,6 +137,8 @@ export default function MainMessage({
   socketUrl,
   conversationId,
   userId,
+  isShow,
+  setIsShow,
 }: Props) {
   // [CẤU HÌNH] API Base riêng cho Video Call
   const videoApiBase =
@@ -78,11 +149,14 @@ export default function MainMessage({
 
   // State Chat
   const [isPartnerTyping, setIsPartnerTyping] = useState(false);
-  const [partnerStatus, setPartnerStatus] = useState<any>({
+  const [partnerStatus, setPartnerStatus] = useState<PartnerStatus>({
     isOnline: false,
     lastSeen: null,
   });
-  const [conversation, setConversation] = useState<any>(null);
+  const [conversation, setConversation] = useState<Conversation | null>(null);
+
+  // Loading state
+  const [initialLoading, setInitialLoading] = useState(true);
 
   // Đổi tên nhóm
   const [isRenameOpen, setIsRenameOpen] = useState(false);
@@ -100,10 +174,6 @@ export default function MainMessage({
   );
   const [replyingTo, setReplyingTo] = useState<ChatMessage | null>(null);
 
-  // State Video Call
-  const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
-  const [activeRoomCode, setActiveRoomCode] = useState<string>("");
-
   // Refs
   const socketRef = useRef<Socket | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -112,7 +182,26 @@ export default function MainMessage({
   const sendTypingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const receiveTypingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastTypingEmit = useRef<number>(0);
+
   const { locale } = useParams();
+
+  const openVideoCallWindow = useCallback(
+    (roomCode: string) => {
+      const width = 1000;
+      const height = 700;
+      const left = (window.screen.width - width) / 2;
+      const top = (window.screen.height - height) / 2;
+
+      const url = `/${locale}/app/video-call/${roomCode}?userId=${userId}`;
+
+      window.open(
+        url,
+        `VideoCall_${roomCode}`,
+        `width=${width},height=${height},top=${top},left=${left},resizable=yes,scrollbars=no,status=no`
+      );
+    },
+    [locale, userId]
+  );
 
   const lastReadMessageId = useMemo(() => {
     const mine = messages.filter(
@@ -123,21 +212,6 @@ export default function MainMessage({
     );
     return readOnes.length ? readOnes[readOnes.length - 1].id : null;
   }, [messages, userId]);
-
-  const openVideoCallWindow = (roomCode: string) => {
-    const width = 1000;
-    const height = 700;
-    const left = (window.screen.width - width) / 2;
-    const top = (window.screen.height - height) / 2;
-
-    const url = `/${locale}/app/video-call/${roomCode}?userId=${userId}`;
-
-    window.open(
-      url,
-      `VideoCall_${roomCode}`,
-      `width=${width},height=${height},top=${top},left=${left},resizable=yes,scrollbars=no,status=no`
-    );
-  };
 
   // Reset states khi đổi conversation
   useEffect(() => {
@@ -159,7 +233,6 @@ export default function MainMessage({
 
     socket.emit("join-room", conversationId);
 
-    // --- HANDLERS ---
     const handleNewMessage = (msg: any) => {
       if (msg.conversation_id !== conversationId) return;
       setIsPartnerTyping(false);
@@ -224,7 +297,7 @@ export default function MainMessage({
         prev.map((m) => {
           if (!messageIds.includes(m.id)) return m;
           const exists = m.readBy?.some(
-            (r: any) => String(r.userId) === String(readerId)
+            (r) => String(r.userId) === String(readerId)
           );
           if (exists) return m;
           return {
@@ -255,11 +328,17 @@ export default function MainMessage({
       }
     };
 
-    const handleUserPresence = ({ userId: uid, isOnline, lastSeen }: any) => {
+    const handleUserPresence = ({
+      userId: uid,
+      isOnline,
+      lastSeen,
+    }: {
+      userId: string;
+      isOnline: boolean;
+      lastSeen: string | null;
+    }) => {
       if (conversation && !conversation.is_group) {
-        const partner = conversation.members?.find(
-          (m: any) => m.user_id === uid
-        );
+        const partner = conversation.members?.find((m) => m.user_id === uid);
         if (partner) {
           setPartnerStatus({ isOnline, lastSeen });
         }
@@ -312,13 +391,14 @@ export default function MainMessage({
       );
     };
 
-    const handleConversationUpdated = (d: any) => {
+    const handleConversationUpdated = (d: {
+      conversationId: string;
+      newName?: string;
+    }) => {
       if (d.conversationId !== conversationId) return;
       if (!d.newName) return;
 
-      setConversation((prev: any) =>
-        prev ? { ...prev, name: d.newName } : prev
-      );
+      setConversation((prev) => (prev ? { ...prev, name: d.newName } : prev));
     };
 
     socket.on("conversation-updated", handleConversationUpdated);
@@ -339,7 +419,7 @@ export default function MainMessage({
       socket.off("incoming-call", handleIncomingCall);
       socket.off("conversation-updated", handleConversationUpdated);
     };
-  }, [conversationId, userId, socketUrl, conversation]);
+  }, [conversationId, userId, socketUrl, conversation, openVideoCallWindow]);
 
   // =========================
   // FETCH DATA & SCROLL
@@ -348,24 +428,25 @@ export default function MainMessage({
     if (!userId || !conversationId) return;
 
     const fetchData = async () => {
+      setInitialLoading(true);
       try {
         const resC = await axios.get(
           `${apiBase}/conversations?user_id=${userId}`
         );
-        const list = Array.isArray(resC.data)
-          ? resC.data
-          : resC.data.data || [];
-        const current = list.find((c: any) => c.id === conversationId);
+        const listRaw =
+          (Array.isArray(resC.data) ? resC.data : resC.data.data) || [];
+        const list = listRaw as Conversation[];
+        const current = list.find((c) => c.id === conversationId) || null;
         setConversation(current);
 
         if (current && !current.is_group) {
           const other = current.members?.find(
-            (m: any) => String(m.user_id) !== String(userId)
+            (m) => String(m.user_id) !== String(userId)
           );
           if (other?.user) {
             setPartnerStatus({
-              isOnline: other.user.is_online,
-              lastSeen: other.user.last_seen,
+              isOnline: Boolean(other.user.is_online),
+              lastSeen: other.user.last_seen ?? null,
             });
           }
         }
@@ -399,6 +480,8 @@ export default function MainMessage({
         }
       } catch (e) {
         console.error(e);
+      } finally {
+        setInitialLoading(false);
       }
     };
     fetchData();
@@ -418,7 +501,7 @@ export default function MainMessage({
         const sender = String(m.senderId || m.sender_id);
         return (
           sender !== String(userId) &&
-          !m.readBy?.some((r: any) => String(r.userId) === String(userId))
+          !m.readBy?.some((r) => String(r.userId) === String(userId))
         );
       })
       .map((m) => m.id);
@@ -436,14 +519,12 @@ export default function MainMessage({
   // ACTIONS
   // =========================
 
-  // Mở popup đổi tên nhóm
   const handleOpenRename = () => {
     if (!conversation?.is_group) return;
     setNewGroupName(conversation.name || "");
     setIsRenameOpen(true);
   };
 
-  // Gửi request đổi tên nhóm
   const handleRenameGroup = async () => {
     if (!conversation?.is_group) return;
 
@@ -470,17 +551,14 @@ export default function MainMessage({
 
       const serverName = res.data?.newName ?? trimmed;
 
-      // Cập nhật header trong đoạn chat ngay lập tức
-      setConversation((prev: any) =>
-        prev ? { ...prev, name: serverName } : prev
-      );
+      setConversation((prev) => (prev ? { ...prev, name: serverName } : prev));
 
       toast.success("Đổi tên nhóm thành công");
       setIsRenameOpen(false);
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
       toast.error(
-        err?.response?.data?.message ||
+        (err as any)?.response?.data?.message ||
           "Đổi tên nhóm thất bại, vui lòng thử lại"
       );
     } finally {
@@ -500,7 +578,7 @@ export default function MainMessage({
         const code = res.data.room?.room_code || res.data.roomCode;
         openVideoCallWindow(code);
       }
-    } catch (e) {
+    } catch {
       toast.error("Lỗi tạo cuộc gọi");
     }
   };
@@ -531,7 +609,7 @@ export default function MainMessage({
       setMessages((prev) => [...shaped.reverse(), ...prev]);
       if (shaped.length < 20) setHasMore(false);
       if (shaped.length > 0) setOldestCursor(shaped[0].createdAt);
-    } catch (e) {
+    } catch {
       toast.error("Lỗi tải tin nhắn cũ");
     } finally {
       setLoadingMore(false);
@@ -586,7 +664,7 @@ export default function MainMessage({
           return [...prev, shaped];
         });
       }
-    } catch (e) {
+    } catch {
       toast.error("Gửi tin nhắn thất bại");
     }
   };
@@ -622,22 +700,26 @@ export default function MainMessage({
         { headers: { "x-user-id": userId } }
       );
       setDeletingMessage(null);
-    } catch (e) {
+    } catch {
       toast.error("Thu hồi tin nhắn thất bại");
     }
   };
 
   const title = conversation?.is_group
     ? conversation.name || "Nhóm"
-    : conversation?.members?.find(
-        (m: any) => String(m.user_id) !== String(userId)
-      )?.user?.username || "Đối tác";
+    : conversation?.members?.find((m) => String(m.user_id) !== String(userId))
+        ?.user?.username || "Đối tác";
+
+  console.log(isShow, setIsShow);
 
   return (
     <div className="flex flex-col h-full bg-gradient-to-b from-[#050816] via-[#020617] to-[#000000] text-slate-50">
       {/* HEADER */}
       <div className="h-16 border-b border-slate-800 px-4 flex items-center justify-between bg-gradient-to-r from-slate-900 via-slate-900 to-slate-800 z-10">
         <div className="flex items-center gap-3">
+          <div>
+            <Menu onClick={() => setIsShow(true)} className="block md:hidden" />
+          </div>
           <div className="relative">
             <Avatar className="h-10 w-10 shadow-sm">
               <AvatarImage src="" />
@@ -746,7 +828,7 @@ export default function MainMessage({
       {/* BODY */}
       <div className="flex-1 overflow-y-auto">
         <div className="px-4 py-3 flex flex-col gap-2">
-          {hasMore && (
+          {hasMore && !initialLoading && (
             <div className="flex justify-center mb-2">
               <Button
                 variant="outline"
@@ -760,137 +842,148 @@ export default function MainMessage({
             </div>
           )}
 
-          {messages.map((msg) => {
-            const rawSenderId = msg.senderId || msg.sender_id;
-            const isMine = String(rawSenderId) === String(userId);
-            const isRecalled = msg.status === "recall";
-            const isReadByOthers = msg.readBy?.some(
-              (r) => String(r.userId) !== String(userId)
-            );
+          {/* Loading lần đầu: hiển thị skeleton */}
+          {initialLoading && !messages.length ? (
+            <MessageSkeletonList />
+          ) : (
+            <>
+              {messages.map((msg) => {
+                const rawSenderId = msg.senderId || msg.sender_id;
+                const isMine = String(rawSenderId) === String(userId);
+                const isRecalled = msg.status === "recall";
+                const isReadByOthers = msg.readBy?.some(
+                  (r) => String(r.userId) !== String(userId)
+                );
 
-            const isLastRead =
-              msg.id === lastReadMessageId && Boolean(isReadByOthers);
+                const isLastRead =
+                  msg.id === lastReadMessageId && Boolean(isReadByOthers);
 
-            const readers =
-              isLastRead && conversation
-                ? (msg.readBy || [])
-                    .filter((r) => String(r.userId) !== String(userId))
-                    .map(
-                      (r) =>
-                        conversation.members?.find(
-                          (m: any) =>
-                            m.user && String(m.user.id) === String(r.userId)
-                        )?.user
-                    )
-                    .filter(Boolean)
-                : [];
+                const readers =
+                  isLastRead && conversation
+                    ? (msg.readBy || [])
+                        .filter((r) => String(r.userId) !== String(userId))
+                        .map(
+                          (r) =>
+                            conversation.members?.find(
+                              (m) =>
+                                m.user && String(m.user.id) === String(r.userId)
+                            )?.user
+                        )
+                        .filter(Boolean)
+                    : [];
 
-            return (
-              <div
-                key={msg.id}
-                className={cn(
-                  "flex w-full group gap-2",
-                  isMine ? "justify-end" : "justify-start"
-                )}
-              >
-                {!isMine && (
-                  <Avatar className="h-7 w-7 mt-5">
-                    <AvatarImage src={msg.sender?.avatarUrl} />
-                    <AvatarFallback className="bg-slate-700 text-xs font-bold text-slate-100">
-                      {msg.sender?.username?.[0] || "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                )}
-
-                <div
-                  className={cn(
-                    "max-w-[70%] relative",
-                    isMine ? "order-1" : "order-2"
-                  )}
-                >
-                  {msg.replyTo && (
-                    <div className="text-xs bg-slate-800/70 text-slate-200 p-1.5 rounded mb-1 border-l-2 border-blue-500">
-                      <div className="font-bold text-blue-400">
-                        {msg.replyTo.sender?.username || "User"}
-                      </div>
-                      <div className="line-clamp-2">{msg.replyTo.message}</div>
-                    </div>
-                  )}
-
+                return (
                   <div
+                    key={msg.id}
                     className={cn(
-                      "px-4 py-2 rounded-2xl text-sm shadow-sm",
-                      isMine
-                        ? "bg-blue-600 text-white rounded-br-sm"
-                        : "bg-slate-900 text-slate-100 border border-slate-700 rounded-bl-sm",
-                      isRecalled &&
-                        "italic text-slate-500 bg-slate-800 border-none"
-                    )}
-                  >
-                    {isRecalled ? "Tin nhắn đã thu hồi" : msg.message}
-                  </div>
-
-                  <div
-                    className={cn(
-                      "text-[10px] flex gap-1 mt-1 text-slate-400 items-center",
+                      "flex w-full group gap-2",
                       isMine ? "justify-end" : "justify-start"
                     )}
                   >
-                    <span>{formatMessageTime(msg.createdAt)}</span>
-                    {isMine && !isRecalled && isLastRead && (
-                      <CheckCheck size={14} className="text-blue-500" />
+                    {!isMine && (
+                      <Avatar className="h-7 w-7 mt-5">
+                        <AvatarImage src={msg.sender?.avatarUrl} />
+                        <AvatarFallback className="bg-slate-700 text-xs font-bold text-slate-100">
+                          {msg.sender?.username?.[0] || "U"}
+                        </AvatarFallback>
+                      </Avatar>
                     )}
-                  </div>
 
-                  {isMine && isLastRead && readers.length > 0 && (
-                    <div className="flex justify-end mt-1 gap-1">
-                      {readers.map((u: any, idx: number) => (
-                        <Avatar
-                          key={`${msg.id}-reader-${u.id}-${idx}`}
-                          className="h-4 w-4 border border-slate-900"
-                        >
-                          <AvatarImage src={u.avatarUrl || ""} />
-                          <AvatarFallback className="text-[9px] bg-slate-700 text-slate-100">
-                            {u.username?.[0]?.toUpperCase() || "U"}
-                          </AvatarFallback>
-                        </Avatar>
-                      ))}
-                    </div>
-                  )}
-
-                  {!isRecalled && (
                     <div
                       className={cn(
-                        "opacity-0 group-hover:opacity-100 absolute top-0 flex gap-1 transition-opacity",
-                        isMine ? "-left-16" : "-right-10"
+                        "max-w-[70%] relative",
+                        isMine ? "order-1" : "order-2"
                       )}
                     >
-                      <button
-                        type="button"
-                        onClick={() => setReplyingTo(msg)}
-                        className="w-6 h-6 rounded-full bg-slate-800/80 flex items-center justify-center hover:bg-slate-700"
+                      {msg.replyTo && (
+                        <div className="text-xs bg-slate-800/70 text-slate-200 p-1.5 rounded mb-1 border-l-2 border-blue-500">
+                          <div className="font-bold text-blue-400">
+                            {msg.replyTo.sender?.username || "User"}
+                          </div>
+                          <div className="line-clamp-2">
+                            {msg.replyTo.message}
+                          </div>
+                        </div>
+                      )}
+
+                      <div
+                        className={cn(
+                          "px-4 py-2 rounded-2xl text-sm shadow-sm",
+                          isMine
+                            ? "bg-blue-600 text-white rounded-br-sm"
+                            : "bg-slate-900 text-slate-100 border border-slate-700 rounded-bl-sm",
+                          isRecalled &&
+                            "italic text-slate-500 bg-slate-800 border-none"
+                        )}
                       >
-                        <Reply size={14} />
-                      </button>
-                      {isMine && (
-                        <button
-                          type="button"
-                          onClick={() => setDeletingMessage(msg)}
-                          className="w-6 h-6 rounded-full bg-slate-800/80 flex items-center justify-center hover:bg-red-600/80 text-red-200"
+                        {isRecalled ? "Tin nhắn đã thu hồi" : msg.message}
+                      </div>
+
+                      <div
+                        className={cn(
+                          "text-[10px] flex gap-1 mt-1 text-slate-400 items-center",
+                          isMine ? "justify-end" : "justify-start"
+                        )}
+                      >
+                        <span>{formatMessageTime(msg.createdAt)}</span>
+                        {isMine && !isRecalled && isLastRead && (
+                          <CheckCheck size={14} className="text-blue-500" />
+                        )}
+                      </div>
+
+                      {isMine && isLastRead && readers.length > 0 && (
+                        <div className="flex justify-end mt-1 gap-1">
+                          {readers.map((u, idx) =>
+                            u ? (
+                              <Avatar
+                                key={`${msg.id}-reader-${u.id}-${idx}`}
+                                className="h-4 w-4 border border-slate-900"
+                              >
+                                <AvatarImage src={u.avatarUrl || ""} />
+                                <AvatarFallback className="text-[9px] bg-slate-700 text-slate-100">
+                                  {u.username?.[0]?.toUpperCase() || "U"}
+                                </AvatarFallback>
+                              </Avatar>
+                            ) : null
+                          )}
+                        </div>
+                      )}
+
+                      {!isRecalled && (
+                        <div
+                          className={cn(
+                            "opacity-0 group-hover:opacity-100 absolute top-0 flex gap-1 transition-opacity",
+                            isMine ? "-left-16" : "-right-10"
+                          )}
                         >
-                          <Trash2 size={14} />
-                        </button>
+                          <button
+                            type="button"
+                            onClick={() => setReplyingTo(msg)}
+                            className="w-6 h-6 rounded-full bg-slate-800/80 flex items-center justify-center hover:bg-slate-700"
+                          >
+                            <Reply size={14} />
+                          </button>
+                          {isMine && (
+                            <button
+                              type="button"
+                              onClick={() => setDeletingMessage(msg)}
+                              className="w-6 h-6 rounded-full bg-slate-800/80 flex items-center justify-center hover:bg-red-600/80 text-red-200"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          )}
+                        </div>
                       )}
                     </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+                  </div>
+                );
+              })}
 
-          {isPartnerTyping && <TypingBubble />}
+              {isPartnerTyping && <TypingBubble />}
 
-          <div ref={bottomRef} />
+              <div ref={bottomRef} />
+            </>
+          )}
         </div>
       </div>
 
@@ -922,13 +1015,17 @@ export default function MainMessage({
           <Input
             value={input}
             onChange={handleInputChange}
-            placeholder="Nhập tin nhắn..."
-            className="flex-1 rounded-full border-slate-700 bg-slate-900/80 text-slate-100 placeholder:text-slate-500 focus-visible:ring-blue-500"
+            placeholder={
+              initialLoading ? "Đang tải tin nhắn..." : "Nhập tin nhắn..."
+            }
+            disabled={initialLoading}
+            className="flex-1 rounded-full border-slate-700 bg-slate-900/80 text-slate-100 placeholder:text-slate-500 focus-visible:ring-blue-500 disabled:opacity-60"
           />
           <Button
             type="submit"
             size="icon"
-            className="rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-md transition-transform active:scale-95"
+            disabled={initialLoading}
+            className="rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-md transition-transform active:scale-95 disabled:opacity-60"
           >
             <Send className="w-4 h-4" />
           </Button>

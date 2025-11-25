@@ -31,9 +31,7 @@ export default function HeaderApp() {
   const { setIsSidebarOpen } = useMenuStore();
   const { data: profile, isLoading } = useProfile();
 
-  const avatarSrc =
-    profile?.avatar_url ||
-    "https://placehold.co/600x400/6366f1/ffffff?text=Avatar";
+  const avatarSrc = profile?.avatar_url || "";
   const fullName = profile
     ? `${profile.lastName || ""} ${profile.firstName || ""}`.trim()
     : "Đang tải...";
@@ -100,16 +98,16 @@ export default function HeaderApp() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="flex items-center gap-2 sm:gap-3 hover:bg-slate-700 transition-colors"
+                className="flex items-center gap-2 sm:gap-3 cursor-pointer"
               >
-                <Avatar className="h-9 w-9 border-2 border-blue-400 cursor-pointer">
+                <Avatar className="h-9 w-9 border-2 border-blue-400 flex items-center justify-center rounded-full overflow-hidden">
                   <AvatarImage
-                    src={avatarSrc || "/placeholder.svg"}
+                    src={avatarSrc}
                     alt={profile?.username || "user avatar"}
                     className="object-cover"
                   />
-                  <AvatarFallback className="bg-gradient-to-br from-blue-500 to-cyan-500 text-white font-bold">
-                    {profile?.username?.charAt(0)?.toUpperCase() || "?"}
+                  <AvatarFallback>
+                    {profile?.lastName?.charAt(0)?.toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
 
@@ -131,30 +129,30 @@ export default function HeaderApp() {
               {/* Profile Section */}
               <DropdownMenuItem asChild className="hover:bg-slate-700">
                 <Link href="/app/users" className="flex items-center gap-2">
-                  <User className="h-4 w-4 text-blue-400" />
+                  <User className="h-4 w-4" />
                   <span>Trang cá nhân</span>
                 </Link>
               </DropdownMenuItem>
 
               <DropdownMenuItem asChild className="hover:bg-slate-700">
                 <Link
-                  href="/app/profile/edit"
+                  href="/app/users/edit"
                   className="flex items-center gap-2"
                 >
-                  <Settings className="h-4 w-4 text-slate-400" />
+                  <Settings className="h-4 w-4" />
                   <span>Chỉnh sửa thông tin</span>
                 </Link>
               </DropdownMenuItem>
-
+              {/* 
               <DropdownMenuSeparator className="bg-slate-700" />
 
-              {/* Account Settings Section */}
               <DropdownMenuItem asChild className="hover:bg-slate-700">
                 <Link href="/settings" className="flex items-center gap-2">
                   <Settings className="h-4 w-4 text-slate-400" />
                   <span>Cài đặt tài khoản</span>
                 </Link>
-              </DropdownMenuItem>
+              </DropdownMenuItem> 
+              */}
 
               <DropdownMenuSeparator className="bg-slate-700" />
 

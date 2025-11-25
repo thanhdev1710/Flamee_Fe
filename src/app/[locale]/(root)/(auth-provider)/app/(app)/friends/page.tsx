@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { UserPlus } from "lucide-react";
+import { UserMinus, UserPlus } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import useSWR, { mutate } from "swr";
 import { ProfileSummary } from "@/types/follow.type";
@@ -22,14 +22,22 @@ function UserCard({
   user: ProfileSummary;
   variant: UserSectionVariant;
 }) {
-  const handleFollow = async () => {
-    const err = await addOrUnFollowById(user.user_id);
-    if (!err) {
-      await mutate("invitationUsers");
-      toast.success("Thành công", { richColors: true });
-    } else {
-      toast.error("Đã xảy ra lỗi", { richColors: true });
-    }
+  const handleFollow = () => {
+    const followPromise = addOrUnFollowById(user.user_id).then(async (err) => {
+      if (!err) {
+        await mutate("invitationUsers");
+        return "Thành công";
+      } else {
+        throw new Error("Đã xảy ra lỗi");
+      }
+    });
+
+    toast.promise(followPromise, {
+      loading: "Đang xử lý...",
+      success: (msg) => msg || "Thành công",
+      error: (err) => err.message || "Đã xảy ra lỗi",
+      richColors: true,
+    });
   };
 
   const isFollowerSection = variant === "followers";
@@ -70,6 +78,15 @@ function UserCard({
             variant="outline"
           >
             <Link href={`/app/users/${usernameSlug}`}>View profile</Link>
+          </Button>
+        ) : variant === "following" ? (
+          <Button
+            onClick={handleFollow}
+            className="w-full transition-all duration-200 font-medium flex items-center justify-center gap-2"
+            size="sm"
+          >
+            <UserMinus className="h-4 w-4" />
+            Unfollow
           </Button>
         ) : (
           // 👉 Các case còn lại: Follow / Follow back
