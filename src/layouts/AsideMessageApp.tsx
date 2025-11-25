@@ -40,6 +40,8 @@ import {
 } from "@/components/ui/loading-skeleton";
 import { navigationItems } from "@/global/const";
 import Link from "next/link";
+import { Socket } from "socket.io-client";
+import { getChatSocket } from "@/lib/chatSocket";
 
 type AsideMessageAppProps = {
   currentUserId: string;
@@ -104,17 +106,22 @@ export default function AsideMessageAppEnhanced({
   const [isLoadingConversations, setIsLoadingConversations] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [isLoadingFriends, setIsLoadingFriends] = useState(false);
+  const [, setSocket] = useState<Socket | null>(null); // giữ reference, sau dùng thêm cũng được
 
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const activeId = searchParams.get("conv");
 
+  // tránh spam toast khi chính mình xoá
   const isSelfDeleting = useRef(false);
 
   const apiBase =
     process.env.NEXT_PUBLIC_CHAT_API || "http://localhost:4004/api/v1/chat";
+  const socketUrl =
+    process.env.NEXT_PUBLIC_CHAT_SOCKET || "http://localhost:4004";
 
+  // --- FETCH CONVERSATIONS ---
   const fetchConversations = useCallback(() => {
     if (!currentUserId) return;
 
@@ -168,6 +175,120 @@ export default function AsideMessageAppEnhanced({
     fetchConversations();
   }, [fetchConversations]);
 
+  // --- SOCKET REALTIME ---
+  useEffect(() => {
+    if (!currentUserId) return;
+
+    const s = getChatSocket(currentUserId, socketUrl);
+    setSocket(s);
+
+    // join user room
+    s.emit("join-user", { userId: currentUserId });
+
+    const handlePresence = (d: any) => {
+      setUserStatus((prev) => ({
+        ...prev,
+        [d.userId]: { isOnline: d.isOnline, lastSeen: d.lastSeen },
+      }));
+    };
+
+    const handleNewConv = (newConv: any) => {
+      setConversations((prev) => {
+        if (prev.find((x) => x.id === newConv.id)) return prev;
+        const mapped: Conversation = {
+          ...newConv,
+          last_message_at: newConv.last_message_at || newConv.created_at,
+          unread_count: newConv.unread_count ?? 0,
+        };
+        return [mapped, ...prev];
+      });
+      toast("Bạn có cuộc trò chuyện mới");
+    };
+
+    // cập nhật last_message, unread_count, tên nhóm...
+    const handleUpdate = (d: any) => {
+      setConversations((prev) => {
+        const exists = prev.find((c) => c.id === d.conversationId);
+        if (!exists) return prev;
+
+        const next = prev.map((c) => {
+          if (c.id === d.conversationId) {
+            const isCurrent = activeId === d.conversationId;
+            const updated: Conversation = {
+              ...c,
+              name: d.newName ?? c.name,
+              last_message: d.lastMessage ?? c.last_message,
+              last_message_at:
+                d.lastMessageAt ?? c.last_message_at ?? c.created_at,
+              // nếu đang mở đoạn chat đó thì vẫn để 0
+              unread_count: isCurrent
+                ? 0
+                : d.unreadCount ?? c.unread_count ?? 0,
+            };
+            return updated;
+          }
+          return c;
+        });
+
+        return next.sort((a, b) => {
+          const timeA = new Date(
+            a.last_message_at ?? a.created_at ?? 0
+          ).getTime();
+          const timeB = new Date(
+            b.last_message_at ?? b.created_at ?? 0
+          ).getTime();
+          return timeB - timeA;
+        });
+      });
+    };
+
+    const handleRemoveConv = (d: any) => {
+      setConversations((prev) => {
+        const exists = prev.find((c) => c.id === d.conversationId);
+        if (exists && !isSelfDeleting.current) {
+          toast.error(
+            "Cuộc trò chuyện đã bị xóa hoặc bạn bị mời ra khỏi nhóm."
+          );
+        }
+        return prev.filter((c) => c.id !== d.conversationId);
+      });
+
+      if (activeId === d.conversationId) {
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete("conv");
+        router.push(`${pathname}?${params.toString()}`);
+      }
+    };
+
+    s.on("user-presence", handlePresence);
+    s.on("new-conversation", handleNewConv);
+    s.on("conversation-updated", handleUpdate);
+    s.on("conversation-updated-unread", handleUpdate);
+    s.on("conversation-removed", handleRemoveConv);
+
+    return () => {
+      s.off("user-presence", handlePresence);
+      s.off("new-conversation", handleNewConv);
+      s.off("conversation-updated", handleUpdate);
+      s.off("conversation-updated-unread", handleUpdate);
+      s.off("conversation-removed", handleRemoveConv);
+    };
+  }, [currentUserId, socketUrl, activeId, pathname, searchParams, router]);
+
+  // --- OPTIMISTIC READ KHI CLICK VÀO CONVERSATION ---
+  // Không gọi HTTP /read-all nữa, để socket "mark-read" bên MainMessage xử lý
+  useEffect(() => {
+    if (!activeId || !currentUserId) return;
+
+    // chỉ reset UI local cho đoạn đang mở
+    setConversations((prev) =>
+      prev.map((c) =>
+        c.id === activeId && c.unread_count > 0 ? { ...c, unread_count: 0 } : c
+      )
+    );
+  }, [activeId, currentUserId]);
+
+  // --- DELETE CONVERSATION ---
   const executeDelete = async (conversationId: string) => {
     isSelfDeleting.current = true;
     try {
@@ -237,6 +358,7 @@ export default function AsideMessageAppEnhanced({
     );
   };
 
+  // --- FRIENDS & CREATE CONVERSATION ---
   const fetchFriends = async () => {
     setIsLoadingFriends(true);
     try {
@@ -296,6 +418,7 @@ export default function AsideMessageAppEnhanced({
     }
   };
 
+  // --- FILTERED LIST ---
   const filtered = conversations.filter((c) => {
     const name = c.is_group
       ? c.name
@@ -498,6 +621,8 @@ export default function AsideMessageAppEnhanced({
             )}
           </div>
         </div>
+
+        {/* Bottom navigation (mobile / shortcut) */}
         <div className="p-4.5 border-t bg-slate-950 border-slate-800">
           <div className="flex justify-around">
             {navigationItems.map((item) => (
@@ -585,7 +710,9 @@ export default function AsideMessageAppEnhanced({
                   className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-800 cursor-pointer transition-colors"
                   onClick={() => {
                     setSelectedFriendIds((prev) =>
-                      prev.includes(f.user_id)
+                      createMode === "direct"
+                        ? [f.user_id]
+                        : selectedFriendIds.includes(f.user_id)
                         ? prev.filter((id) => id !== f.user_id)
                         : [...prev, f.user_id]
                     );

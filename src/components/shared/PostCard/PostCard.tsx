@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
-import { useState, memo } from "react";
+import { useState } from "react";
 import { FilesModal } from "@/components/shared/FilesModal";
 import { PostImageGrid } from "./PostImageGrid";
 import type { Post } from "@/types/post.type";
@@ -26,8 +26,12 @@ import { likeOrDislikePostById, sharePost } from "@/actions/post.action";
 import { toast } from "sonner";
 import { formatTimeAgo } from "@/utils/utils";
 import Link from "next/link";
+import { useProfile } from "@/services/user.hook";
+import { notify } from "@/actions/notify.action";
+import { getInteractionsPostById } from "@/services/post.service";
+import useSWR from "swr";
 
-const PostCard = memo(function PostCard({
+export default function PostCard({
   post,
   mutatePost,
 }: {
@@ -42,6 +46,21 @@ const PostCard = memo(function PostCard({
   const [loadingLike, setLoadingLike] = useState(false);
   const [loadingShare, setLoadingShare] = useState(false);
 
+  const { data: currentUser } = useProfile();
+  const { data: interactions, mutate: mutateInteractions } = useSWR(
+    "comment" + post.id,
+    () => getInteractionsPostById(post.id)
+  );
+
+  const isLiked =
+    interactions?.likes.findIndex(
+      (like) => like.userId === currentUser?.user_id
+    ) !== -1;
+  const isShared =
+    interactions?.shares.findIndex(
+      (share) => share.userId === currentUser?.user_id
+    ) !== -1;
+
   const {
     author_avatar,
     author_username,
@@ -52,12 +71,11 @@ const PostCard = memo(function PostCard({
     hashtags,
     id,
     images,
-    isLiked,
-    isShared,
     like_count,
     share_count,
     title,
     videos,
+    author_id,
   } = post;
 
   const handleLike = async () => {
@@ -65,6 +83,19 @@ const PostCard = memo(function PostCard({
     try {
       const err = await likeOrDislikePostById(id);
       if (!err) {
+        if (currentUser?.user_id !== author_id) {
+          await notify({
+            title: "Ai đó đã tương tác với bài viết",
+            message: `${currentUser?.username} đã ${
+              isLiked ? "bỏ thích" : "thích"
+            } bài viết của bạn`,
+            type: "like",
+            userId: author_id,
+            entityType: "post",
+            entityId: id,
+          });
+        }
+        await mutateInteractions();
         await mutatePost();
       } else {
         toast.error(err, { richColors: true });
@@ -79,6 +110,19 @@ const PostCard = memo(function PostCard({
     try {
       const err = await sharePost(id);
       if (!err) {
+        if (currentUser?.user_id !== author_id) {
+          notify({
+            title: "Ai đó đã tương tác với bài viết",
+            message: `${currentUser?.username} đã ${
+              isShared ? "bỏ chia sẽ" : "chia sẽ"
+            } bài viết của bạn`,
+            type: "share",
+            userId: author_id,
+            entityType: "post",
+            entityId: id,
+          });
+        }
+        await mutateInteractions();
         await mutatePost();
       } else {
         toast.error(err, { richColors: true });
@@ -334,6 +378,4 @@ const PostCard = memo(function PostCard({
       )}
     </>
   );
-});
-
-export default PostCard;
+}
