@@ -155,7 +155,7 @@ export default function Notifications() {
                 )}
               >
                 {/* Icon Column */}
-                <div className="flex-shrink-0 mt-1">
+                <div className="shrink-0 mt-1">
                   <NotificationIcon type={n.type} />
                 </div>
 
@@ -166,7 +166,7 @@ export default function Notifications() {
                       {n.title}
                     </p>
                     {/* Time */}
-                    <span className="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">
+                    <span className="text-xs text-gray-400 whitespace-nowrap shrink-0">
                       {getTimeAgo(n.createdAt)}
                     </span>
                   </div>
