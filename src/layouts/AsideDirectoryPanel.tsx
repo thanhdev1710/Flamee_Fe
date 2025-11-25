@@ -419,7 +419,7 @@ export default function AsideDirectoryPanelEnhanced({
 
   if (!conversationId) {
     return (
-      <div className="hidden xl:flex w-80 border-l border-slate-800 bg-gradient-to-b from-slate-950 to-slate-900 items-center justify-center text-slate-500 text-sm">
+      <div className="hidden xl:flex w-80 border-l border-slate-800 bg-linear-to-b from-slate-950 to-slate-900 items-center justify-center text-slate-500 text-sm">
         Chọn một đoạn chat để xem chi tiết
       </div>
     );
@@ -429,9 +429,9 @@ export default function AsideDirectoryPanelEnhanced({
 
   return (
     <>
-      <aside className="hidden xl:flex w-80 flex-col border-l border-slate-800 bg-gradient-to-b from-slate-950 to-slate-900 text-slate-100 h-full shadow-xl">
+      <aside className="hidden xl:flex w-80 flex-col border-l border-slate-800 bg-linear-to-b from-slate-950 to-slate-900 text-slate-100 h-full shadow-xl">
         {/* Header */}
-        <div className="h-16 px-6 border-b border-slate-800 flex items-center justify-between bg-gradient-to-r from-blue-600/20 via-slate-900 to-slate-900 backdrop-blur-sm">
+        <div className="h-16 px-6 border-b border-slate-800 flex items-center justify-between bg-linear-to-r from-blue-600/20 via-slate-900 to-slate-900 backdrop-blur-sm">
           <h3 className="text-xs font-semibold tracking-wide text-slate-300 uppercase">
             💬 Thông tin hội thoại
           </h3>
@@ -494,7 +494,7 @@ export default function AsideDirectoryPanelEnhanced({
 
                           {m.role === "admin" && (
                             <Shield
-                              className="w-3.5 h-3.5 text-amber-400 flex-shrink-0"
+                              className="w-3.5 h-3.5 text-amber-400 shrink-0"
                               fill="currentColor"
                             />
                           )}

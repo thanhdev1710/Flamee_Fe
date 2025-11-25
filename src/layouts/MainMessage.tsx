@@ -694,7 +694,7 @@ export default function MainMessage({
   // RENDER
   // =======================
   return (
-    <div className="flex flex-col h-full bg-gradient-to-b from-[#050816] via-[#020617] to-[#000000] text-slate-50 relative">
+    <div className="flex flex-col h-full bg-linear-to-b from-[#050816] via-[#020617] to-[#000000] text-slate-50 relative">
       {/* HEADER */}
       <div className="h-16 border-b border-slate-800 px-4 flex items-center justify-between bg-slate-900/50 backdrop-blur-md z-10">
         <div className="flex items-center gap-3">
@@ -835,7 +835,7 @@ export default function MainMessage({
 
                     <div
                       className={cn(
-                        "px-4 py-2 text-sm shadow-md break-words",
+                        "px-4 py-2 text-sm shadow-md wrap-break-word",
                         isMine
                           ? "bg-blue-600 text-white rounded-2xl rounded-tr-sm"
                           : "bg-slate-800 text-slate-100 rounded-2xl rounded-tl-sm border border-slate-700",
