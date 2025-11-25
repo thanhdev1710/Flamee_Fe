@@ -390,7 +390,7 @@ export default function PostCardDetail({
                   <div key={idx} className="space-y-3">
                     {/* Parent Comment */}
                     <div className="flex gap-3">
-                      <Avatar className="h-8 w-8 flex-shrink-0">
+                      <Avatar className="h-8 w-8 shrink-0">
                         <AvatarImage
                           src={c.user.avatarUrl || "/placeholder.svg"}
                           alt={c.user.username}
@@ -432,7 +432,7 @@ export default function PostCardDetail({
                       <div className="ml-10 space-y-3 border-l border-border pl-3">
                         {c.replies.map((reply, replyIdx) => (
                           <div key={replyIdx} className="flex gap-3">
-                            <Avatar className="h-7 w-7 flex-shrink-0">
+                            <Avatar className="h-7 w-7 shrink-0">
                               <AvatarImage
                                 src={reply.user.avatarUrl || "/placeholder.svg"}
                                 alt={reply.user.username}
@@ -480,7 +480,7 @@ export default function PostCardDetail({
 
           {/* COMMENT INPUT */}
           <div className="h-10"></div>
-          <div className="flex-shrink-0 border-t border-border bg-card px-6 py-4 space-y-3 w-full absolute bottom-0 left-0">
+          <div className="shrink-0 border-t border-border bg-card px-6 py-4 space-y-3 w-full absolute bottom-0 left-0">
             {replyId.username && (
               <div className="text-xs text-muted-foreground bg-muted/30 rounded px-3 py-2 flex items-center justify-between">
                 <span>
@@ -496,7 +496,7 @@ export default function PostCardDetail({
               </div>
             )}
             <div className="flex items-end gap-3">
-              <Avatar className="h-8 w-8 flex-shrink-0">
+              <Avatar className="h-8 w-8 shrink-0">
                 <AvatarImage
                   src="/placeholder.svg?height=32&width=32"
                   alt="You"
