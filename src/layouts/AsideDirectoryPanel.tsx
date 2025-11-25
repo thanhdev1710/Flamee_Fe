@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import type React from "react";
@@ -56,6 +57,8 @@ import {
   SkeletonMembersPanel,
   PulseLoading,
 } from "@/components/ui/loading-skeleton";
+import type { Socket } from "socket.io-client";
+import { getChatSocket } from "@/lib/chatSocket";
 
 type UserRole = "admin" | "member";
 
@@ -125,6 +128,8 @@ export default function AsideDirectoryPanelEnhanced({
 
   const apiBase =
     process.env.NEXT_PUBLIC_CHAT_API || "http://localhost:4004/api/v1/chat";
+  const socketUrl =
+    process.env.NEXT_PUBLIC_CHAT_SOCKET || "http://localhost:4004";
 
   // =========================
   // FETCH INFO CONVERSATION
@@ -195,11 +200,77 @@ export default function AsideDirectoryPanelEnhanced({
   }, [fetchInfo]);
 
   // =========================
-  // SOCKET (nếu bạn có dùng, gắn sau này)
+  // SOCKET REALTIME
   // =========================
-  // useEffect(() => {
-  //   // ví dụ lắng nghe sự kiện members-changed rồi gọi fetchInfoRef.current()
-  // }, []);
+  useEffect(() => {
+    if (!currentUserId || !conversationId) return;
+
+    const socket: Socket = getChatSocket(currentUserId, socketUrl);
+    // join vào room của cuộc trò chuyện
+    socket.emit("join-room", conversationId);
+
+    // user-presence: cập nhật online / last_seen
+    const handlePresence = (d: any) => {
+      setMembers((prev) =>
+        prev.map((m) =>
+          String(m.id) === String(d.userId)
+            ? { ...m, is_online: d.isOnline, last_seen: d.lastSeen }
+            : m
+        )
+      );
+    };
+
+    // members-added: thêm thành viên mới vào danh sách
+    const handleMembersAdded = (data: any) => {
+      if (data.conversationId !== conversationId) return;
+
+      const newMembers: UserBasic[] = (data.members || []).map((u: any) => ({
+        id: u.id,
+        username: u.username,
+        fullname: u.fullname,
+        avatarUrl: u.avatarUrl,
+        is_online: u.is_online,
+        last_seen: u.last_seen,
+        role: "member",
+      }));
+
+      setMembers((prev) => {
+        const ids = prev.map((m) => m.id);
+        const unique = newMembers.filter((nm) => !ids.includes(nm.id));
+        return [...prev, ...unique];
+      });
+    };
+
+    // member-removed / member-left: loại khỏi danh sách
+    const handleMemberRemoved = (data: any) => {
+      if (data.conversationId !== conversationId) return;
+      setMembers((prev) => prev.filter((m) => m.id !== data.userId));
+    };
+
+    // conversation-updated: dùng cho thay đổi role
+    const handleConvUpdated = (data: any) => {
+      if (data.conversationId !== conversationId) return;
+      if (data.event === "role-change") {
+        // reload lại info để cập nhật quyền admin/member
+        fetchInfoRef.current();
+      }
+    };
+
+    socket.on("user-presence", handlePresence);
+    socket.on("members-added", handleMembersAdded);
+    socket.on("member-removed", handleMemberRemoved);
+    socket.on("member-left", handleMemberRemoved);
+    socket.on("conversation-updated", handleConvUpdated);
+
+    return () => {
+      socket.off("user-presence", handlePresence);
+      socket.off("members-added", handleMembersAdded);
+      socket.off("member-removed", handleMemberRemoved);
+      socket.off("member-left", handleMemberRemoved);
+      socket.off("conversation-updated", handleConvUpdated);
+      socket.disconnect();
+    };
+  }, [currentUserId, conversationId, socketUrl]);
 
   // =========================
   // ADD MEMBER
@@ -275,6 +346,7 @@ export default function AsideDirectoryPanelEnhanced({
     targetId?: string,
     targetName?: string
   ) => {
+    // dùng setTimeout để tránh xung đột sự kiện với DropdownMenu
     setTimeout(() => {
       if (type === "kick" || type === "transfer") {
         if (!targetId) return;

@@ -44,6 +44,7 @@ export async function likeOrDislikePostById(id: string) {
 
     if (!res.ok) {
       const error = await res.json();
+
       return error.message;
     }
 

@@ -5,6 +5,7 @@ import useSWR from "swr";
 import AsideMessageApp from "@/layouts/AsideMessageApp";
 import MainMessage from "@/layouts/MainMessage";
 import AsideDirectoryPanel from "@/layouts/AsideDirectoryPanel";
+import { Menu } from "lucide-react";
 
 // Hàm getMe lấy user hiện tại
 async function getMe() {
@@ -62,7 +63,7 @@ export default function MessagesPage() {
 
   if (!conversationId) {
     return (
-      <div className="flex h-screen overflow-hidden bg-slate-950">
+      <div className="flex h-screen overflow-hidden bg-slate-950 relative">
         {/* Sidebar Trái */}
         <AsideMessageApp
           isShow={isShow}
@@ -71,6 +72,10 @@ export default function MessagesPage() {
         />
 
         {/* Khu vực chính hiển thị hướng dẫn chọn đoạn chat */}
+        <Menu
+          onClick={() => setIsShow(!isShow)}
+          className="block md:hidden cursor-pointer hover:text-blue-400 absolute top-3 left-3"
+        />
         <div className="flex-1 min-w-0 flex items-center justify-center border-l border-slate-800">
           <div className="max-w-md text-center">
             <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
