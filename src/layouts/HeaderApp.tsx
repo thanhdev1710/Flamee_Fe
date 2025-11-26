@@ -1,5 +1,7 @@
 "use client";
 
+import React, { useEffect } from "react";
+
 import { Logout } from "@/actions/auth.action";
 import { Logo } from "@/components/shared/Logo";
 import { SearchCommand } from "@/components/shared/SearchCommand";
@@ -13,7 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useProfile } from "@/services/user.hook";
 import { useMenuStore } from "@/store/onMenuStore";
-import { Avatar, AvatarImage, AvatarFallback } from "@radix-ui/react-avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   Menu,
   BellPlus,
@@ -25,6 +27,10 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { getChatSocket, disconnectSocket } from "@/lib/chatSocket";
+
+const SOCKET_URL =
+  process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:4004";
 
 export default function HeaderApp() {
   const router = useRouter();
@@ -35,6 +41,26 @@ export default function HeaderApp() {
   const fullName = profile
     ? `${profile.lastName || ""} ${profile.firstName || ""}`.trim()
     : "Đang tải...";
+
+  useEffect(() => {
+    if (!profile?.user_id) return;
+
+    const userId = String(profile.user_id);
+    const socket = getChatSocket(userId, SOCKET_URL);
+
+    // Join room cá nhân để server track presence
+    socket.emit("join-user", { userId });
+
+    // Gửi heartbeat định kỳ để cập nhật last_seen
+    const interval = setInterval(() => {
+      socket.emit("user-activity");
+    }, 30000);
+
+    return () => {
+      clearInterval(interval);
+      // KHÔNG disconnect ở đây, logout sẽ xử lý
+    };
+  }, [profile?.user_id]);
 
   return (
     <header className="sticky top-0 z-50 shadow-lg border-b">
@@ -72,6 +98,7 @@ export default function HeaderApp() {
               <UserPlus className="h-5 w-5" />
             </Link>
           </Button>
+
           <Button
             asChild
             variant="ghost"
@@ -82,6 +109,7 @@ export default function HeaderApp() {
               <MessageCircleMore className="h-5 w-5" />
             </Link>
           </Button>
+
           <Button
             asChild
             variant="ghost"
@@ -143,16 +171,6 @@ export default function HeaderApp() {
                   <span>Chỉnh sửa thông tin</span>
                 </Link>
               </DropdownMenuItem>
-              {/* 
-              <DropdownMenuSeparator className="bg-slate-700" />
-
-              <DropdownMenuItem asChild className="hover:bg-slate-700">
-                <Link href="/settings" className="flex items-center gap-2">
-                  <Settings className="h-4 w-4 text-slate-400" />
-                  <span>Cài đặt tài khoản</span>
-                </Link>
-              </DropdownMenuItem> 
-              */}
 
               <DropdownMenuSeparator className="bg-slate-700" />
 
@@ -160,6 +178,7 @@ export default function HeaderApp() {
               <DropdownMenuItem
                 onClick={async () => {
                   await Logout();
+                  disconnectSocket(); // chủ động hủy socket khi logout
                   router.push("/auth/signin");
                 }}
                 className="hover:bg-red-900/20 text-red-400 cursor-pointer"

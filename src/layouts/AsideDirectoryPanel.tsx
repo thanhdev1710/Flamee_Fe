@@ -266,7 +266,6 @@ export default function AsideDirectoryPanelEnhanced({
       socket.off("member-removed", handleMemberRemoved);
       socket.off("member-left", handleMemberRemoved);
       socket.off("conversation-updated", handleConvUpdated);
-      socket.disconnect();
     };
   }, [currentUserId, conversationId, socketUrl]);
 
