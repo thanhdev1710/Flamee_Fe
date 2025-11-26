@@ -5,43 +5,43 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     {
-      url: "https://flamee-fe.vercel.app",
+      url: "https://flamee.id.vn",
       lastModified,
       changeFrequency: "daily",
       priority: 1.0,
     },
     {
-      url: "https://flamee-fe.vercel.app/about",
+      url: "https://flamee.id.vn/about",
       lastModified,
       changeFrequency: "monthly",
       priority: 0.8,
     },
     {
-      url: "https://flamee-fe.vercel.app/signin",
+      url: "https://flamee.id.vn/signin",
       lastModified,
       changeFrequency: "yearly",
       priority: 0.4,
     },
     {
-      url: "https://flamee-fe.vercel.app/signup",
+      url: "https://flamee.id.vn/signup",
       lastModified,
       changeFrequency: "yearly",
       priority: 0.4,
     },
     {
-      url: "https://flamee-fe.vercel.app/feed",
+      url: "https://flamee.id.vn/feed",
       lastModified,
       changeFrequency: "hourly",
       priority: 0.9,
     },
     {
-      url: "https://flamee-fe.vercel.app/terms",
+      url: "https://flamee.id.vn/terms",
       lastModified,
       changeFrequency: "yearly",
       priority: 0.3,
     },
     {
-      url: "https://flamee-fe.vercel.app/privacy",
+      url: "https://flamee.id.vn/privacy",
       lastModified,
       changeFrequency: "yearly",
       priority: 0.3,
