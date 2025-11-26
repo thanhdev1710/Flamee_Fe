@@ -126,10 +126,8 @@ export default function AsideDirectoryPanelEnhanced({
   });
   const [isExecuting, setIsExecuting] = useState(false);
 
-  const apiBase =
-    process.env.NEXT_PUBLIC_CHAT_API || "http://localhost:4004/api/v1/chat";
-  const socketUrl =
-    process.env.NEXT_PUBLIC_CHAT_SOCKET || "http://localhost:4004";
+  const apiBase = process.env.NEXT_PUBLIC_CHAT_API;
+  const socketUrl = process.env.NEXT_PUBLIC_CHAT_SOCKET;
 
   // =========================
   // FETCH INFO CONVERSATION
@@ -205,7 +203,7 @@ export default function AsideDirectoryPanelEnhanced({
   useEffect(() => {
     if (!currentUserId || !conversationId) return;
 
-    const socket: Socket = getChatSocket(currentUserId, socketUrl);
+    const socket: Socket = getChatSocket(currentUserId, socketUrl!);
     // join vào room của cuộc trò chuyện
     socket.emit("join-room", conversationId);
 

@@ -116,10 +116,8 @@ export default function AsideMessageAppEnhanced({
   // tránh spam toast khi chính mình xoá
   const isSelfDeleting = useRef(false);
 
-  const apiBase =
-    process.env.NEXT_PUBLIC_CHAT_API || "http://localhost:4004/api/v1/chat";
-  const socketUrl =
-    process.env.NEXT_PUBLIC_CHAT_SOCKET || "http://localhost:4004";
+  const apiBase = process.env.NEXT_PUBLIC_CHAT_API;
+  const socketUrl = process.env.NEXT_PUBLIC_CHAT_SOCKET;
 
   // --- FETCH CONVERSATIONS ---
   const fetchConversations = useCallback(() => {
@@ -179,7 +177,7 @@ export default function AsideMessageAppEnhanced({
   useEffect(() => {
     if (!currentUserId) return;
 
-    const s = getChatSocket(currentUserId, socketUrl);
+    const s = getChatSocket(currentUserId, socketUrl!);
     setSocket(s);
 
     // join user room

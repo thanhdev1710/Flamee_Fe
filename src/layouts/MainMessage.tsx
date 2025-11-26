@@ -147,8 +147,7 @@ export default function MainMessage({
   isShow,
   setIsShow,
 }: Props) {
-  const videoApiBase =
-    process.env.NEXT_PUBLIC_VIDEO_API || "http://localhost:4004/api/v1/video";
+  const videoApiBase = process.env.NEXT_PUBLIC_VIDEO_API;
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");

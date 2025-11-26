@@ -7,9 +7,9 @@ import {
   Users,
   FileText,
   MessageSquare,
-  AlertCircle,
   Settings,
   LogOut,
+  Terminal,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -35,9 +35,9 @@ const menuItems = [
     icon: MessageSquare,
   },
   {
-    label: "Báo cáo",
-    href: "/admin/reports",
-    icon: AlertCircle,
+    label: "System Logs",
+    href: "/admin/logs",
+    icon: Terminal,
   },
   {
     label: "Cài đặt",
@@ -52,7 +52,7 @@ export function AdminSidebar() {
   return (
     <aside className="w-64 bg-card border-r border-border flex flex-col">
       {/* Logo */}
-      <div className="p-6 border-b border-border">
+      <div className="h-16 px-6 flex items-center border-b border-border">
         <h1 className="text-xl font-bold text-foreground">Admin Panel</h1>
       </div>
 

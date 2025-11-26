@@ -77,8 +77,7 @@ export default function VideoCallPage() {
   const roomCode = params.roomCode as string;
   const userId = searchParams.get("userId") || "";
 
-  const socketUrl =
-    process.env.NEXT_PUBLIC_CHAT_SOCKET || "http://localhost:4004";
+  const socketUrl = process.env.NEXT_PUBLIC_CHAT_SOCKET;
 
   const [socket, setSocket] = useState<Socket | null>(null);
   const [micOn, setMicOn] = useState(true);
@@ -104,7 +103,7 @@ export default function VideoCallPage() {
 
     const newSocket = io(socketUrl, {
       transports: ["websocket"],
-      path: "/socket.io",
+      path: "/socket.io/",
       query: { userId },
     });
 

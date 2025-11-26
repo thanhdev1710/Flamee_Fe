@@ -32,7 +32,7 @@ export const getChatSocket = (userId: string, url: string) => {
   // 2. Nếu chưa có socket, tạo mới
   if (!socket) {
     socket = io(url, {
-      path: "/socket.io",
+      path: "/socket.io/",
       transports: ["websocket"], // Ép dùng websocket để tránh lỗi polling
       query: { userId },
       reconnectionAttempts: 5,

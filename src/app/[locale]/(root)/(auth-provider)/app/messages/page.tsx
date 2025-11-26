@@ -31,10 +31,8 @@ export default function MessagesPage() {
   const userId = searchParams.get("me") || userIdFromToken || "";
 
   // Base URL cho API và Socket (GIỮ NGUYÊN URL)
-  const apiBase =
-    process.env.NEXT_PUBLIC_CHAT_API || "http://localhost:4004/api/v1/chat";
-  const socketUrl =
-    process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:4004";
+  const apiBase = process.env.NEXT_PUBLIC_CHAT_API;
+  const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL;
 
   if (meLoading) {
     return (
@@ -105,8 +103,8 @@ export default function MessagesPage() {
       {/* Chat Chính */}
       <main className="flex-1 min-w-0 border-r border-slate-200 dark:border-slate-800">
         <MainMessage
-          apiBase={apiBase}
-          socketUrl={socketUrl}
+          apiBase={apiBase!}
+          socketUrl={socketUrl!}
           conversationId={conversationId}
           userId={userId}
           isShow={isShow}
