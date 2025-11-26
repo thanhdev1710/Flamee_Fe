@@ -106,7 +106,7 @@ export default function AsideMessageAppEnhanced({
   const [isLoadingConversations, setIsLoadingConversations] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [isLoadingFriends, setIsLoadingFriends] = useState(false);
-  const [socket, setSocket] = useState<Socket | null>(null); // giữ reference, sau dùng thêm cũng được
+  const [, setSocket] = useState<Socket | null>(null); // giữ reference, sau dùng thêm cũng được
 
   const router = useRouter();
   const pathname = usePathname();
@@ -436,12 +436,12 @@ export default function AsideMessageAppEnhanced({
         ></div>
       )}
       <aside
-        className={`flex w-80 flex-col bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 border-r border-slate-800 h-full shadow-xl max-md:absolute top-0 z-30 transition-all ease-in-out duration-300 ${
+        className={`flex w-80 flex-col bg-linear-to-b from-slate-950 via-slate-950 to-slate-900 border-r border-slate-800 h-full shadow-xl max-md:absolute top-0 z-30 transition-all ease-in-out duration-300 ${
           isShow ? "left-0" : "-left-full"
         }`}
       >
         {/* Header */}
-        <div className="h-16 px-4 flex items-center justify-between border-b border-slate-800 bg-gradient-to-r from-blue-600/20 via-slate-900 to-slate-900 backdrop-blur-sm">
+        <div className="h-16 px-4 flex items-center justify-between border-b border-slate-800 bg-linear-to-r from-blue-600/20 via-slate-900 to-slate-900 backdrop-blur-sm">
           <div className="font-semibold flex items-center gap-2 text-slate-100">
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white shadow-lg">
               <MessageCircle className="w-4 h-4" />
@@ -538,7 +538,7 @@ export default function AsideMessageAppEnhanced({
                       <div className="relative">
                         <Avatar className="h-10 w-10 shadow-sm">
                           <AvatarImage src={avatar ?? undefined} />
-                          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-blue-600 text-white font-bold">
+                          <AvatarFallback className="bg-linear-to-br from-blue-500 to-blue-600 text-white font-bold">
                             {name?.[0]}
                           </AvatarFallback>
                         </Avatar>
