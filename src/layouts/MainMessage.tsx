@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
 "use client";
 
 import React, {
@@ -38,22 +37,32 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 
+// ================= TYPES =================
+type ReadByEntry = {
+  userId: string;
+  read_at: string | null;
+};
+
 type ChatMessage = {
   id: string;
   conversationId: string;
   senderId: string | number;
-  sender_id: string | number;
+  sender_id?: string | number;
   message: string;
   status: "show" | "recall";
   createdAt: string;
-  readBy?: { userId: string; read_at: string | null }[];
+  readBy?: ReadByEntry[];
   sender?: {
     id: string | number;
-    username: string;
-    fullname: string;
-    avatarUrl: string;
+    username?: string;
+    fullname?: string;
+    avatarUrl?: string;
   };
-  replyTo?: { id: string; message: string; sender: { username: string } };
+  replyTo?: {
+    id: string;
+    message: string;
+    sender: { username?: string; fullname?: string };
+  };
 };
 
 type PartnerStatus = {
@@ -91,15 +100,15 @@ type Props = {
   isShow: boolean;
 };
 
+// =============== UI PHỤ ===============
 const TypingBubble = () => (
-  <div className="flex items-center gap-1 px-4 py-2 bg-slate-200 dark:bg-slate-800 rounded-full w-fit mb-2 ml-10">
+  <div className="flex items-center gap-1 px-4 py-2 bg-slate-200 dark:bg-slate-800 rounded-full w-fit mb-2 ml-10 animate-in fade-in zoom-in duration-300">
     <span className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce" />
     <span className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce delay-75" />
     <span className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce delay-150" />
   </div>
 );
 
-// Skeleton khi đang tải tin nhắn lần đầu
 const MessageSkeletonList = ({ count = 4 }: { count?: number }) => {
   return (
     <div className="flex flex-col gap-3">
@@ -123,15 +132,13 @@ const MessageSkeletonList = ({ count = 4 }: { count?: number }) => {
             <div className="px-4 py-3 rounded-2xl bg-slate-800/70 animate-pulse w-40 sm:w-56" />
             <div className="h-2 w-10 bg-slate-800/60 rounded-full animate-pulse" />
           </div>
-          {idx % 2 !== 0 && (
-            <div className="h-7 w-7 rounded-full bg-slate-800 animate-pulse mt-2" />
-          )}
         </div>
       ))}
     </div>
   );
 };
 
+// =============== MAIN ===============
 export default function MainMessage({
   apiBase,
   socketUrl,
@@ -140,91 +147,89 @@ export default function MainMessage({
   isShow,
   setIsShow,
 }: Props) {
-  // [CẤU HÌNH] API Base riêng cho Video Call
   const videoApiBase =
     process.env.NEXT_PUBLIC_VIDEO_API || "http://localhost:4004/api/v1/video";
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
-
-  // State Chat
   const [isPartnerTyping, setIsPartnerTyping] = useState(false);
   const [partnerStatus, setPartnerStatus] = useState<PartnerStatus>({
     isOnline: false,
     lastSeen: null,
   });
   const [conversation, setConversation] = useState<Conversation | null>(null);
-
-  // Loading state
   const [initialLoading, setInitialLoading] = useState(true);
 
-  // Đổi tên nhóm
   const [isRenameOpen, setIsRenameOpen] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
   const [renaming, setRenaming] = useState(false);
-
-  // State Pagination
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [oldestCursor, setOldestCursor] = useState<string | null>(null);
-
-  // State Actions
   const [deletingMessage, setDeletingMessage] = useState<ChatMessage | null>(
     null
   );
   const [replyingTo, setReplyingTo] = useState<ChatMessage | null>(null);
 
-  // Refs
   const socketRef = useRef<Socket | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
-
-  // Refs for Typing Logic
   const sendTypingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const receiveTypingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastTypingEmit = useRef<number>(0);
-
   const { locale } = useParams();
 
+  // =======================
+  //  TIN MỚI NHẤT ĐÃ ĐỌC → cho avatar "Đã xem"
+  // =======================
+  const lastReadMessageId = useMemo(() => {
+    const mine = messages.filter(
+      (m) => String(m.senderId || m.sender_id) === String(userId)
+    );
+    const readOnes = mine.filter((m) =>
+      m.readBy?.some(
+        (r) => String(r.userId) !== String(userId) && r.read_at != null
+      )
+    );
+    if (!readOnes.length) return null;
+    return readOnes[readOnes.length - 1].id;
+  }, [messages, userId]);
+
+  // =======================
+  // VIDEO CALL
+  // =======================
   const openVideoCallWindow = useCallback(
     (roomCode: string) => {
       const width = 1000;
       const height = 700;
       const left = (window.screen.width - width) / 2;
       const top = (window.screen.height - height) / 2;
-
       const url = `/${locale}/app/video-call/${roomCode}?userId=${userId}`;
-
       window.open(
         url,
         `VideoCall_${roomCode}`,
-        `width=${width},height=${height},top=${top},left=${left},resizable=yes,scrollbars=no,status=no`
+        `width=${width},height=${height},top=${top},left=${left},resizable=yes`
       );
     },
     [locale, userId]
   );
 
-  const lastReadMessageId = useMemo(() => {
-    const mine = messages.filter(
-      (m) => String(m.senderId || m.sender_id) === String(userId)
-    );
-    const readOnes = mine.filter((m) =>
-      m.readBy?.some((r) => String(r.userId) !== String(userId))
-    );
-    return readOnes.length ? readOnes[readOnes.length - 1].id : null;
-  }, [messages, userId]);
+  const handleStartCall = async () => {
+    try {
+      const res = await axios.post(`${videoApiBase}/create`, {
+        conversationId,
+        hostId: userId,
+      });
+      if (res.data?.room || res.data?.roomCode) {
+        openVideoCallWindow(res.data.room?.room_code || res.data.roomCode);
+      }
+    } catch {
+      toast.error("Lỗi tạo cuộc gọi");
+    }
+  };
 
-  // Reset states khi đổi conversation
-  useEffect(() => {
-    setIsPartnerTyping(false);
-    if (sendTypingTimeoutRef.current)
-      clearTimeout(sendTypingTimeoutRef.current);
-    if (receiveTypingTimeoutRef.current)
-      clearTimeout(receiveTypingTimeoutRef.current);
-  }, [conversationId]);
-
-  // =========================
-  // SOCKET INITIALIZATION
-  // =========================
+  // =======================
+  // SOCKET
+  // =======================
   useEffect(() => {
     if (!userId || !conversationId) return;
 
@@ -234,23 +239,33 @@ export default function MainMessage({
     socket.emit("join-room", conversationId);
 
     const handleNewMessage = (msg: any) => {
-      if (msg.conversation_id !== conversationId) return;
+      if (String(msg.conversation_id) !== String(conversationId)) return;
+
       setIsPartnerTyping(false);
 
       const shaped: ChatMessage = {
         id: msg.id,
-        conversationId: msg.conversation_id,
+        conversationId: String(msg.conversation_id),
         senderId: msg.senderId || msg.sender_id,
         sender_id: msg.sender_id,
         message: msg.message,
         status: msg.status || "show",
-        createdAt: msg.created_at || msg.createdAt || new Date().toISOString(),
-        readBy: (msg.readReceipts || []).map((r: any) => ({
-          userId: String(r.user_id),
+        createdAt: msg.createdAt || msg.created_at || new Date().toISOString(),
+        readBy: (msg.readReceipts || msg.read_by || []).map((r: any) => ({
+          userId: String(r.user_id || r.userId),
           read_at: r.read_at,
         })),
         sender: msg.sender,
-        replyTo: msg.replyTo,
+        replyTo: msg.replyTo
+          ? {
+              id: msg.replyTo.id,
+              message: msg.replyTo.message,
+              sender: {
+                username: msg.replyTo.sender?.username,
+                fullname: msg.replyTo.sender?.fullname,
+              },
+            }
+          : undefined,
       };
 
       setMessages((prev) => {
@@ -268,51 +283,30 @@ export default function MainMessage({
       }
     };
 
-    const handleMessageUpdated = (msg: any) => {
-      if (msg.conversationId !== conversationId) return;
-      setMessages((prev) =>
-        prev.map((m) =>
-          m.id === msg.id
-            ? {
-                ...m,
-                status: msg.status || m.status,
-                message:
-                  msg.status === "recall"
-                    ? "Tin nhắn đã được thu hồi"
-                    : m.message,
-              }
-            : m
-        )
-      );
-    };
+    const handleMessagesRead = (data: any) => {
+      const { conversationId: cid, readerId, messageIds, readAt } = data;
+      if (String(cid) !== String(conversationId)) return;
 
-    const handleMessagesRead = ({
-      conversationId: cid,
-      readerId,
-      messageIds,
-      readAt,
-    }: any) => {
-      if (cid !== conversationId) return;
       setMessages((prev) =>
         prev.map((m) => {
           if (!messageIds.includes(m.id)) return m;
-          const exists = m.readBy?.some(
+          const nextReadBy = [...(m.readBy || [])];
+          const idx = nextReadBy.findIndex(
             (r) => String(r.userId) === String(readerId)
           );
-          if (exists) return m;
-          return {
-            ...m,
-            readBy: [
-              ...(m.readBy || []),
-              { userId: String(readerId), read_at: readAt },
-            ],
-          };
+          const time = readAt || new Date().toISOString();
+          if (idx !== -1) {
+            nextReadBy[idx] = { ...nextReadBy[idx], read_at: time };
+          } else {
+            nextReadBy.push({ userId: String(readerId), read_at: time });
+          }
+          return { ...m, readBy: nextReadBy };
         })
       );
     };
 
     const handleTyping = (data: any) => {
-      if (data.conversationId !== conversationId) return;
+      if (String(data.conversationId) !== String(conversationId)) return;
       if (String(data.userId) === String(userId)) return;
 
       const isTyping = Boolean(data.isTyping);
@@ -328,27 +322,48 @@ export default function MainMessage({
       }
     };
 
-    const handleUserPresence = ({
-      userId: uid,
-      isOnline,
-      lastSeen,
-    }: {
-      userId: string;
-      isOnline: boolean;
-      lastSeen: string | null;
-    }) => {
+    const handleUserPresence = (data: any) => {
       if (conversation && !conversation.is_group) {
-        const partner = conversation.members?.find((m) => m.user_id === uid);
+        const partner = conversation.members?.find(
+          (m) => String(m.user_id) === String(data.userId)
+        );
         if (partner) {
-          setPartnerStatus({ isOnline, lastSeen });
+          setPartnerStatus({
+            isOnline: data.isOnline,
+            lastSeen: data.lastSeen,
+          });
         }
       }
     };
 
-    // [VIDEO CALL] Lắng nghe cuộc gọi đến
+    const handleMessageUpdated = (msg: any) => {
+      if (String(msg.conversationId) !== String(conversationId)) return;
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === msg.id
+            ? {
+                ...m,
+                status: msg.status,
+                message:
+                  msg.status === "recall" ? "Tin nhắn đã thu hồi" : m.message,
+              }
+            : m
+        )
+      );
+    };
+
+    const handleConversationUpdated = (d: any) => {
+      if (String(d.conversationId) === String(conversationId) && d.newName) {
+        setConversation((prev) => (prev ? { ...prev, name: d.newName } : prev));
+      }
+    };
+
     const handleIncomingCall = (data: any) => {
-      if (data.conversationId !== conversationId) return;
-      if (data.callerId === userId) return;
+      if (
+        String(data.conversationId) !== String(conversationId) ||
+        String(data.callerId) === String(userId)
+      )
+        return;
 
       toast.custom(
         (t) => (
@@ -362,7 +377,7 @@ export default function MainMessage({
                   Cuộc gọi đến
                 </div>
                 <div className="text-xs text-slate-400">
-                  {data.callerName || "Người gọi"} đang gọi bạn
+                  {data.callerName} đang gọi...
                 </div>
               </div>
             </div>
@@ -391,53 +406,93 @@ export default function MainMessage({
       );
     };
 
-    const handleConversationUpdated = (d: {
-      conversationId: string;
-      newName?: string;
-    }) => {
-      if (d.conversationId !== conversationId) return;
-      if (!d.newName) return;
-
-      setConversation((prev) => (prev ? { ...prev, name: d.newName } : prev));
-    };
-
-    socket.on("conversation-updated", handleConversationUpdated);
     socket.on("new-message", handleNewMessage);
-    socket.on("message-updated", handleMessageUpdated);
     socket.on("messages-read", handleMessagesRead);
-    socket.on("user-presence", handleUserPresence);
     socket.on("typing", handleTyping);
+    socket.on("user-presence", handleUserPresence);
+    socket.on("message-updated", handleMessageUpdated);
+    socket.on("conversation-updated", handleConversationUpdated);
     socket.on("incoming-call", handleIncomingCall);
 
     return () => {
       socket.emit("leave-room", conversationId);
       socket.off("new-message", handleNewMessage);
-      socket.off("message-updated", handleMessageUpdated);
       socket.off("messages-read", handleMessagesRead);
-      socket.off("user-presence", handleUserPresence);
       socket.off("typing", handleTyping);
-      socket.off("incoming-call", handleIncomingCall);
+      socket.off("user-presence", handleUserPresence);
+      socket.off("message-updated", handleMessageUpdated);
       socket.off("conversation-updated", handleConversationUpdated);
+      socket.off("incoming-call", handleIncomingCall);
     };
   }, [conversationId, userId, socketUrl, conversation, openVideoCallWindow]);
 
-  // =========================
-  // FETCH DATA & SCROLL
-  // =========================
+  // =======================
+  // SCROLL BOTTOM KHI CÓ TIN MỚI
+  // =======================
+  useEffect(() => {
+    if (bottomRef.current) {
+      bottomRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "end",
+      });
+    }
+  }, [messages.length, conversationId]);
+
+  // =======================
+  // AUTO MARK READ (CLIENT)
+  // =======================
+  useEffect(() => {
+    const socket = socketRef.current;
+    if (!socket || !messages.length) return;
+
+    const unreadIds = messages
+      .filter((m) => {
+        const sender = String(m.senderId || m.sender_id);
+        const isMine = sender === String(userId);
+        const isReadByMe = m.readBy?.some(
+          (r) => String(r.userId) === String(userId) && r.read_at
+        );
+        return !isMine && !isReadByMe;
+      })
+      .map((m) => m.id);
+
+    if (unreadIds.length > 0) {
+      socket.emit("mark-read", {
+        conversationId,
+        readerId: userId,
+        messageIds: unreadIds,
+      });
+    }
+  }, [messages, conversationId, userId]);
+
+  // =======================
+  // FETCH INITIAL (khi đổi conv → reset)
+  // =======================
   useEffect(() => {
     if (!userId || !conversationId) return;
 
+    const LIMIT = 30;
+
     const fetchData = async () => {
       setInitialLoading(true);
+      setMessages([]);
+      setHasMore(true);
+      setOldestCursor(null);
+
       try {
-        const resC = await axios.get(
-          `${apiBase}/conversations?user_id=${userId}`
-        );
-        const listRaw =
-          (Array.isArray(resC.data) ? resC.data : resC.data.data) || [];
-        const list = listRaw as Conversation[];
-        const current = list.find((c) => c.id === conversationId) || null;
-        setConversation(current);
+        const [resC, resM] = await Promise.all([
+          axios.get(`${apiBase}/conversations?user_id=${userId}`),
+          axios.get(`${apiBase}/${conversationId}/history`, {
+            params: { userId, limit: LIMIT },
+          }),
+        ]);
+
+        const listRaw = (
+          Array.isArray(resC.data) ? resC.data : resC.data.data
+        ) as Conversation[];
+        const current =
+          listRaw?.find((c) => String(c.id) === String(conversationId)) || null;
+        setConversation(current || null);
 
         if (current && !current.is_group) {
           const other = current.members?.find(
@@ -451,13 +506,10 @@ export default function MainMessage({
           }
         }
 
-        const resM = await axios.get(`${apiBase}/${conversationId}/history`, {
-          params: { userId, limit: 30 },
-        });
-        const raw = resM.data || [];
-        const shaped: ChatMessage[] = raw.map((m: any) => ({
+        const rawMsgs = resM.data || [];
+        const shaped: ChatMessage[] = rawMsgs.map((m: any) => ({
           id: m.id,
-          conversationId: m.conversation_id,
+          conversationId: String(m.conversation_id),
           senderId: m.senderId || m.sender_id,
           sender_id: m.sender_id,
           message: m.message,
@@ -468,13 +520,24 @@ export default function MainMessage({
             read_at: r.read_at,
           })),
           sender: m.sender,
-          replyTo: m.replyTo,
+          replyTo: m.replyTo
+            ? {
+                id: m.replyTo.id,
+                message: m.replyTo.message,
+                sender: {
+                  username: m.replyTo.sender?.username,
+                  fullname: m.replyTo.sender?.fullname,
+                },
+              }
+            : undefined,
         }));
 
+        // BACKEND đã trả ASC (cũ → mới) do rows.reverse() rồi
         setMessages(shaped);
+
         if (shaped.length > 0) {
-          setOldestCursor(shaped[0].createdAt);
-          if (shaped.length < 30) setHasMore(false);
+          setOldestCursor(shaped[0].createdAt); // tin cũ nhất hiện tại
+          if (shaped.length < LIMIT) setHasMore(false);
         } else {
           setHasMore(false);
         }
@@ -484,199 +547,20 @@ export default function MainMessage({
         setInitialLoading(false);
       }
     };
+
     fetchData();
   }, [conversationId, userId, apiBase]);
 
-  useEffect(() => {
-    if (!bottomRef.current) return;
-    bottomRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [messages, conversationId, userId]);
-
-  useEffect(() => {
-    const socket = socketRef.current;
-    if (!socket || !messages.length) return;
-
-    const unreadIds = messages
-      .filter((m) => {
-        const sender = String(m.senderId || m.sender_id);
-        return (
-          sender !== String(userId) &&
-          !m.readBy?.some((r) => String(r.userId) === String(userId))
-        );
-      })
-      .map((m) => m.id);
-
-    if (!unreadIds.length) return;
-
-    socket.emit("mark-read", {
-      conversationId,
-      readerId: userId,
-      messageIds: unreadIds,
-    });
-  }, [messages, conversationId, userId]);
-
-  // =========================
-  // ACTIONS
-  // =========================
-
-  const handleOpenRename = () => {
-    if (!conversation?.is_group) return;
-    setNewGroupName(conversation.name || "");
-    setIsRenameOpen(true);
-  };
-
-  const handleRenameGroup = async () => {
-    if (!conversation?.is_group) return;
-
-    const trimmed = newGroupName.trim();
-    if (!trimmed) {
-      toast.error("Vui lòng nhập tên nhóm mới");
-      return;
-    }
-
-    setRenaming(true);
-    try {
-      const res = await axios.post(
-        `${apiBase}/group/rename`,
-        {
-          conversationId,
-          newName: trimmed,
-        },
-        {
-          headers: {
-            "x-user-id": userId,
-          },
-        }
-      );
-
-      const serverName = res.data?.newName ?? trimmed;
-
-      setConversation((prev) => (prev ? { ...prev, name: serverName } : prev));
-
-      toast.success("Đổi tên nhóm thành công");
-      setIsRenameOpen(false);
-    } catch (err) {
-      console.error(err);
-      toast.error(
-        (err as any)?.response?.data?.message ||
-          "Đổi tên nhóm thất bại, vui lòng thử lại"
-      );
-    } finally {
-      setRenaming(false);
-    }
-  };
-
-  // [VIDEO CALL] Bắt đầu cuộc gọi
-  const handleStartCall = async () => {
-    try {
-      const res = await axios.post(`${videoApiBase}/create`, {
-        conversationId,
-        hostId: userId,
-      });
-
-      if (res.data.success || res.data.room) {
-        const code = res.data.room?.room_code || res.data.roomCode;
-        openVideoCallWindow(code);
-      }
-    } catch {
-      toast.error("Lỗi tạo cuộc gọi");
-    }
-  };
-
-  const loadMore = async () => {
-    if (!hasMore || loadingMore || !oldestCursor) return;
-    setLoadingMore(true);
-    try {
-      const res = await axios.get(`${apiBase}/${conversationId}/history`, {
-        params: { userId, limit: 20, cursor: oldestCursor },
-      });
-      const raw = res.data || [];
-      const shaped: ChatMessage[] = raw.map((m: any) => ({
-        id: m.id,
-        conversationId: m.conversation_id,
-        senderId: m.senderId || m.sender_id,
-        sender_id: m.sender_id,
-        message: m.message,
-        status: m.status || "show",
-        createdAt: m.created_at || m.createdAt || new Date().toISOString(),
-        readBy: (m.readReceipts || m.read_by || []).map((r: any) => ({
-          userId: String(r.user_id || r.userId),
-          read_at: r.read_at,
-        })),
-        sender: m.sender,
-        replyTo: m.replyTo,
-      }));
-      setMessages((prev) => [...shaped.reverse(), ...prev]);
-      if (shaped.length < 20) setHasMore(false);
-      if (shaped.length > 0) setOldestCursor(shaped[0].createdAt);
-    } catch {
-      toast.error("Lỗi tải tin nhắn cũ");
-    } finally {
-      setLoadingMore(false);
-    }
-  };
-
-  const handleSend = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim()) return;
-    const txt = input.trim();
-    setInput("");
-    const replyBackup = replyingTo;
-    setReplyingTo(null);
-
-    if (socketRef.current) {
-      socketRef.current.emit("typing", {
-        conversationId,
-        userId,
-        isTyping: false,
-      });
-      if (sendTypingTimeoutRef.current)
-        clearTimeout(sendTypingTimeoutRef.current);
-    }
-
-    try {
-      const res = await axios.post(`${apiBase}/send`, {
-        conversationId,
-        senderId: userId,
-        message: txt,
-        replyToId: replyBackup?.id,
-      });
-      const created = res?.data;
-      if (created && created.id) {
-        const shaped: ChatMessage = {
-          id: created.id,
-          conversationId: created.conversation_id || conversationId,
-          senderId: created.senderId || created.sender_id || userId,
-          sender_id: created.sender_id || userId,
-          message: created.message,
-          status: created.status || "show",
-          createdAt:
-            created.created_at || created.createdAt || new Date().toISOString(),
-          readBy: (created.readReceipts || []).map((r: any) => ({
-            userId: String(r.user_id),
-            read_at: r.read_at,
-          })),
-          sender: created.sender,
-          replyTo: created.replyTo,
-        };
-        setMessages((prev) => {
-          if (prev.find((m) => m.id === shaped.id)) return prev;
-          return [...prev, shaped];
-        });
-      }
-    } catch {
-      toast.error("Gửi tin nhắn thất bại");
-    }
-  };
-
+  // =======================
+  // HANDLERS
+  // =======================
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setInput(value);
+
     const now = Date.now();
     const socket = socketRef.current;
-    if (!socket) return;
-
-    if (now - lastTypingEmit.current > 400) {
+    if (socket && now - lastTypingEmit.current > 400) {
       socket.emit("typing", {
         conversationId,
         userId,
@@ -684,11 +568,107 @@ export default function MainMessage({
       });
       lastTypingEmit.current = now;
     }
+
     if (sendTypingTimeoutRef.current)
       clearTimeout(sendTypingTimeoutRef.current);
     sendTypingTimeoutRef.current = setTimeout(() => {
-      socket.emit("typing", { conversationId, userId, isTyping: false });
+      socket?.emit("typing", { conversationId, userId, isTyping: false });
     }, 2000);
+  };
+
+  const handleSend = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+
+    const txt = input.trim();
+    const replyId = replyingTo?.id;
+    setInput("");
+    setReplyingTo(null);
+
+    socketRef.current?.emit("typing", {
+      conversationId,
+      userId,
+      isTyping: false,
+    });
+
+    try {
+      await axios.post(`${apiBase}/send`, {
+        conversationId,
+        senderId: userId,
+        message: txt,
+        replyToId: replyId,
+      });
+    } catch {
+      toast.error("Gửi thất bại");
+    }
+  };
+
+  const loadMore = async () => {
+    if (!hasMore || loadingMore || !oldestCursor) return;
+    setLoadingMore(true);
+    try {
+      const LIMIT = 20;
+      const res = await axios.get(`${apiBase}/${conversationId}/history`, {
+        params: { userId, limit: LIMIT, cursor: oldestCursor },
+      });
+      const raw = res.data || [];
+      const shaped: ChatMessage[] = raw.map((m: any) => ({
+        id: m.id,
+        conversationId: String(m.conversation_id),
+        senderId: m.senderId || m.sender_id,
+        sender_id: m.sender_id,
+        message: m.message,
+        status: m.status || "show",
+        createdAt: m.created_at || m.createdAt,
+        readBy: (m.readReceipts || m.read_by || []).map((r: any) => ({
+          userId: String(r.user_id || r.userId),
+          read_at: r.read_at,
+        })),
+        sender: m.sender,
+        replyTo: m.replyTo
+          ? {
+              id: m.replyTo.id,
+              message: m.replyTo.message,
+              sender: {
+                username: m.replyTo.sender?.username,
+                fullname: m.replyTo.sender?.fullname,
+              },
+            }
+          : undefined,
+      }));
+
+      if (shaped.length > 0) {
+        // shaped là chunk cũ hơn (ASC) → prepend vào đầu
+        setMessages((prev) => [...shaped, ...prev]);
+        setOldestCursor(shaped[0].createdAt);
+      }
+      if (shaped.length < LIMIT) setHasMore(false);
+    } catch {
+      toast.error("Lỗi tải tin cũ");
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  const handleRenameGroup = async () => {
+    if (!conversation?.is_group || !newGroupName.trim()) return;
+    setRenaming(true);
+    try {
+      await axios.post(
+        `${apiBase}/group/rename`,
+        {
+          conversationId,
+          newName: newGroupName.trim(),
+        },
+        { headers: { "x-user-id": userId } }
+      );
+      setIsRenameOpen(false);
+      toast.success("Đổi tên thành công");
+    } catch {
+      toast.error("Lỗi đổi tên");
+    } finally {
+      setRenaming(false);
+    }
   };
 
   const handleConfirmDelete = async () => {
@@ -701,371 +681,325 @@ export default function MainMessage({
       );
       setDeletingMessage(null);
     } catch {
-      toast.error("Thu hồi tin nhắn thất bại");
+      toast.error("Lỗi thu hồi");
     }
   };
 
   const title = conversation?.is_group
-    ? conversation.name || "Nhóm"
+    ? conversation.name
     : conversation?.members?.find((m) => String(m.user_id) !== String(userId))
-        ?.user?.username || "Đối tác";
+        ?.user?.username || "Chat";
 
-  console.log(isShow, setIsShow);
-
+  // =======================
+  // RENDER
+  // =======================
   return (
-    <div className="flex flex-col h-full bg-gradient-to-b from-[#050816] via-[#020617] to-[#000000] text-slate-50">
+    <div className="flex flex-col h-full bg-gradient-to-b from-[#050816] via-[#020617] to-[#000000] text-slate-50 relative">
       {/* HEADER */}
-      <div className="h-16 border-b border-slate-800 px-4 flex items-center justify-between bg-gradient-to-r from-slate-900 via-slate-900 to-slate-800 z-10">
+      <div className="h-16 border-b border-slate-800 px-4 flex items-center justify-between bg-slate-900/50 backdrop-blur-md z-10">
         <div className="flex items-center gap-3">
-          <div>
-            <Menu onClick={() => setIsShow(true)} className="block md:hidden" />
-          </div>
+          <Menu
+            onClick={() => setIsShow(!isShow)}
+            className="block md:hidden cursor-pointer hover:text-blue-400"
+          />
           <div className="relative">
-            <Avatar className="h-10 w-10 shadow-sm">
+            <Avatar className="h-10 w-10 border border-slate-700">
               <AvatarImage src="" />
-              <AvatarFallback className="bg-gradient-to-tr from-blue-500 to-indigo-500 text-white font-bold">
+              <AvatarFallback className="bg-blue-600 font-bold">
                 {title?.[0]?.toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            {partnerStatus.isOnline && !conversation?.is_group && (
-              <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-slate-900 rounded-full" />
+            {!conversation?.is_group && partnerStatus.isOnline && (
+              <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-slate-900 rounded-full shadow-lg shadow-green-500/50" />
             )}
           </div>
-          <div>
-            <div className="font-semibold text-slate-100">{title}</div>
-            <div className="text-xs text-slate-400">
+          <div className="flex flex-col">
+            <span className="font-semibold text-sm md:text-base">{title}</span>
+            <span className="text-[10px] md:text-xs text-slate-400">
               {conversation?.is_group ? (
-                `${conversation.members?.length || 0} thành viên`
+                `${conversation.members?.length ?? 0} thành viên`
               ) : isPartnerTyping ? (
                 <span className="text-blue-400 font-medium animate-pulse">
-                  Đang nhập...
+                  Đang soạn tin...
                 </span>
               ) : partnerStatus.isOnline ? (
                 <span className="text-green-400">Đang hoạt động</span>
               ) : (
                 formatLastSeen(partnerStatus.lastSeen)
               )}
-            </div>
+            </span>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-1">
           {conversation?.is_group && (
             <Button
               size="icon"
               variant="ghost"
-              className="rounded-full hover:bg-slate-700 text-slate-300"
-              onClick={handleOpenRename}
+              onClick={() => {
+                setNewGroupName(conversation.name || "");
+                setIsRenameOpen(true);
+              }}
             >
               <Pencil className="w-4 h-4" />
             </Button>
           )}
-
-          <Button
-            size="icon"
-            variant="ghost"
-            className="rounded-full hover:bg-slate-700 text-slate-300"
-            onClick={handleStartCall}
-          >
-            <Phone />
+          <Button size="icon" variant="ghost" onClick={handleStartCall}>
+            <Phone className="w-4 h-4" />
           </Button>
-          <Button
-            size="icon"
-            variant="ghost"
-            className="rounded-full hover:bg-slate-700 text-slate-300"
-            onClick={handleStartCall}
-          >
-            <VideoIcon />
+          <Button size="icon" variant="ghost" onClick={handleStartCall}>
+            <VideoIcon className="w-4 h-4" />
           </Button>
         </div>
       </div>
 
-      {/* DIALOG ĐỔI TÊN NHÓM */}
-      <Dialog
-        open={isRenameOpen}
-        onOpenChange={(open) => {
-          setIsRenameOpen(open);
-          if (!open && conversation?.is_group) {
-            setNewGroupName(conversation.name || "");
-          }
-        }}
-      >
-        <DialogContent className="bg-slate-950 border border-slate-800">
-          <DialogHeader>
-            <DialogTitle>Đổi tên nhóm</DialogTitle>
-          </DialogHeader>
-
-          <div className="mt-3 space-y-2">
-            <label className="text-xs text-slate-400">Tên nhóm mới</label>
-            <Input
-              value={newGroupName}
-              onChange={(e) => setNewGroupName(e.target.value)}
-              placeholder="Nhập tên nhóm mới..."
-              className="bg-slate-900 border-slate-700 text-sm"
-            />
-          </div>
-
-          <DialogFooter className="mt-4 flex justify-end gap-2">
+      {/* MESSAGES */}
+      <div className="flex-1 overflow-y-auto custom-scrollbar p-4 scroll-smooth">
+        {hasMore && !initialLoading && (
+          <div className="flex justify-center mb-4">
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setIsRenameOpen(false)}
-              className="h-8 px-3 text-slate-300 hover:bg-slate-800"
+              className="text-xs text-slate-400 hover:text-white"
+              onClick={loadMore}
+              disabled={loadingMore}
             >
-              Hủy
+              {loadingMore ? "Đang tải..." : "Tải tin nhắn cũ"}
             </Button>
-            <Button
-              size="sm"
-              disabled={renaming}
-              onClick={handleRenameGroup}
-              className="h-8 px-3 bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              {renaming ? "Đang lưu..." : "Lưu"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </div>
+        )}
 
-      {/* BODY */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="px-4 py-3 flex flex-col gap-2">
-          {hasMore && !initialLoading && (
-            <div className="flex justify-center mb-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-xs border-slate-700 text-slate-300 hover:bg-slate-800"
-                onClick={loadMore}
-                disabled={loadingMore}
-              >
-                {loadingMore ? "Đang tải..." : "Tải thêm tin nhắn cũ"}
-              </Button>
-            </div>
-          )}
+        {initialLoading ? (
+          <MessageSkeletonList />
+        ) : (
+          <div className="flex flex-col gap-1.5">
+            {messages.map((msg) => {
+              const isMine =
+                String(msg.senderId || msg.sender_id) === String(userId);
+              const isRecalled = msg.status === "recall";
 
-          {/* Loading lần đầu: hiển thị skeleton */}
-          {initialLoading && !messages.length ? (
-            <MessageSkeletonList />
-          ) : (
-            <>
-              {messages.map((msg) => {
-                const rawSenderId = msg.senderId || msg.sender_id;
-                const isMine = String(rawSenderId) === String(userId);
-                const isRecalled = msg.status === "recall";
-                const isReadByOthers = msg.readBy?.some(
-                  (r) => String(r.userId) !== String(userId)
-                );
+              const isReadByOthers = msg.readBy?.some(
+                (r) => String(r.userId) !== String(userId) && r.read_at
+              );
+              const isLastRead =
+                isMine && isReadByOthers && msg.id === lastReadMessageId;
 
-                const isLastRead =
-                  msg.id === lastReadMessageId && Boolean(isReadByOthers);
+              const readers =
+                isLastRead && conversation
+                  ? (msg.readBy || [])
+                      .filter(
+                        (r) => String(r.userId) !== String(userId) && r.read_at
+                      )
+                      .map(
+                        (r) =>
+                          conversation.members?.find(
+                            (m) => String(m.user_id) === String(r.userId)
+                          )?.user
+                      )
+                      .filter(Boolean)
+                  : [];
 
-                const readers =
-                  isLastRead && conversation
-                    ? (msg.readBy || [])
-                        .filter((r) => String(r.userId) !== String(userId))
-                        .map(
-                          (r) =>
-                            conversation.members?.find(
-                              (m) =>
-                                m.user && String(m.user.id) === String(r.userId)
-                            )?.user
-                        )
-                        .filter(Boolean)
-                    : [];
+              return (
+                <div
+                  key={msg.id}
+                  className={cn(
+                    "flex w-full group animate-in fade-in slide-in-from-bottom-2 duration-300",
+                    isMine ? "justify-end" : "justify-start"
+                  )}
+                >
+                  {!isMine && (
+                    <Avatar className="h-8 w-8 mr-2 mt-1">
+                      <AvatarImage src={msg.sender?.avatarUrl} />
+                      <AvatarFallback className="bg-slate-700 text-[10px]">
+                        {msg.sender?.username?.[0] || msg.sender?.fullname?.[0]}
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
 
-                return (
                   <div
-                    key={msg.id}
                     className={cn(
-                      "flex w-full group gap-2",
-                      isMine ? "justify-end" : "justify-start"
+                      "flex flex-col max-w-[75%] md:max-w-[60%] relative",
+                      isMine ? "items-end" : "items-start"
                     )}
                   >
-                    {!isMine && (
-                      <Avatar className="h-7 w-7 mt-5">
-                        <AvatarImage src={msg.sender?.avatarUrl} />
-                        <AvatarFallback className="bg-slate-700 text-xs font-bold text-slate-100">
-                          {msg.sender?.username?.[0] || "U"}
-                        </AvatarFallback>
-                      </Avatar>
+                    {msg.replyTo && (
+                      <div className="mb-1 px-3 py-1.5 bg-slate-800/50 rounded-lg border-l-2 border-blue-500 text-xs text-slate-300 cursor-pointer hover:bg-slate-800">
+                        <span className="font-bold text-blue-400 block">
+                          {msg.replyTo.sender?.username ||
+                            msg.replyTo.sender?.fullname}
+                        </span>
+                        <span className="line-clamp-1 italic">
+                          {msg.replyTo.message}
+                        </span>
+                      </div>
                     )}
 
                     <div
                       className={cn(
-                        "max-w-[70%] relative",
-                        isMine ? "order-1" : "order-2"
+                        "px-4 py-2 text-sm shadow-md break-words",
+                        isMine
+                          ? "bg-blue-600 text-white rounded-2xl rounded-tr-sm"
+                          : "bg-slate-800 text-slate-100 rounded-2xl rounded-tl-sm border border-slate-700",
+                        isRecalled &&
+                          "bg-transparent border border-slate-600 text-slate-400 italic"
                       )}
                     >
-                      {msg.replyTo && (
-                        <div className="text-xs bg-slate-800/70 text-slate-200 p-1.5 rounded mb-1 border-l-2 border-blue-500">
-                          <div className="font-bold text-blue-400">
-                            {msg.replyTo.sender?.username || "User"}
-                          </div>
-                          <div className="line-clamp-2">
-                            {msg.replyTo.message}
-                          </div>
-                        </div>
-                      )}
+                      {isRecalled ? "Tin nhắn đã thu hồi" : msg.message}
+                    </div>
 
-                      <div
-                        className={cn(
-                          "px-4 py-2 rounded-2xl text-sm shadow-sm",
-                          isMine
-                            ? "bg-blue-600 text-white rounded-br-sm"
-                            : "bg-slate-900 text-slate-100 border border-slate-700 rounded-bl-sm",
-                          isRecalled &&
-                            "italic text-slate-500 bg-slate-800 border-none"
-                        )}
-                      >
-                        {isRecalled ? "Tin nhắn đã thu hồi" : msg.message}
-                      </div>
-
-                      <div
-                        className={cn(
-                          "text-[10px] flex gap-1 mt-1 text-slate-400 items-center",
-                          isMine ? "justify-end" : "justify-start"
-                        )}
-                      >
-                        <span>{formatMessageTime(msg.createdAt)}</span>
-                        {isMine && !isRecalled && isLastRead && (
-                          <CheckCheck size={14} className="text-blue-500" />
-                        )}
-                      </div>
-
-                      {isMine && isLastRead && readers.length > 0 && (
-                        <div className="flex justify-end mt-1 gap-1">
-                          {readers.map((u, idx) =>
-                            u ? (
-                              <Avatar
-                                key={`${msg.id}-reader-${u.id}-${idx}`}
-                                className="h-4 w-4 border border-slate-900"
-                              >
-                                <AvatarImage src={u.avatarUrl || ""} />
-                                <AvatarFallback className="text-[9px] bg-slate-700 text-slate-100">
-                                  {u.username?.[0]?.toUpperCase() || "U"}
-                                </AvatarFallback>
-                              </Avatar>
-                            ) : null
-                          )}
-                        </div>
-                      )}
-
-                      {!isRecalled && (
-                        <div
-                          className={cn(
-                            "opacity-0 group-hover:opacity-100 absolute top-0 flex gap-1 transition-opacity",
-                            isMine ? "-left-16" : "-right-10"
-                          )}
-                        >
-                          <button
-                            type="button"
-                            onClick={() => setReplyingTo(msg)}
-                            className="w-6 h-6 rounded-full bg-slate-800/80 flex items-center justify-center hover:bg-slate-700"
-                          >
-                            <Reply size={14} />
-                          </button>
-                          {isMine && (
-                            <button
-                              type="button"
-                              onClick={() => setDeletingMessage(msg)}
-                              className="w-6 h-6 rounded-full bg-slate-800/80 flex items-center justify-center hover:bg-red-600/80 text-red-200"
-                            >
-                              <Trash2 size={14} />
-                            </button>
-                          )}
-                        </div>
+                    <div className="flex items-center gap-1 mt-0.5 px-1">
+                      <span className="text-[9px] text-slate-500">
+                        {formatMessageTime(msg.createdAt)}
+                      </span>
+                      {/* ✅ Hiển thị cho TẤT CẢ tin nhắn mình gửi đã được người khác đọc */}
+                      {isMine && !isRecalled && isReadByOthers && (
+                        <CheckCheck className="w-3 h-3 text-blue-400" />
                       )}
                     </div>
+
+                    {/* Hàng avatar "Đã xem" chỉ gắn vào tin mới nhất đã đọc */}
+                    {isLastRead && readers.length > 0 && (
+                      <div className="flex items-center justify-end -space-x-1 mt-1">
+                        {readers.map((u: any, idx: number) => (
+                          <Avatar
+                            key={idx}
+                            className="w-3 h-3 border border-black ring-1 ring-slate-800"
+                          >
+                            <AvatarImage src={u?.avatarUrl} />
+                            <AvatarFallback className="text-[5px]">
+                              {u?.username?.[0] || u?.fullname?.[0]}
+                            </AvatarFallback>
+                          </Avatar>
+                        ))}
+                      </div>
+                    )}
+
+                    {!isRecalled && (
+                      <div
+                        className={cn(
+                          "absolute top-0 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1",
+                          isMine ? "-left-14" : "-right-14"
+                        )}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => setReplyingTo(msg)}
+                          className="p-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300"
+                        >
+                          <Reply size={12} />
+                        </button>
+                        {isMine && (
+                          <button
+                            type="button"
+                            onClick={() => setDeletingMessage(msg)}
+                            className="p-1.5 rounded-full bg-slate-800 hover:bg-red-900/50 text-red-400"
+                          >
+                            <Trash2 size={12} />
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </div>
-                );
-              })}
-
-              {isPartnerTyping && <TypingBubble />}
-
-              <div ref={bottomRef} />
-            </>
-          )}
-        </div>
+                </div>
+              );
+            })}
+            {isPartnerTyping && <TypingBubble />}
+            <div ref={bottomRef} />
+          </div>
+        )}
       </div>
 
       {/* INPUT */}
-      <div className="p-4 bg-[#050816] border-t border-slate-800">
+      <div className="p-3 md:p-4 bg-[#050816] border-t border-slate-800/50 z-20">
         {replyingTo && (
-          <div className="flex justify-between items-center bg-slate-900 p-2 rounded-lg mb-2 border-l-4 border-blue-500 shadow-sm">
-            <div className="text-sm overflow-hidden">
-              <div className="text-xs text-slate-400 mb-1">Đang trả lời</div>
-              <div className="text-xs font-medium text-slate-200 line-clamp-1">
-                {replyingTo.sender?.username || "Tin nhắn"}
+          <div className="flex justify-between items-center bg-slate-900/80 p-2 rounded-lg mb-2 border-l-4 border-blue-500 animate-in slide-in-from-bottom-2">
+            <div className="text-xs">
+              <div className="text-slate-400">
+                Đang trả lời{" "}
+                <span className="font-bold text-slate-200">
+                  {replyingTo.sender?.username || replyingTo.sender?.fullname}
+                </span>
               </div>
-              <div className="text-xs text-slate-300 line-clamp-1">
+              <div className="text-slate-300 line-clamp-1 italic">
                 {replyingTo.message}
               </div>
             </div>
             <Button
               size="icon"
               variant="ghost"
-              className="text-slate-400 hover:text-slate-200"
+              className="h-6 w-6"
               onClick={() => setReplyingTo(null)}
             >
-              <X className="w-4 h-4" />
+              <X size={14} />
             </Button>
           </div>
         )}
 
-        <form onSubmit={handleSend} className="flex gap-2">
+        <form onSubmit={handleSend} className="flex gap-2 items-end">
           <Input
             value={input}
             onChange={handleInputChange}
-            placeholder={
-              initialLoading ? "Đang tải tin nhắn..." : "Nhập tin nhắn..."
-            }
+            placeholder="Nhập tin nhắn..."
+            className="rounded-xl border-slate-700 bg-slate-900 text-slate-100 focus-visible:ring-blue-500"
             disabled={initialLoading}
-            className="flex-1 rounded-full border-slate-700 bg-slate-900/80 text-slate-100 placeholder:text-slate-500 focus-visible:ring-blue-500 disabled:opacity-60"
           />
           <Button
             type="submit"
             size="icon"
-            disabled={initialLoading}
-            className="rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-md transition-transform active:scale-95 disabled:opacity-60"
+            className="rounded-xl bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-900/20 transition-all active:scale-95"
+            disabled={!input.trim()}
           >
             <Send className="w-4 h-4" />
           </Button>
         </form>
       </div>
 
-      {/* MODAL THU HỒI */}
+      {/* DIALOG THU HỒI */}
       {deletingMessage && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className="bg-slate-900 rounded-xl shadow-xl p-5 w-full max-w-sm border border-slate-700">
-            <h3 className="text-sm font-semibold text-slate-100 mb-2">
-              Thu hồi tin nhắn?
-            </h3>
-            <p className="text-xs text-slate-400 mb-4">
-              Tin nhắn sẽ bị thu hồi đối với tất cả mọi người trong cuộc trò
-              chuyện.
-            </p>
-            <div className="bg-slate-800/70 rounded-lg px-3 py-2 text-xs text-slate-200 mb-4">
-              {deletingMessage.message}
+        <Dialog
+          open={!!deletingMessage}
+          onOpenChange={(o) => !o && setDeletingMessage(null)}
+        >
+          <DialogContent className="bg-slate-950 border-slate-800 text-slate-100">
+            <DialogHeader>
+              <DialogTitle>Thu hồi tin nhắn?</DialogTitle>
+            </DialogHeader>
+            <div className="text-sm text-slate-400">
+              Tin nhắn sẽ bị gỡ khỏi cuộc trò chuyện với tất cả thành viên.
             </div>
-            <div className="flex justify-end gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setDeletingMessage(null)}
-              >
+            <DialogFooter>
+              <Button variant="ghost" onClick={() => setDeletingMessage(null)}>
                 Hủy
               </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                className="bg-red-600 hover:bg-red-700"
-                onClick={handleConfirmDelete}
-              >
+              <Button variant="destructive" onClick={handleConfirmDelete}>
                 Thu hồi
               </Button>
-            </div>
-          </div>
-        </div>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       )}
+
+      {/* DIALOG ĐỔI TÊN NHÓM */}
+      <Dialog open={isRenameOpen} onOpenChange={setIsRenameOpen}>
+        <DialogContent className="bg-slate-950 border-slate-800">
+          <DialogHeader>
+            <DialogTitle>Đổi tên nhóm</DialogTitle>
+          </DialogHeader>
+          <Input
+            value={newGroupName}
+            onChange={(e) => setNewGroupName(e.target.value)}
+            placeholder="Tên nhóm mới..."
+            className="bg-slate-900 border-slate-700"
+          />
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setIsRenameOpen(false)}>
+              Hủy
+            </Button>
+            <Button onClick={handleRenameGroup} disabled={renaming}>
+              Lưu
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
