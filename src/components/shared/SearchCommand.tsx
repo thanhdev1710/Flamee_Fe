@@ -44,7 +44,7 @@ export function SearchCommand() {
     data: postsData,
     error: errPosts,
     isLoading: loadingPosts,
-  } = useSWR(["posts", search], () => searchPost(search, 5));
+  } = useSWR(["posts", search], () => searchPost({ q: search, limit: 5 }));
   const {
     data: usersData,
     error: errUsers,

@@ -742,10 +742,20 @@ export default function MainMessage({
               <Pencil className="w-4 h-4" />
             </Button>
           )}
-          <Button size="icon" variant="ghost" onClick={handleStartCall}>
+          <Button
+            className="hidden"
+            size="icon"
+            variant="ghost"
+            onClick={handleStartCall}
+          >
             <Phone className="w-4 h-4" />
           </Button>
-          <Button size="icon" variant="ghost" onClick={handleStartCall}>
+          <Button
+            className="hidden"
+            size="icon"
+            variant="ghost"
+            onClick={handleStartCall}
+          >
             <VideoIcon className="w-4 h-4" />
           </Button>
         </div>

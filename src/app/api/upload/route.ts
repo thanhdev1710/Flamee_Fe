@@ -1,51 +1,81 @@
 import { NextRequest, NextResponse } from "next/server";
-import { compressImage } from "@/utils/compressFile";
+import {
+  compressImage,
+  compressPDF,
+  compressVideo,
+  zipGenericFile,
+} from "@/utils/compressFile";
+import { writeFile, mkdir } from "fs/promises";
 import path from "path";
-import { writeFile } from "fs/promises";
-import { join } from "path";
 
 export async function POST(req: NextRequest) {
-  const formData = await req.formData();
-  const file = formData.get("avatar") as File;
-  const firstName = formData.get("firstName")?.toString();
-  const lastName = formData.get("lastName")?.toString();
+  const uuid = crypto.randomUUID();
+  const form = await req.formData();
+  const file = form.get("file") as File;
 
   if (!file) {
-    return NextResponse.json({ message: "No file uploaded" }, { status: 400 });
+    return NextResponse.json({ error: "Thiếu file" }, { status: 400 });
   }
 
-  // Đổi tên file sau khi nén
-  const fileNameWithoutExtension = path.parse(file.name).name;
-  const fileExtension = ".avif";
-  const time = new Date().getTime();
-  const newFileName = `avatar_${lastName}_${firstName}_${fileNameWithoutExtension}_${time}${fileExtension}`;
+  // Convert file → buffer
+  const arrayBuffer = await file.arrayBuffer();
+  const fileBuffer = Buffer.from(arrayBuffer);
+
+  // Extract name + extension
+  const parts = file.name.split(".");
+  const ext = parts.at(-1)?.toLowerCase() || "dat";
+  const name = parts.slice(0, -1).join(".").replace(/\s+/g, "-");
+
+  const contentType = file.type;
+
+  let finalBuffer: Buffer = fileBuffer;
+  let finalExt = ext;
 
   try {
-    // Chuyển file thành buffer
-    const buffer = Buffer.from(await file.arrayBuffer());
+    // ============================
+    // 🔥 Detect & Compress
+    // ============================
+    if (contentType.startsWith("image/")) {
+      finalBuffer = await compressImage({
+        fileBuffer,
+        width: 500,
+        quality: 75,
+        format: "avif",
+      });
+      finalExt = "avif";
+    } else if (contentType === "application/pdf") {
+      finalBuffer = await compressPDF(fileBuffer);
+      finalExt = "pdf";
+    } else if (contentType.startsWith("video/")) {
+      finalBuffer = await compressVideo(fileBuffer);
+      finalExt = "mp4";
+    } else {
+      finalBuffer = await zipGenericFile(fileBuffer, `${name}.${ext}`);
+      finalExt = "zip";
+    }
 
-    // Nén file (Giả sử compressImage đã nén thành công)
-    const compressedBuffer = await compressImage({
-      fileBuffer: buffer,
-      quality: 75,
-      width: 300,
-      format: "avif",
-    });
+    // ============================================================
+    // 📌 Lưu file vào VPS (thư mục máy chủ)
+    // ============================================================
 
-    // Lưu tạm file vào thư mục public/uploads trên server
-    const filePath = join(process.cwd(), "public", "uploads", newFileName);
-    await writeFile(filePath, compressedBuffer);
+    // THƯ MỤC BẠN MUỐN LƯU TRÊN VPS
+    const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
 
-    // Trả về URL của file tạm thời (URL có thể truy cập qua public folder)
-    return NextResponse.json(
-      { url: `/uploads/${newFileName}` },
-      { status: 201 }
-    );
+    // Tạo thư mục nếu chưa tồn tại
+    await mkdir(UPLOAD_DIR, { recursive: true });
+
+    const fileName = `${name}-${uuid}.${finalExt}`;
+    const savePath = path.join(UPLOAD_DIR, fileName);
+
+    // Lưu file
+    await writeFile(savePath, finalBuffer);
+
+    // URL để FE truy cập (qua nginx hoặc static)
+    const fileUrl = `/uploads/${fileName}`;
+
+    return NextResponse.json({ url: fileUrl }, { status: 200 });
   } catch (error) {
-    console.error("Error uploading file:", error);
-    return NextResponse.json(
-      { message: "File upload failed" },
-      { status: 500 }
-    );
+    console.error("Upload error:", error);
+    return NextResponse.json({ error: "Upload thất bại" }, { status: 500 });
   }
 }

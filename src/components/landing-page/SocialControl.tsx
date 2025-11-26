@@ -6,40 +6,40 @@ import FeatureBox from "./FeatureBox";
 function SocialControl() {
   const [features] = useState([
     {
-      name: "Image",
+      name: "Hình ảnh",
       image: "https://cdn-icons-png.flaticon.com/128/9261/9261181.png",
       description:
-        "Upload photos, capture memories, and express your unique style through every image.",
+        "Chia sẻ khoảnh khắc của bạn qua hình ảnh – từ hoạt động trên lớp, sự kiện trường, đến cuộc sống hằng ngày.",
     },
     {
-      name: "Follower",
+      name: "Người theo dõi",
       image: "https://cdn-icons-png.flaticon.com/128/7542/7542074.png",
       description:
-        "Follow friends, influencers, or communities you love and stay updated on what's important to you.",
+        "Theo dõi bạn bè, giảng viên, CLB hoặc cộng đồng HUIT bạn quan tâm để không bỏ lỡ thông tin mới.",
     },
     {
-      name: "Post",
+      name: "Bài viết",
       image: "https://cdn-icons-png.flaticon.com/128/16025/16025454.png",
       description:
-        "Share your thoughts, updates, or stories in your own voice and connect with your audience.",
+        "Viết chia sẻ, đăng thông báo, tài liệu học tập hoặc cảm nghĩ mỗi ngày. Một không gian dành riêng cho bạn.",
     },
     {
-      name: "Activities",
+      name: "Hoạt động",
       image: "https://cdn-icons-png.flaticon.com/128/9768/9768886.png",
       description:
-        "Take part in challenges, events, and community activities to engage and explore more.",
+        "Tham gia sự kiện, thử thách, hoạt động CLB và kết nối với sinh viên HUIT từ mọi khóa.",
     },
     {
-      name: "Social",
+      name: "Tương tác xã hội",
       image: "https://cdn-icons-png.flaticon.com/128/1925/1925274.png",
       description:
-        "Interact, share, and create a social space that reflects your personality and interests.",
+        "Like, chia sẻ, tương tác và kết nối với mọi người trong cộng đồng sinh viên.",
     },
     {
-      name: "Comment",
+      name: "Bình luận",
       image: "https://cdn-icons-png.flaticon.com/128/5755/5755460.png",
       description:
-        "Comment, reply, and share your views to build genuine connections with others.",
+        "Trao đổi, thảo luận học tập hoặc trò chuyện vui vẻ ngay dưới mỗi bài viết.",
     },
   ]);
 
@@ -51,17 +51,17 @@ function SocialControl() {
             variant="secondary"
             className="bg-orange-100 text-orange-600 hover:bg-orange-100"
           >
-            Social Control
+            Mạng Xã Hội HUIT
           </Badge>
         </div>
 
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4">
-            You Are In All Control
+            Tất Cả Trong Tầm Tay Bạn
           </h1>
           <p className="text-lg text-muted-foreground leading-relaxed">
-            Take charge of your social experience. Share moments, build your
-            community, and connect with the world—your way.
+            Chủ động xây dựng cộng đồng, chia sẻ hành trình học tập và kết nối
+            với sinh viên HUIT theo cách của riêng bạn.
           </p>
         </div>
 

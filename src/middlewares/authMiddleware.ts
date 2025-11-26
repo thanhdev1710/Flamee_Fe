@@ -113,6 +113,29 @@ export default async function authMiddleware(
     return redirectIfChanged("/auth/verify-email");
   }
 
+  // ===========================
+  // 🔐 ADMIN ONLY ROUTES
+  // ===========================
+  const userRole =
+    accessTokenValid.payload?.role || refreshTokenValid.payload?.role;
+
+  const isAdminRoute = cleanPath.startsWith("/admin");
+
+  if (isAdminRoute) {
+    // chưa đăng nhập
+    if (!accessTokenValid.status && !refreshTokenValid.status) {
+      return redirectIfChanged("/auth/signin");
+    }
+
+    // không phải admin
+    if (userRole !== "admin") {
+      return redirectIfChanged("/app/feeds"); // hoặc "/"
+    }
+
+    // admin hợp lệ
+    return i18nResponse;
+  }
+
   const isOnboardingPage = cleanPath === "/onboarding";
   const isProfile = accessTokenValid.payload?.is_profile;
 

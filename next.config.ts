@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
       { hostname: "placehold.co" },
       { hostname: "cdn-icons-png.flaticon.com" },
       { hostname: "thanhdevne.s3.us-east-005.backblazeb2.com" },
+      { hostname: "huit.edu.vn" },
     ],
     dangerouslyAllowSVG: true,
   },

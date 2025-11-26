@@ -30,7 +30,6 @@ import {
 import FullScreenLoader from "../loading/FullScreenLoader";
 import { toast } from "sonner";
 import ButtonSignin from "./ButtonSignin";
-import { useRouter } from "next/navigation";
 
 export default function FormAuth({
   type,
@@ -39,7 +38,6 @@ export default function FormAuth({
   type: FormType;
   token?: string;
 }) {
-  const router = useRouter();
   const [isShowPass, setIsShowPass] = useState(false);
   const [isSubmitLoading, setIsSubmitLoading] = useState(false);
   const textPrimary: { [key in FormType]: string } = {
@@ -103,7 +101,7 @@ export default function FormAuth({
         error = await signup(data);
         if (!error) {
           toast.success("Đăng ký thành công!");
-          router.push("/auth/signin");
+          await checkSession("/auth/verify-email");
         }
         break;
       }

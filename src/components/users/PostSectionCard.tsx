@@ -2,86 +2,207 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+
 import { GetFriendSuggestionsResult } from "@/types/follow.type";
 import FriendRow from "../shared/FriendRow";
 import { addOrUnFollowById } from "@/actions/follow.actions";
 import { toast } from "sonner";
-import { mutate } from "swr";
+import useSWR, { mutate } from "swr";
+import { notify } from "@/actions/notify.action";
+import { useProfile } from "@/services/user.hook";
+import { searchPost } from "@/services/post.service";
+import type { Post } from "@/types/post.type";
+import PostCard from "../shared/PostCard/PostCard";
+import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
 
 type Props = {
   friend?: GetFriendSuggestionsResult;
   notMe?: boolean;
+  user_id?: string;
 };
 
-export default function PostSectionCard({ friend, notMe = false }: Props) {
-  // Nếu chưa có dữ liệu thì coi như mảng rỗng
+export default function PostSectionCard({
+  friend,
+  notMe = false,
+  user_id,
+}: Props) {
+  const { data: currentUser } = useProfile();
+  // ===================== PAGINATION =====================
+  const [page, setPage] = useState(0);
+  const limit = 5;
+
+  const {
+    data: posts,
+    isLoading,
+    mutate: mutatePost,
+  } = useSWR<Post[]>(
+    ["posts-section", notMe, page, user_id],
+    async () => {
+      const res = await searchPost({
+        q: "",
+        limit,
+        start: page * limit,
+        userId: notMe ? user_id : undefined,
+        onlyMe: !notMe,
+      });
+      return res;
+    },
+    { revalidateOnFocus: false }
+  );
+
+  const [allPosts, setAllPosts] = useState<Post[]>([]);
+
+  // ---------- FIX: append posts đúng cách ----------
+  useEffect(() => {
+    if (posts && posts.length > 0) {
+      setAllPosts((prev) => {
+        const ids = new Set(prev.map((p) => p.id));
+        const filtered = posts.filter((p) => !ids.has(p.id));
+        return [...prev, ...filtered];
+      });
+    }
+  }, [posts]);
+  // ----------------------------------------------------
+
+  const isLoadMore = posts && posts.length === limit;
+
+  // ===================== FRIEND LIST =====================
   const mutualFriends = friend?.mutualFriends ?? [];
   const followersOnly = friend?.followers ?? [];
   const followingOnly = friend?.following ?? [];
 
-  // Followers tab: bạn chung + những người chỉ follow mình
   const followersList = [...mutualFriends, ...followersOnly];
-
-  // Following tab: bạn chung + những người mình chỉ follow
   const followingList = [...mutualFriends, ...followingOnly];
 
   const isMutual = (userId: string) =>
     mutualFriends.some((u) => u.user_id === userId);
 
-  const handleFollow = (user_id: string) => {
+  // ===================== FOLLOW / UNFOLLOW =====================
+  const handleFollow = (
+    user_id: string,
+    variant: "followers" | "following" | "mutual" | "suggest"
+  ) => {
     const followPromise = addOrUnFollowById(user_id).then(async (err) => {
       if (!err) {
+        let successMessage = "Thao tác thành công";
+
+        switch (variant) {
+          case "followers":
+            successMessage = "Bạn đã follow back";
+            break;
+          case "following":
+            successMessage = "Bạn đã unfollow người này";
+            break;
+          case "mutual":
+            successMessage = "Đã cập nhật kết nối";
+            break;
+        }
+
+        if (variant !== "following") {
+          await notify({
+            title: "Ai đó đã theo dõi bạn",
+            message: `${currentUser?.username} đã theo dõi bạn`,
+            type: "follow",
+            userId: user_id,
+            entityType: "user",
+            entityId: currentUser?.user_id,
+          });
+        }
+
         await mutate("invitationUsers");
-        return "Thành công";
+        return successMessage;
       } else {
-        throw new Error("Đã xảy ra lỗi");
+        throw new Error("Đã xảy ra lỗi, vui lòng thử lại.");
       }
     });
 
     toast.promise(followPromise, {
       loading: "Đang xử lý...",
-      success: (msg) => msg || "Thành công",
+      success: (msg) => msg,
       error: (err) => err.message || "Đã xảy ra lỗi",
-      richColors: true,
+
+      className:
+        variant === "following"
+          ? "bg-red-600 text-white"
+          : variant === "followers"
+          ? "bg-blue-600 text-white"
+          : "bg-primary text-white",
     });
   };
-
-  console.log(notMe);
 
   return (
     <Card className="shadow-lg py-0 overflow-hidden border-0 bg-gradient-to-br from-background via-background to-muted/20 backdrop-blur-sm rounded-t-none">
       <CardContent className="p-0">
         <Tabs defaultValue="followers" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 rounded-none border-b bg-transparent h-auto p-0 backdrop-blur-sm">
+          <TabsList className="grid w-full grid-cols-3 rounded-none border-b h-auto p-0 backdrop-blur-sm bg-transparent">
             <TabsTrigger
               value="followers"
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:bg-blue-500/10 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 py-3 text-xs sm:text-sm transition-all duration-200"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:text-blue-600 py-3 text-xs sm:text-sm"
             >
               Followers ({followersList.length})
             </TabsTrigger>
+
             <TabsTrigger
               value="following"
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-500 data-[state=active]:bg-purple-500/10 data-[state=active]:text-purple-600 dark:data-[state=active]:text-purple-400 py-3 text-xs sm:text-sm transition-all duration-200"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-500 data-[state=active]:text-purple-600 py-3 text-xs sm:text-sm"
             >
               Following ({followingList.length})
             </TabsTrigger>
+
             <TabsTrigger
               value="posts"
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-pink-500 data-[state=active]:bg-pink-500/10 data-[state=active]:text-pink-600 dark:data-[state=active]:text-pink-400 py-3 text-xs sm:text-sm transition-all duration-200"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-pink-500 data-[state=active]:text-pink-600 py-3 text-xs sm:text-sm"
             >
               Posts
             </TabsTrigger>
           </TabsList>
 
-          {/* POSTS – tạm để trống */}
+          {/* ========================= POSTS ========================= */}
           <TabsContent value="posts" className="p-6 flex flex-col gap-6">
-            {/* Render post sau */}
+            {isLoading && page === 0 && (
+              <div className="text-sm text-muted-foreground">Đang tải...</div>
+            )}
+
+            {!isLoading && allPosts.length === 0 && (
+              <div className="text-sm text-muted-foreground text-center">
+                Chưa có bài viết nào.
+              </div>
+            )}
+
+            {allPosts.map((post) => (
+              <PostCard
+                notPageFeed={true}
+                mutatePost={async () => {
+                  mutatePost();
+                }}
+                post={post}
+                key={post.id}
+              />
+            ))}
+
+            {/* LOAD MORE */}
+            {isLoadMore && (
+              <Button
+                className="mx-auto mt-2"
+                variant="outline"
+                onClick={() => setPage((p) => p + 1)}
+              >
+                Xem thêm
+              </Button>
+            )}
+
+            {isLoading && page > 0 && (
+              <div className="text-center text-xs text-muted-foreground">
+                Đang tải thêm...
+              </div>
+            )}
           </TabsContent>
 
-          {/* FOLLOWERS */}
+          {/* ========================= FOLLOWERS ========================= */}
           <TabsContent value="followers" className="p-6">
             {followersList.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground text-sm">
+              <div className="text-center text-sm text-muted-foreground py-8">
                 Chưa có ai follow bạn.
               </div>
             ) : (
@@ -98,10 +219,10 @@ export default function PostSectionCard({ friend, notMe = false }: Props) {
             )}
           </TabsContent>
 
-          {/* FOLLOWING */}
+          {/* ========================= FOLLOWING ========================= */}
           <TabsContent value="following" className="p-6">
             {followingList.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground text-sm">
+              <div className="text-center text-sm text-muted-foreground py-8">
                 Bạn chưa follow ai.
               </div>
             ) : (

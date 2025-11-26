@@ -6,6 +6,8 @@ import FriendRow from "../shared/FriendRow";
 import { addOrUnFollowById } from "@/actions/follow.actions";
 import { toast } from "sonner";
 import { mutate } from "swr";
+import { notify } from "@/actions/notify.action";
+import { useProfile } from "@/services/user.hook";
 
 type Props = {
   friend?: GetFriendSuggestionsResult;
@@ -14,10 +16,19 @@ type Props = {
 
 export default function YouMightKnow({ friend, notMe = false }: Props) {
   const suggestions = friend?.suggestions ?? [];
+  const { data: currentUser } = useProfile();
 
   const handleFollow = (user_id: string) => {
     const followPromise = addOrUnFollowById(user_id).then(async (err) => {
       if (!err) {
+        await notify({
+          title: "Ai đó đã theo dõi bạn",
+          message: `${currentUser?.username} đã theo dõi bạn`,
+          type: "follow",
+          userId: user_id,
+          entityType: "user",
+          entityId: currentUser?.user_id,
+        });
         await mutate("invitationUsers");
         return "Thành công";
       } else {

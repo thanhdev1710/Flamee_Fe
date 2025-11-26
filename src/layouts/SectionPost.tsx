@@ -7,46 +7,73 @@ import { PAGE_SIZE } from "@/global/base";
 import SkeletonPostCard from "@/components/shared/PostCard/SkeletonPostCard";
 import { Post } from "@/types/post.type";
 import { CONFIG } from "@/global/config";
+import useSWR from "swr";
+import { getFriendSuggestions } from "@/services/follow.service";
 
 interface SectionPostProps {
   scrollRef: React.RefObject<HTMLDivElement | null>;
 }
 
 export default function SectionPost({ scrollRef }: SectionPostProps) {
-  const { data, setSize, isValidating, error, isLoading, mutate } =
-    useSWRInfinite<Post[]>(
-      (pageIndex, previousPageData) => {
-        if (previousPageData && previousPageData.length < PAGE_SIZE)
-          return null;
-        const start = pageIndex * PAGE_SIZE;
+  const { data: friendData } = useSWR(
+    "friend-suggestions",
+    getFriendSuggestions
+  );
 
-        return `${CONFIG.API.BASE_URL}${CONFIG.API.VERSION}/search/hot?start=${start}&limit=${PAGE_SIZE}`;
-      },
-      (url) =>
-        fetch(url, {
-          credentials: "include",
-          headers: {
-            "X-API-KEY": CONFIG.API.X_API_KEY,
-            "Content-Type": "application/json",
-          },
-        })
-          .then((res) => res.json())
-          .then((data) => data.items)
-    );
+  // 🔥 CHƯA CÓ friendData → chưa gọi API hot feed
+  const shouldLoadHotFeed = !!friendData;
+
+  const followingIds = shouldLoadHotFeed
+    ? friendData.following.map((u) => u.user_id).join(",")
+    : "";
+
+  const friendIds = shouldLoadHotFeed
+    ? [
+        ...friendData.mutualFriends.map((u) => u.user_id),
+        ...friendData.followers.map((u) => u.user_id),
+      ].join(",")
+    : "";
+
+  const { data, setSize, isValidating, error, mutate } = useSWRInfinite<Post[]>(
+    (pageIndex, previousPageData) => {
+      if (!shouldLoadHotFeed) return null; // 🚀 chờ dữ liệu
+
+      if (previousPageData && previousPageData.length < PAGE_SIZE) return null;
+
+      const start = pageIndex * PAGE_SIZE;
+
+      return (
+        `${CONFIG.API.BASE_URL}${CONFIG.API.VERSION}/search/hot` +
+        `?start=${start}` +
+        `&limit=${PAGE_SIZE}` +
+        `&following=${followingIds}` +
+        `&friends=${friendIds}`
+      );
+    },
+    (url) =>
+      fetch(url, {
+        credentials: "include",
+        headers: {
+          "X-API-KEY": CONFIG.API.X_API_KEY,
+          "Content-Type": "application/json",
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => data.items)
+  );
 
   const posts = data ? data.flat() : [];
   const hasMore = data ? data[data.length - 1]?.length === PAGE_SIZE : true;
 
   // Infinite scroll dựa trên scrollRef
   useEffect(() => {
+    if (!scrollRef.current) return;
     const container = scrollRef.current;
-    if (!container) return;
 
     const onScroll = () => {
       const { scrollTop, clientHeight, scrollHeight } = container;
       const distanceToBottom = scrollHeight - (scrollTop + clientHeight);
 
-      // còn < 400px là load thêm
       if (distanceToBottom < 400 && hasMore && !isValidating) {
         setSize((s) => s + 1);
       }
@@ -56,6 +83,16 @@ export default function SectionPost({ scrollRef }: SectionPostProps) {
     return () => container.removeEventListener("scroll", onScroll);
   }, [scrollRef, hasMore, isValidating, setSize]);
 
+  if (!friendData) {
+    return (
+      <div className="space-y-3">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <SkeletonPostCard key={i} />
+        ))}
+      </div>
+    );
+  }
+
   if (error) {
     return (
       <div className="text-center text-red-500 py-4">
@@ -64,23 +101,18 @@ export default function SectionPost({ scrollRef }: SectionPostProps) {
     );
   }
 
-  if (isLoading && posts.length === 0) {
-    return (
-      <div className="space-y-3">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <SkeletonPostCard key={i} />
-        ))}
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col gap-3">
       {posts.map((post) => (
-        <PostCard key={post.id} post={post} mutatePost={mutate} />
+        <PostCard
+          key={post.id}
+          post={post}
+          mutatePost={async () => {
+            await mutate();
+          }}
+        />
       ))}
 
-      {/* Loading indicator dưới cùng */}
       {isValidating && (
         <div className="py-4 text-center text-sm text-muted-foreground">
           Đang tải thêm...

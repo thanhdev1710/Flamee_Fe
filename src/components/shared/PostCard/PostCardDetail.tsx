@@ -101,7 +101,7 @@ export default function PostCardDetail({
       const err = await likeOrDislikePostById(id);
       if (!err) {
         if (currentUser?.user_id !== author_id) {
-          notify({
+          await notify({
             title: "Ai đó đã tương tác với bài viết",
             message: `${currentUser?.username} đã ${
               isLiked ? "bỏ thích" : "thích"
@@ -127,7 +127,7 @@ export default function PostCardDetail({
       const err = await sharePost(id);
       if (!err) {
         if (currentUser?.user_id !== author_id) {
-          notify({
+          await notify({
             title: "Ai đó đã tương tác với bài viết",
             message: `${currentUser?.username} đã ${
               isShared ? "bỏ chia sẽ" : "chia sẽ"
@@ -157,7 +157,7 @@ export default function PostCardDetail({
       });
       if (!err) {
         if (currentUser?.user_id !== author_id) {
-          notify({
+          await notify({
             title: "Ai đó đã tương tác với bài viết",
             message: `${currentUser?.username} đã bình luận bài viết của bạn`,
             type: "comment",
@@ -197,7 +197,7 @@ export default function PostCardDetail({
 
   return (
     <>
-      <Card className="flex flex-col w-full h-full bg-card border-border shadow-sm">
+      <Card className="flex flex-col w-full h-full min-h-[80vh] bg-card border-border shadow-sm">
         {/* HEADER - Enhanced with more professional styling */}
         <CardContent className="flex items-center justify-between px-6 py-5 border-b border-border">
           <div className="flex items-center gap-4">
