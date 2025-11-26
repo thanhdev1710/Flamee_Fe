@@ -3,7 +3,7 @@ import { getMyProfiles } from "./user.service";
 
 export function useProfile() {
   const { data, error, isLoading, mutate } = useSWR(
-    "profile",
+    "my-profile",
     () => getMyProfiles(),
     { revalidateOnFocus: false }
   );

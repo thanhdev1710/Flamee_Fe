@@ -10,8 +10,8 @@ export default function FeedLayout({
 }) {
   return (
     <>
-      {modal}
       {children}
+      {modal}
     </>
   );
 }

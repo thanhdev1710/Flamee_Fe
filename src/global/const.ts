@@ -19,7 +19,6 @@ import {
   Home,
   MessageCircle,
   Plus,
-  Video,
 } from "lucide-react";
 
 export const allFavorites = [
@@ -49,6 +48,6 @@ export const navigationItems = [
   { icon: Home, label: "Home", href: "/app/feeds" },
   { icon: Users, label: "Friends", href: "/app/friends" },
   { icon: MessageCircle, label: "Messages", href: "/app/messages" },
-  { icon: Video, label: "Reels", href: "/app/reels" },
+  // { icon: Video, label: "Reels", href: "/app/reels" },
   { icon: Plus, label: "Create", href: "/app/create" },
 ];

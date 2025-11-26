@@ -1,7 +1,23 @@
 import { User, Calendar, MapPin, Mail, Phone } from "lucide-react";
 import { Card, CardContent } from "../ui/card";
+import { CreateUserType } from "@/types/user.type";
 
-export default function AboutCard() {
+export default function AboutCard({
+  profile,
+  notMe = false,
+}: {
+  profile: CreateUserType | undefined;
+  notMe?: boolean;
+}) {
+  console.log(notMe);
+
+  const formattedDob = profile?.dob
+    ? new Date(profile.dob).toLocaleDateString("vi-VN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      })
+    : "Chưa cập nhật";
   return (
     <Card className="shadow-lg border-0 bg-gradient-to-br from-background via-background to-muted/20 backdrop-blur-sm">
       <CardContent className="p-6">
@@ -15,7 +31,7 @@ export default function AboutCard() {
               <User className="w-4 h-4 text-blue-600 dark:text-blue-400" />
             </div>
             <span className="text-muted-foreground group-hover:text-foreground transition-colors">
-              Male
+              {profile?.gender || "Chưa cập nhật"}
             </span>
           </div>
           <div className="flex items-center gap-3 text-sm group hover:bg-muted/50 p-2 rounded-lg transition-colors">
@@ -23,17 +39,15 @@ export default function AboutCard() {
               <Calendar className="w-4 h-4 text-purple-600 dark:text-purple-400" />
             </div>
             <span className="text-muted-foreground group-hover:text-foreground transition-colors">
-              Born June 26, 1980
+              {formattedDob}
             </span>
           </div>
-          <div className="flex items-start gap-3 text-sm group hover:bg-muted/50 p-2 rounded-lg transition-colors">
-            <div className="p-1.5 rounded-full bg-pink-100 dark:bg-pink-900/30 mt-0.5">
+          <div className="flex items-center gap-3 text-sm group hover:bg-muted/50 p-2 rounded-lg transition-colors">
+            <div className="p-1.5 rounded-full bg-pink-100 dark:bg-pink-900/30">
               <MapPin className="w-4 h-4 text-pink-600 dark:text-pink-400" />
             </div>
             <span className="text-muted-foreground group-hover:text-foreground transition-colors">
-              2239 Hog Camp Road
-              <br />
-              Schaumburg
+              {profile?.address || "Chưa cập nhật"}
             </span>
           </div>
           <div className="flex items-center gap-3 text-sm group hover:bg-muted/50 p-2 rounded-lg transition-colors">
@@ -41,7 +55,7 @@ export default function AboutCard() {
               <Mail className="w-4 h-4 text-green-600 dark:text-green-400" />
             </div>
             <span className="text-muted-foreground group-hover:text-foreground transition-colors">
-              charles5182@ummoh.com
+              {profile?.email || "Chưa cập nhật"}
             </span>
           </div>
           <div className="flex items-center gap-3 text-sm group hover:bg-muted/50 p-2 rounded-lg transition-colors">
@@ -49,7 +63,7 @@ export default function AboutCard() {
               <Phone className="w-4 h-4 text-orange-600 dark:text-orange-400" />
             </div>
             <span className="text-muted-foreground group-hover:text-foreground transition-colors">
-              3375005467
+              {profile?.phone || "Chưa cập nhật"}
             </span>
           </div>
         </div>

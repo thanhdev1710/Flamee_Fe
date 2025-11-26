@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import {
   NavigationMenu,
@@ -23,8 +24,12 @@ import {
   Instagram,
 } from "lucide-react";
 import Image from "next/image";
+import useSWR from "swr";
+import { getMyProfiles } from "@/services/user.service";
 
 function MenuBar() {
+  const { data: profile, error } = useSWR("my-profile", getMyProfiles);
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
@@ -99,14 +104,22 @@ function MenuBar() {
         </NavigationMenu>
 
         {/* Auth Buttons */}
-        <div className="hidden md:flex items-center space-x-3">
-          <Button variant="outline" asChild>
-            <Link href="/auth/signin">Sign in</Link>
-          </Button>
-          <Button asChild>
-            <Link href="/auth/signup">Sign up</Link>
-          </Button>
-        </div>
+        {profile && !error ? (
+          <div className="hidden md:flex items-center space-x-3">
+            <Button variant="outline" asChild>
+              <Link href="/app/users">{profile.username}</Link>
+            </Button>
+          </div>
+        ) : (
+          <div className="hidden md:flex items-center space-x-3">
+            <Button variant="outline" asChild>
+              <Link href="/auth/signin">Sign in</Link>
+            </Button>
+            <Button asChild>
+              <Link href="/auth/signup">Sign up</Link>
+            </Button>
+          </div>
+        )}
 
         {/* Mobile Menu */}
         <Sheet>

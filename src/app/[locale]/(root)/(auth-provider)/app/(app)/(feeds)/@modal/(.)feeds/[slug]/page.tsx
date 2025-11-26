@@ -13,6 +13,8 @@ export default function PostModalPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
+  console.log("render page post");
+
   const { slug } = use(params);
   const { data: post, mutate: mutatePost } = useSWR("post" + slug, () =>
     getPostById(slug)
@@ -36,7 +38,7 @@ export default function PostModalPage({
   };
 
   if (!post) {
-    return;
+    return null;
   }
 
   return (

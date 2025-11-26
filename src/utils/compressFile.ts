@@ -1,6 +1,6 @@
 import sharp from "sharp";
 import { PDFDocument } from "pdf-lib";
-import ffmpeg from "fluent-ffmpeg";
+const ffmpeg = (await import("fluent-ffmpeg")).default;
 import archiver from "archiver";
 import { PassThrough } from "stream";
 import { tmpdir } from "os";

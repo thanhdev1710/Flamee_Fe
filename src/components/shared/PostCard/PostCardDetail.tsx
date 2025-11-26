@@ -18,7 +18,6 @@ import {
 } from "lucide-react";
 
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
@@ -36,6 +35,9 @@ import {
 import { toast } from "sonner";
 import type { Interaction } from "@/types/interaction.type";
 import Link from "next/link";
+import { useProfile } from "@/services/user.hook";
+import { Button } from "@/components/ui/button";
+import { notify } from "@/actions/notify.action";
 
 export default function PostCardDetail({
   post,
@@ -59,11 +61,10 @@ export default function PostCardDetail({
     comment_count,
     content,
     created_at,
-    isShared,
     hashtags,
-    isLiked,
     like_count,
     share_count,
+    author_id,
   } = post;
 
   const [replyId, setReplyId] = useState({ id: "", username: "" });
@@ -83,13 +84,34 @@ export default function PostCardDetail({
   const hasImages = images.length > 0;
   const hasFiles = files.length > 0;
   const hasVideos = videos.length > 0;
-  // const hasAnyMedia = hasImages || hasFiles || hasVideos;
+  const { data: currentUser } = useProfile();
+
+  const isLiked =
+    interactions?.likes.findIndex(
+      (like) => like.userId === currentUser?.user_id
+    ) !== -1;
+  const isShared =
+    interactions?.shares.findIndex(
+      (share) => share.userId === currentUser?.user_id
+    ) !== -1;
 
   const handleLike = async () => {
     setLoadingLike(true);
     try {
       const err = await likeOrDislikePostById(id);
       if (!err) {
+        if (currentUser?.user_id !== author_id) {
+          notify({
+            title: "Ai đó đã tương tác với bài viết",
+            message: `${currentUser?.username} đã ${
+              isLiked ? "bỏ thích" : "thích"
+            } bài viết của bạn`,
+            type: "like",
+            userId: author_id,
+            entityType: "post",
+            entityId: id,
+          });
+        }
         await mutateAll();
       } else {
         toast.error(err, { richColors: true });
@@ -104,6 +126,18 @@ export default function PostCardDetail({
     try {
       const err = await sharePost(id);
       if (!err) {
+        if (currentUser?.user_id !== author_id) {
+          notify({
+            title: "Ai đó đã tương tác với bài viết",
+            message: `${currentUser?.username} đã ${
+              isShared ? "bỏ chia sẽ" : "chia sẽ"
+            } bài viết của bạn`,
+            type: "share",
+            userId: author_id,
+            entityType: "post",
+            entityId: id,
+          });
+        }
         await mutateAll();
       } else {
         toast.error(err, { richColors: true });
@@ -122,6 +156,16 @@ export default function PostCardDetail({
         parent_id: replyId.id || null,
       });
       if (!err) {
+        if (currentUser?.user_id !== author_id) {
+          notify({
+            title: "Ai đó đã tương tác với bài viết",
+            message: `${currentUser?.username} đã bình luận bài viết của bạn`,
+            type: "comment",
+            userId: author_id,
+            entityType: "post",
+            entityId: id,
+          });
+        }
         await mutateAll();
       } else {
         toast.error(err, { richColors: true });
@@ -346,7 +390,7 @@ export default function PostCardDetail({
                   <div key={idx} className="space-y-3">
                     {/* Parent Comment */}
                     <div className="flex gap-3">
-                      <Avatar className="h-8 w-8 flex-shrink-0">
+                      <Avatar className="h-8 w-8 shrink-0">
                         <AvatarImage
                           src={c.user.avatarUrl || "/placeholder.svg"}
                           alt={c.user.username}
@@ -388,7 +432,7 @@ export default function PostCardDetail({
                       <div className="ml-10 space-y-3 border-l border-border pl-3">
                         {c.replies.map((reply, replyIdx) => (
                           <div key={replyIdx} className="flex gap-3">
-                            <Avatar className="h-7 w-7 flex-shrink-0">
+                            <Avatar className="h-7 w-7 shrink-0">
                               <AvatarImage
                                 src={reply.user.avatarUrl || "/placeholder.svg"}
                                 alt={reply.user.username}
@@ -436,7 +480,7 @@ export default function PostCardDetail({
 
           {/* COMMENT INPUT */}
           <div className="h-10"></div>
-          <div className="flex-shrink-0 border-t border-border bg-card px-6 py-4 space-y-3 w-full absolute bottom-0 left-0">
+          <div className="shrink-0 border-t border-border bg-card px-6 py-4 space-y-3 w-full absolute bottom-0 left-0">
             {replyId.username && (
               <div className="text-xs text-muted-foreground bg-muted/30 rounded px-3 py-2 flex items-center justify-between">
                 <span>
@@ -452,7 +496,7 @@ export default function PostCardDetail({
               </div>
             )}
             <div className="flex items-end gap-3">
-              <Avatar className="h-8 w-8 flex-shrink-0">
+              <Avatar className="h-8 w-8 shrink-0">
                 <AvatarImage
                   src="/placeholder.svg?height=32&width=32"
                   alt="You"
