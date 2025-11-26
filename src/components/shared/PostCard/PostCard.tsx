@@ -21,7 +21,6 @@ import { useState } from "react";
 import { FilesModal } from "@/components/shared/FilesModal";
 import { PostImageGrid } from "./PostImageGrid";
 import type { Post } from "@/types/post.type";
-import type { SWRInfiniteKeyedMutator } from "swr/infinite";
 import { likeOrDislikePostById, sharePost } from "@/actions/post.action";
 import { toast } from "sonner";
 import { formatTimeAgo } from "@/utils/utils";
@@ -34,9 +33,11 @@ import useSWR from "swr";
 export default function PostCard({
   post,
   mutatePost,
+  notPageFeed = false,
 }: {
   post: Post;
-  mutatePost: SWRInfiniteKeyedMutator<Post[][]>;
+  mutatePost: () => Promise<void>;
+  notPageFeed?: boolean;
 }) {
   const router = useRouter();
   const [showMediaModal, setShowMediaModal] = useState(false);
@@ -111,7 +112,7 @@ export default function PostCard({
       const err = await sharePost(id);
       if (!err) {
         if (currentUser?.user_id !== author_id) {
-          notify({
+          await notify({
             title: "Ai đó đã tương tác với bài viết",
             message: `${currentUser?.username} đã ${
               isShared ? "bỏ chia sẽ" : "chia sẽ"
@@ -134,7 +135,12 @@ export default function PostCard({
 
   const handleCardClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    router.push(`/app/feeds/${id}`);
+
+    if (!notPageFeed) {
+      router.push(`/app/feeds/${id}`);
+    } else {
+      window.location.href = `/app/feeds/${id}`;
+    }
   };
 
   const handleImageLoad = (imageId: string) => {

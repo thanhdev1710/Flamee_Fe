@@ -18,11 +18,14 @@ export async function notify(notify: Notification) {
         credentials: "include",
       }
     );
+    console.log("run");
 
     if (!res.ok) {
       const error = await res.json();
       return error.message;
     }
+
+    console.log("thành công");
 
     return null;
   });

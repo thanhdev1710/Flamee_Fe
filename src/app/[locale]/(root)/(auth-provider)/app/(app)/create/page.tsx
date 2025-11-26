@@ -172,7 +172,7 @@ export default function CreatePostPage() {
       formData.append("file", fileWithProgress.file);
 
       try {
-        const res = await axios.post("/api/upload-file", formData, {
+        const res = await axios.post("/api/upload-cloud", formData, {
           onUploadProgress: (progressEvent) => {
             const progress = Math.round(
               (progressEvent.loaded * 100) / (progressEvent.total || 1)
@@ -385,7 +385,7 @@ export default function CreatePostPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="public">Public</SelectItem>
-                      <SelectItem value="friends">Friends Only</SelectItem>
+                      {/* <SelectItem value="friends">Friends Only</SelectItem> */}
                       <SelectItem value="private">Private</SelectItem>
                     </SelectContent>
                   </Select>

@@ -10,63 +10,63 @@ import Image from "next/image";
 export default function AboutPage() {
   const teamMembers = [
     {
-      name: "Sarah Johnson",
-      role: "CEO & Founder",
+      name: "Nguyễn Minh Khang",
+      role: "Founder & Backend Engineer",
       image: "/placeholder.svg?height=200&width=200",
-      bio: "Passionate about connecting people through technology.",
+      bio: "Sinh viên HUIT đam mê công nghệ và mong muốn xây dựng một nền tảng kết nối dành riêng cho trường.",
     },
     {
-      name: "Michael Chen",
-      role: "CTO",
+      name: "Lê Hoàng Thư",
+      role: "Frontend Developer",
       image: "/placeholder.svg?height=200&width=200",
-      bio: "Building scalable solutions for the next generation.",
+      bio: "Tập trung tạo nên giao diện hiện đại – thân thiện để sinh viên dễ dàng sử dụng.",
     },
     {
-      name: "Emily Rodriguez",
-      role: "Head of Design",
+      name: "Trần Gia Huy",
+      role: "UI/UX Designer",
       image: "/placeholder.svg?height=200&width=200",
-      bio: "Creating beautiful experiences that users love.",
+      bio: "Thiết kế trải nghiệm phù hợp với sinh viên: tối giản, trực quan và đẹp mắt.",
     },
     {
-      name: "David Kim",
-      role: "Head of Marketing",
+      name: "Phạm Quỳnh Anh",
+      role: "Content & Community Lead",
       image: "/placeholder.svg?height=200&width=200",
-      bio: "Spreading the word about amazing social connections.",
+      bio: "Kết nối sinh viên, câu lạc bộ và khoa để xây dựng cộng đồng HUIT năng động.",
     },
   ];
 
   const values = [
     {
       icon: <Users className="h-8 w-8" />,
-      title: "Community First",
+      title: "Kết nối cộng đồng",
       description:
-        "We believe in building strong, supportive communities where everyone feels welcome and valued.",
+        "Tạo không gian chung nơi sinh viên, cựu sinh viên và giảng viên có thể chia sẻ, học hỏi và hỗ trợ lẫn nhau.",
     },
     {
       icon: <Heart className="h-8 w-8" />,
-      title: "Authentic Connections",
+      title: "Tôn trọng & Văn minh",
       description:
-        "We foster genuine relationships and meaningful interactions between our users.",
+        "Ưu tiên sự tôn trọng, minh bạch và tinh thần sinh viên HUIT trong mọi tương tác.",
     },
     {
       icon: <Zap className="h-8 w-8" />,
-      title: "Innovation",
+      title: "Đổi mới sáng tạo",
       description:
-        "We continuously push boundaries to create cutting-edge social experiences.",
+        "Không ngừng cải tiến để mang lại trải nghiệm tốt nhất cho cộng đồng HUIT.",
     },
     {
       icon: <Globe className="h-8 w-8" />,
-      title: "Global Impact",
+      title: "Tác động tích cực",
       description:
-        "We're committed to making a positive difference in communities worldwide.",
+        "HUIT Social thúc đẩy môi trường năng động, lan tỏa giá trị tốt đẹp và tinh thần sinh viên.",
     },
   ];
 
   const stats = [
-    { number: "2M+", label: "Active Users" },
-    { number: "50+", label: "Countries" },
-    { number: "10M+", label: "Posts Shared" },
-    { number: "99.9%", label: "Uptime" },
+    { number: "10,000+", label: "Sinh viên tham gia" },
+    { number: "20+", label: "Câu lạc bộ hoạt động" },
+    { number: "50,000+", label: "Bài viết & khoảnh khắc" },
+    { number: "99.9%", label: "Thời gian hoạt động" },
   ];
 
   return (
@@ -78,19 +78,21 @@ export default function AboutPage() {
         <div className="container mx-auto text-center">
           <Badge
             variant="secondary"
-            className="mb-4 bg-orange-100 text-orange-600"
+            className="mb-4 bg-emerald-100 text-emerald-600"
           >
-            About Us
+            Giới thiệu
           </Badge>
+
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-6">
-            Building the Future of
-            <span className="block text-primary">Social Connection</span>
+            Mạng Xã Hội Dành Riêng Cho{" "}
+            <span className="block text-primary">Sinh Viên HUIT</span>
           </h1>
+
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            At Flamee, we&apos;re passionate about creating meaningful
-            connections in the digital age. Our platform empowers people to
-            share their stories, build communities, and discover new
-            perspectives from around the world.
+            HUIT Social được xây dựng nhằm mang đến nơi kết nối sinh viên –
+            giảng viên – câu lạc bộ một cách hiện đại, thân thiện và bảo mật.
+            Chia sẻ khoảnh khắc, học hỏi cùng nhau và đồng hành trong hành trình
+            đại học.
           </p>
         </div>
       </section>
@@ -118,32 +120,36 @@ export default function AboutPage() {
             <div>
               <Badge
                 variant="secondary"
-                className="mb-4 bg-orange-100 text-orange-600"
+                className="mb-4 bg-emerald-100 text-emerald-600"
               >
-                Our Mission
+                Sứ mệnh
               </Badge>
+
               <h2 className="text-3xl font-bold mb-6">
-                Empowering Human Connection
+                Kết nối – Chia sẻ – Phát triển
               </h2>
+
               <p className="text-muted-foreground mb-6 leading-relaxed">
-                We believe that technology should bring people closer together,
-                not drive them apart. Our mission is to create a social platform
-                that prioritizes authentic relationships, meaningful
-                conversations, and positive community building.
+                HUIT Social hướng đến việc tạo ra một không gian số an toàn,
+                tích cực, giúp sinh viên chia sẻ câu chuyện của mình, cập nhật
+                thông tin từ khoa – CLB, và xây dựng các mối quan hệ giá trị
+                trong môi trường đại học.
               </p>
+
               <div className="flex items-center space-x-4">
                 <Target className="h-6 w-6 text-primary" />
                 <span className="font-medium">
-                  Connecting 10 million users by 2025
+                  Mục tiêu trở thành nền tảng số trung tâm của sinh viên HUIT
                 </span>
               </div>
             </div>
+
             <div className="relative">
               <Image
                 height={400}
                 width={600}
                 src="/placeholder.svg?height=400&width=600"
-                alt="Team collaboration"
+                alt="Sinh viên HUIT"
                 className="rounded-2xl shadow-lg"
               />
             </div>
@@ -157,14 +163,18 @@ export default function AboutPage() {
           <div className="text-center mb-16">
             <Badge
               variant="secondary"
-              className="mb-4 bg-orange-100 text-orange-600"
+              className="mb-4 bg-emerald-100 text-emerald-600"
             >
-              Our Values
+              Giá trị cốt lõi
             </Badge>
-            <h2 className="text-3xl font-bold mb-4">What Drives Us</h2>
+
+            <h2 className="text-3xl font-bold mb-4">
+              Điều Chúng Tôi Theo Đuổi
+            </h2>
+
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              These core values guide everything we do and shape the culture
-              we&apos;re building at Flamee.
+              Những giá trị này định hình văn hoá và định hướng phát triển của
+              HUIT Social.
             </p>
           </div>
 
@@ -195,16 +205,18 @@ export default function AboutPage() {
           <div className="text-center mb-16">
             <Badge
               variant="secondary"
-              className="mb-4 bg-orange-100 text-orange-600"
+              className="mb-4 bg-emerald-100 text-emerald-600"
             >
-              Our Team
+              Đội ngũ phát triển
             </Badge>
+
             <h2 className="text-3xl font-bold mb-4">
-              Meet the People Behind Flamee
+              Những Người Đứng Sau HUIT Social
             </h2>
+
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Our diverse team of passionate individuals is dedicated to
-              creating the best social experience for our users.
+              Đội ngũ sinh viên trẻ cùng chung đam mê công nghệ và mong muốn
+              mang đến một nền tảng kết nối hiện đại cho HUIT.
             </p>
           </div>
 
@@ -227,6 +239,7 @@ export default function AboutPage() {
                         .join("")}
                     </AvatarFallback>
                   </Avatar>
+
                   <h3 className="font-semibold mb-1">{member.name}</h3>
                   <p className="text-sm text-primary mb-3">{member.role}</p>
                   <p className="text-sm text-muted-foreground">{member.bio}</p>
@@ -241,18 +254,20 @@ export default function AboutPage() {
       <section className="py-20 px-4 bg-primary text-primary-foreground">
         <div className="container mx-auto text-center">
           <h2 className="text-3xl font-bold mb-4">
-            Ready to Join Our Community?
+            Sẵn sàng tham gia cộng đồng HUIT?
           </h2>
+
           <p className="text-lg opacity-90 mb-8 max-w-2xl mx-auto">
-            Be part of the social revolution. Connect with like-minded people
-            and share your story with the world.
+            Hãy kết nối với bạn bè, cháy hết mình cùng các CLB và tạo nên hành
+            trình đại học tuyệt vời nhất của bạn.
           </p>
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" variant="secondary" className="px-8">
-              Get Started Today
+              Tham gia ngay
             </Button>
             <Button size="lg" variant="ghost" className="px-8">
-              Learn More
+              Tìm hiểu thêm
             </Button>
           </div>
         </div>

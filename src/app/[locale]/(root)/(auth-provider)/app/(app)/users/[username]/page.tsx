@@ -50,7 +50,11 @@ export default function UserPage({
 
           {/* Center - Posts */}
           <div className="lg:col-span-2">
-            <PostSectionCard friend={friend} notMe={true} />
+            <PostSectionCard
+              friend={friend}
+              notMe={true}
+              user_id={profile?.user_id}
+            />
           </div>
 
           {/* Right Sidebar - You might know (Sticky) */}

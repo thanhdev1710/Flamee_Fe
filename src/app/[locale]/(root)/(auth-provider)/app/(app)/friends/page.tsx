@@ -12,6 +12,8 @@ import { ProfileSummary } from "@/types/follow.type";
 import { getFriendSuggestions } from "@/services/follow.service";
 import { addOrUnFollowById } from "@/actions/follow.actions";
 import { toast } from "sonner";
+import { notify } from "@/actions/notify.action";
+import { useProfile } from "@/services/user.hook";
 
 type UserSectionVariant = "followers" | "suggestions" | "following" | "mutual";
 
@@ -22,21 +24,61 @@ function UserCard({
   user: ProfileSummary;
   variant: UserSectionVariant;
 }) {
+  const { data: currentUser } = useProfile();
   const handleFollow = () => {
     const followPromise = addOrUnFollowById(user.user_id).then(async (err) => {
       if (!err) {
+        // tuỳ biến thông báo theo variant
+        let successMessage = "Thao tác thành công";
+
+        switch (variant) {
+          case "followers":
+            successMessage = "Bạn đã follow back";
+            break;
+          case "following":
+            successMessage = "Bạn đã unfollow người này";
+            break;
+          case "suggestions":
+            successMessage = "Bạn đã theo dõi người này";
+            break;
+          case "mutual":
+            successMessage = "Đã cập nhật kết nối";
+            break;
+        }
+
+        // 🔔 chỉ gửi notify khi FOLLOW, không gửi khi UNFOLLOW
+        if (variant !== "following") {
+          await notify({
+            title: "Ai đó đã theo dõi bạn",
+            message: `${currentUser?.username} đã theo dõi bạn`,
+            type: "follow",
+            userId: user.user_id,
+            entityType: "user",
+            entityId: currentUser?.user_id,
+          });
+        }
+
         await mutate("invitationUsers");
-        return "Thành công";
+        return successMessage;
       } else {
-        throw new Error("Đã xảy ra lỗi");
+        throw new Error("Đã xảy ra lỗi, vui lòng thử lại!");
       }
     });
 
+    // 🎉 hiển thị toast theo variant
     toast.promise(followPromise, {
       loading: "Đang xử lý...",
-      success: (msg) => msg || "Thành công",
+      success: (msg) => msg,
       error: (err) => err.message || "Đã xảy ra lỗi",
-      richColors: true,
+      // ✔ màu toast đẹp hơn dựa trên variant
+      className:
+        variant === "following"
+          ? "bg-red-600 text-white"
+          : variant === "followers"
+          ? "bg-blue-600 text-white"
+          : variant === "suggestions"
+          ? "bg-green-600 text-white"
+          : "bg-primary text-white",
     });
   };
 

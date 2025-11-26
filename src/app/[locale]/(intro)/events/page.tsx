@@ -18,92 +18,96 @@ export default function EventsPage() {
   const upcomingEvents = [
     {
       id: 1,
-      title: "Flamee Community Meetup",
-      date: "2024-02-15",
-      time: "18:00",
-      location: "Ho Chi Minh City",
-      attendees: 45,
-      maxAttendees: 100,
-      category: "Meetup",
-      image: "/placeholder.svg?height=200&width=400",
+      title: "Ngày hội Việc làm HUIT 2025",
+      date: "2025-03-15",
+      time: "08:00",
+      location: "Cơ sở chính – 140 Lê Trọng Tấn",
+      attendees: 350,
+      maxAttendees: 2000,
+      category: "Sự kiện lớn",
+      image:
+        "https://huit.edu.vn/wp-content/uploads/2024/11/ngay-hoi-viec-lam-2048x1365.jpg",
       description:
-        "Join fellow Flamee users for an evening of networking and community building.",
+        "Sự kiện quy mô lớn quy tụ hơn 50 doanh nghiệp, mang đến cơ hội thực tập và việc làm cho sinh viên.",
     },
     {
       id: 2,
-      title: "Social Media Workshop",
-      date: "2024-02-20",
-      time: "14:00",
-      location: "Online",
+      title: "Workshop: Kỹ năng phỏng vấn chuyên nghiệp",
+      date: "2025-02-22",
+      time: "09:00",
+      location: "Hội trường A – Cơ sở Tân Bình",
       attendees: 120,
-      maxAttendees: 200,
+      maxAttendees: 180,
       category: "Workshop",
-      image: "/placeholder.svg?height=200&width=400",
+      image:
+        "https://huit.edu.vn/wp-content/uploads/2024/05/hoi-thao-2048x1366.jpg",
       description:
-        "Learn advanced social media strategies and content creation techniques.",
+        "Hướng dẫn cách trả lời phỏng vấn và xử lý tình huống thực tế cho sinh viên năm cuối.",
     },
     {
       id: 3,
-      title: "Flamee Creator Conference",
-      date: "2024-03-05",
-      time: "09:00",
-      location: "Hanoi",
-      attendees: 200,
-      maxAttendees: 500,
-      category: "Conference",
-      image: "/placeholder.svg?height=200&width=400",
+      title: "HUIT Tech Talk: Blockchain & AI",
+      date: "2025-04-02",
+      time: "18:00",
+      location: "Hội trường lớn – Cơ sở Quận 9",
+      attendees: 220,
+      maxAttendees: 300,
+      category: "Công nghệ",
+      image:
+        "https://huit.edu.vn/wp-content/uploads/2024/12/hoi-thao-cn-1536x1025.jpg",
       description:
-        "Annual conference for content creators and social media influencers.",
+        "Buổi chia sẻ về ứng dụng Blockchain, AI vào doanh nghiệp và định hướng nghề nghiệp IT.",
     },
     {
       id: 4,
-      title: "Photography Challenge",
-      date: "2024-03-12",
-      time: "10:00",
-      location: "Da Nang",
-      attendees: 30,
-      maxAttendees: 50,
-      category: "Challenge",
-      image: "/placeholder.svg?height=200&width=400",
+      title: "Cuộc thi Lập trình Web HUIT 2025",
+      date: "2025-03-28",
+      time: "13:00",
+      location: "Phòng máy – Cơ sở Tân Bình",
+      attendees: 80,
+      maxAttendees: 120,
+      category: "Cuộc thi",
+      image:
+        "https://huit.edu.vn/wp-content/uploads/2024/05/lap-trinh-competition.jpg",
       description:
-        "Capture the beauty of Da Nang in our monthly photography challenge.",
+        "Cuộc thi lập trình cấp trường dành cho sinh viên yêu thích Web, React, NodeJS.",
     },
     {
       id: 5,
-      title: "Tech Talk: Future of Social",
-      date: "2024-03-18",
-      time: "19:00",
-      location: "Online",
-      attendees: 85,
-      maxAttendees: 150,
-      category: "Tech Talk",
-      image: "/placeholder.svg?height=200&width=400",
+      title: "Ngày hội CLB HUIT 2025",
+      date: "2025-02-28",
+      time: "07:30",
+      location: "Sân trường – Cơ sở chính",
+      attendees: 500,
+      maxAttendees: 2500,
+      category: "CLB – Hoạt động",
+      image: "https://huit.edu.vn/wp-content/uploads/2024/03/huit-club-day.jpg",
       description:
-        "Explore the future of social media and emerging technologies.",
+        "31 CLB học thuật – văn nghệ – thể thao cùng giao lưu, tuyển thành viên mới.",
     },
     {
       id: 6,
-      title: "Community Volunteer Day",
-      date: "2024-03-25",
-      time: "08:00",
-      location: "Ho Chi Minh City",
-      attendees: 60,
-      maxAttendees: 80,
-      category: "Volunteer",
-      image: "/placeholder.svg?height=200&width=400",
+      title: "Hoạt động tình nguyện: Xuân Yêu Thương",
+      date: "2025-02-10",
+      time: "06:30",
+      location: "Quận 12 – TP.HCM",
+      attendees: 80,
+      maxAttendees: 100,
+      category: "Tình nguyện",
+      image: "https://huit.edu.vn/wp-content/uploads/2024/01/tinh-nguyen.jpg",
       description:
-        "Give back to the community with our monthly volunteer activities.",
+        "Chương trình thiện nguyện giúp đỡ trẻ em khó khăn trước thềm năm mới.",
     },
   ];
 
   const categories = [
-    "All",
-    "Meetup",
+    "Tất cả",
+    "Sự kiện lớn",
     "Workshop",
-    "Conference",
-    "Challenge",
-    "Tech Talk",
-    "Volunteer",
+    "Công nghệ",
+    "Cuộc thi",
+    "CLB – Hoạt động",
+    "Tình nguyện",
   ];
 
   return (
@@ -115,53 +119,57 @@ export default function EventsPage() {
         <div className="container mx-auto text-center">
           <Badge
             variant="secondary"
-            className="mb-4 bg-orange-100 text-orange-600"
+            className="mb-4 bg-emerald-100 text-emerald-600"
           >
-            Events
+            Sự kiện HUIT
           </Badge>
+
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-6">
-            Connect Through
-            <span className="block text-primary">Amazing Events</span>
+            Kết nối qua
+            <span className="block text-primary">Các sự kiện tại HUIT</span>
           </h1>
+
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed mb-8">
-            Join our vibrant community at exciting events, workshops, and
-            meetups. Network with like-minded people and grow your social
-            connections.
+            Tham gia sự kiện – hội thảo – workshop – hoạt động CLB để mở rộng
+            mối quan hệ và phát triển kỹ năng trong môi trường đại học.
           </p>
 
-          {/* Search and Filter */}
+          {/* Search & Filter */}
           <div className="max-w-4xl mx-auto">
             <div className="flex flex-col md:flex-row gap-4 bg-background p-6 rounded-2xl shadow-lg">
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Search events..." className="pl-10" />
+                <Input placeholder="Tìm kiếm sự kiện..." className="pl-10" />
               </div>
+
               <Select>
                 <SelectTrigger className="w-full md:w-48">
                   <Filter className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="Category" />
+                  <SelectValue placeholder="Danh mục" />
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map((category) => (
-                    <SelectItem key={category} value={category.toLowerCase()}>
+                    <SelectItem key={category} value={category}>
                       {category}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+
               <Select>
                 <SelectTrigger className="w-full md:w-48">
-                  <SelectValue placeholder="Location" />
+                  <SelectValue placeholder="Khu vực" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Locations</SelectItem>
-                  <SelectItem value="hcm">Ho Chi Minh City</SelectItem>
-                  <SelectItem value="hanoi">Hanoi</SelectItem>
-                  <SelectItem value="danang">Da Nang</SelectItem>
+                  <SelectItem value="all">Tất cả</SelectItem>
+                  <SelectItem value="csc">Cơ sở chính</SelectItem>
+                  <SelectItem value="tb">Tân Bình</SelectItem>
+                  <SelectItem value="q9">Quận 9</SelectItem>
                   <SelectItem value="online">Online</SelectItem>
                 </SelectContent>
               </Select>
-              <Button className="px-8">Search</Button>
+
+              <Button className="px-8">Tìm kiếm</Button>
             </div>
           </div>
         </div>
@@ -171,8 +179,8 @@ export default function EventsPage() {
       <section className="py-20 px-4">
         <div className="container mx-auto">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl font-bold">Upcoming Events</h2>
-            <Button variant="outline">Create Event</Button>
+            <h2 className="text-2xl font-bold">Sự kiện sắp diễn ra</h2>
+            <Button variant="outline">Tạo sự kiện</Button>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -185,11 +193,11 @@ export default function EventsPage() {
                   <Image
                     width={600}
                     height={400}
-                    src={event.image || "/placeholder.svg"}
+                    src={event.image}
                     alt={event.title}
                     className="w-full h-48 object-cover"
                   />
-                  <Badge className="absolute top-4 left-4 bg-primary">
+                  <Badge className="absolute top-4 left-4 bg-primary text-white">
                     {event.category}
                   </Badge>
                 </div>
@@ -206,7 +214,7 @@ export default function EventsPage() {
                 <CardContent className="space-y-3">
                   <div className="flex items-center text-sm text-muted-foreground">
                     <Calendar className="h-4 w-4 mr-2" />
-                    {new Date(event.date).toLocaleDateString("vi-VN")} at{" "}
+                    {new Date(event.date).toLocaleDateString("vi-VN")} –{" "}
                     {event.time}
                   </div>
 
@@ -217,7 +225,7 @@ export default function EventsPage() {
 
                   <div className="flex items-center text-sm text-muted-foreground">
                     <Users className="h-4 w-4 mr-2" />
-                    {event.attendees}/{event.maxAttendees} attendees
+                    {event.attendees}/{event.maxAttendees} người tham gia
                   </div>
 
                   <div className="w-full bg-muted rounded-full h-2">
@@ -231,7 +239,7 @@ export default function EventsPage() {
                     ></div>
                   </div>
 
-                  <Button className="w-full mt-4">Register Now</Button>
+                  <Button className="w-full mt-4">Đăng ký tham gia</Button>
                 </CardContent>
               </Card>
             ))}
@@ -239,7 +247,7 @@ export default function EventsPage() {
 
           <div className="text-center mt-12">
             <Button variant="outline" size="lg">
-              Load More Events
+              Xem thêm sự kiện
             </Button>
           </div>
         </div>
@@ -252,44 +260,48 @@ export default function EventsPage() {
             <div>
               <Badge
                 variant="secondary"
-                className="mb-4 bg-orange-100 text-orange-600"
+                className="mb-4 bg-emerald-100 text-emerald-600"
               >
-                Featured Event
+                Sự kiện nổi bật
               </Badge>
+
               <h2 className="text-3xl font-bold mb-4">
-                Flamee Annual Summit 2024
+                Ngày hội Việc làm HUIT 2025
               </h2>
+
               <p className="text-muted-foreground mb-6 leading-relaxed">
-                Join us for our biggest event of the year! Connect with
-                thousands of Flamee users, attend inspiring talks, participate
-                in workshops, and celebrate our amazing community.
+                Hơn 50 doanh nghiệp – 2.000+ vị trí tuyển dụng – cơ hội thực tập
+                và việc làm hấp dẫn dành cho sinh viên HUIT.
               </p>
 
               <div className="space-y-3 mb-6">
                 <div className="flex items-center">
                   <Calendar className="h-5 w-5 mr-3 text-primary" />
-                  <span>April 15-16, 2024</span>
+                  <span>15 Tháng 3, 2025</span>
                 </div>
+
                 <div className="flex items-center">
                   <MapPin className="h-5 w-5 mr-3 text-primary" />
-                  <span>Saigon Convention Center, Ho Chi Minh City</span>
+                  <span>Cơ sở chính – Sân trường</span>
                 </div>
+
                 <div className="flex items-center">
                   <Users className="h-5 w-5 mr-3 text-primary" />
-                  <span>2,000+ Expected Attendees</span>
+                  <span>2.000+ sinh viên tham dự</span>
                 </div>
+
                 <div className="flex items-center">
                   <Clock className="h-5 w-5 mr-3 text-primary" />
-                  <span>2 Days of Amazing Content</span>
+                  <span>07:30 – 16:00</span>
                 </div>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button size="lg" className="px-8">
-                  Register Now
+                  Đăng ký ngay
                 </Button>
                 <Button size="lg" variant="outline" className="px-8">
-                  Learn More
+                  Xem chi tiết
                 </Button>
               </div>
             </div>
@@ -298,8 +310,8 @@ export default function EventsPage() {
               <Image
                 width={600}
                 height={400}
-                src="/placeholder.svg?height=500&width=600"
-                alt="Flamee Annual Summit"
+                src="https://huit.edu.vn/wp-content/uploads/2024/11/ngay-hoi-viec-lam-2048x1365.jpg"
+                alt="Ngày hội việc làm HUIT 2025"
                 className="rounded-2xl shadow-lg"
               />
             </div>
