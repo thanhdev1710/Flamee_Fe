@@ -52,7 +52,7 @@ export default function FriendRow({
       {/* Avatar */}
       <Avatar className="h-11 w-11 ring-2 ring-transparent group-hover:ring-primary/40 transition-all duration-300">
         <AvatarImage src={item.avatar_url || ""} alt={displayName} />
-        <AvatarFallback className="bg-gradient-to-br from-primary to-purple-600 text-white font-bold">
+        <AvatarFallback className="bg-linear-to-br from-primary to-purple-600 text-white font-bold">
           {displayName.charAt(0)?.toUpperCase()}
         </AvatarFallback>
       </Avatar>

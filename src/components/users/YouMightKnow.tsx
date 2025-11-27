@@ -49,11 +49,11 @@ export default function YouMightKnow({ friend, notMe = false }: Props) {
   }
 
   return (
-    <Card className="shadow-lg border-0 bg-gradient-to-br from-background via-background to-muted/20 backdrop-blur-sm">
+    <Card className="shadow-lg border-0 bg-linear-to-br from-background via-background to-muted/20 backdrop-blur-sm">
       <CardContent className="p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
-            <div className="w-1 h-6 bg-gradient-to-b from-pink-500 via-purple-500 to-blue-500 rounded-full" />
+            <div className="w-1 h-6 bg-linear-to-b from-pink-500 via-purple-500 to-blue-500 rounded-full" />
             Gợi ý kết nối
           </h3>
           {suggestions.length > 0 && (

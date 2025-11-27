@@ -88,7 +88,7 @@ export function ModeToggle() {
           size="icon"
           className="relative group hover:shadow-lg transition-all duration-300 hover:scale-105 border-2 hover:border-primary/20"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="absolute inset-0 bg-linear-to-br from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           <Settings className="h-4 w-4 transition-transform duration-300 group-hover:rotate-12" />
         </Button>
       </DropdownMenuTrigger>
@@ -144,7 +144,7 @@ export function ModeToggle() {
           </DropdownMenuGroup>
         </div>
 
-        <DropdownMenuSeparator className="my-3 bg-gradient-to-r from-transparent via-border to-transparent" />
+        <DropdownMenuSeparator className="my-3 bg-linear-to-r from-transparent via-border to-transparent" />
 
         {/* Language Section */}
         <div className="space-y-1">

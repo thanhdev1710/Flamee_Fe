@@ -19,10 +19,10 @@ export default function AboutCard({
       })
     : "Chưa cập nhật";
   return (
-    <Card className="shadow-lg border-0 bg-gradient-to-br from-background via-background to-muted/20 backdrop-blur-sm">
+    <Card className="shadow-lg border-0 bg-linear-to-br from-background via-background to-muted/20 backdrop-blur-sm">
       <CardContent className="p-6">
         <h3 className="text-lg font-semibold mb-4 text-foreground flex items-center gap-2">
-          <div className="w-1 h-6 bg-gradient-to-b from-blue-500 via-purple-500 to-pink-500 rounded-full" />
+          <div className="w-1 h-6 bg-linear-to-b from-blue-500 via-purple-500 to-pink-500 rounded-full" />
           About
         </h3>
         <div className="space-y-4">

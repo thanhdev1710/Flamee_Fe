@@ -74,7 +74,7 @@ const RemoteVideo = ({
   }, [stream]);
 
   return (
-    <div className="relative bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl overflow-hidden h-full w-full border border-slate-700 shadow-lg">
+    <div className="relative bg-linear-to-br from-slate-800 to-slate-900 rounded-xl overflow-hidden h-full w-full border border-slate-700 shadow-lg">
       <video
         ref={videoRef}
         autoPlay
@@ -349,7 +349,7 @@ export default function VideoCallModalEnhanced({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-6xl h-[90vh] bg-gradient-to-b from-slate-950 to-slate-900 border-slate-800 p-0 flex flex-col shadow-2xl">
+      <DialogContent className="max-w-6xl h-[90vh] bg-linear-to-b from-slate-950 to-slate-900 border-slate-800 p-0 flex flex-col shadow-2xl">
         <DialogTitle className="sr-only">Video Call</DialogTitle>
 
         {isLoading && (
@@ -366,7 +366,7 @@ export default function VideoCallModalEnhanced({
         {/* --- GRID VIDEO --- */}
         <div className="flex-1 bg-black p-3 overflow-hidden grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 auto-rows-fr">
           {/* Local Video */}
-          <div className="relative bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl overflow-hidden border border-slate-700 shadow-lg">
+          <div className="relative bg-linear-to-br from-slate-800 to-slate-900 rounded-xl overflow-hidden border border-slate-700 shadow-lg">
             <video
               ref={localVideoRef}
               autoPlay
@@ -391,7 +391,7 @@ export default function VideoCallModalEnhanced({
 
           {/* Waiting Placeholder */}
           {Object.keys(remoteStreams).length === 0 && (
-            <div className="flex flex-col items-center justify-center bg-gradient-to-br from-slate-900/50 to-slate-800/50 rounded-xl border-2 border-dashed border-slate-700 text-slate-400">
+            <div className="flex flex-col items-center justify-center bg-linear-to-br from-slate-900/50 to-slate-800/50 rounded-xl border-2 border-dashed border-slate-700 text-slate-400">
               <div className="flex flex-col items-center gap-4">
                 <div className="text-center">
                   <div className="text-lg font-semibold text-slate-300 mb-1">
