@@ -83,7 +83,7 @@ export default function ContactPage() {
       <MenuBar />
 
       {/* Hero Section */}
-      <section className="py-20 px-4 bg-gradient-to-b from-background to-muted/30">
+      <section className="py-20 px-4 bg-linear-to-b from-background to-muted/30">
         <div className="container mx-auto text-center">
           <Badge
             variant="secondary"
@@ -195,7 +195,7 @@ export default function ContactPage() {
                   >
                     <CardContent className="p-6">
                       <div className="flex items-start space-x-4">
-                        <div className="flex-shrink-0 p-3 bg-primary/10 rounded-lg text-primary">
+                        <div className="shrink-0 p-3 bg-primary/10 rounded-lg text-primary">
                           {info.icon}
                         </div>
 

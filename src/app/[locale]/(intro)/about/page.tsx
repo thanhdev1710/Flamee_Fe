@@ -74,7 +74,7 @@ export default function AboutPage() {
       <MenuBar />
 
       {/* Hero Section */}
-      <section className="py-20 px-4 bg-gradient-to-b from-background to-muted/30">
+      <section className="py-20 px-4 bg-linear-to-b from-background to-muted/30">
         <div className="container mx-auto text-center">
           <Badge
             variant="secondary"

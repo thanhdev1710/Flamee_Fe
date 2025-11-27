@@ -132,7 +132,7 @@ export default function PostSectionCard({
   };
 
   return (
-    <Card className="shadow-lg py-0 overflow-hidden border-0 bg-gradient-to-br from-background via-background to-muted/20 backdrop-blur-sm rounded-t-none">
+    <Card className="shadow-lg py-0 overflow-hidden border-0 bg-linear-to-br from-background via-background to-muted/20 backdrop-blur-sm rounded-t-none">
       <CardContent className="p-0">
         <Tabs defaultValue="followers" className="w-full">
           <TabsList className="grid w-full grid-cols-3 rounded-none border-b h-auto p-0 backdrop-blur-sm bg-transparent">

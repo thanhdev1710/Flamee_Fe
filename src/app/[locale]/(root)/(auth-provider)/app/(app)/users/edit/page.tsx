@@ -108,7 +108,7 @@ export default function EditProfilePage() {
         {/* Header */}
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+            <h1 className="text-2xl font-bold bg-linear-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
               Chỉnh sửa hồ sơ
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
@@ -117,7 +117,7 @@ export default function EditProfilePage() {
           </div>
         </div>
 
-        <Card className="border-0 shadow-xl bg-gradient-to-br from-background via-background to-muted/20 backdrop-blur">
+        <Card className="border-0 shadow-xl bg-linear-to-br from-background via-background to-muted/20 backdrop-blur">
           <CardContent className="p-6 sm:p-8 space-y-8">
             <Form {...form}>
               <form
@@ -145,7 +145,7 @@ export default function EditProfilePage() {
                                     src={field.value || ""}
                                     alt={fullName}
                                   />
-                                  <AvatarFallback className="bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 text-white text-2xl font-semibold">
+                                  <AvatarFallback className="bg-linear-to-br from-blue-500 via-purple-500 to-pink-500 text-white text-2xl font-semibold">
                                     {initials}
                                   </AvatarFallback>
                                 </Avatar>
@@ -267,7 +267,7 @@ export default function EditProfilePage() {
                 {/* Thông tin cá nhân */}
                 <section className="space-y-4">
                   <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-6 rounded-full bg-gradient-to-b from-blue-500 via-purple-500 to-pink-500" />
+                    <div className="w-1.5 h-6 rounded-full bg-linear-to-b from-blue-500 via-purple-500 to-pink-500" />
                     <h2 className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
                       Thông tin cá nhân
                     </h2>
@@ -394,7 +394,7 @@ export default function EditProfilePage() {
                 {/* Thông tin học tập */}
                 <section className="space-y-4">
                   <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-6 rounded-full bg-gradient-to-b from-emerald-500 via-cyan-500 to-blue-500" />
+                    <div className="w-1.5 h-6 rounded-full bg-linear-to-b from-emerald-500 via-cyan-500 to-blue-500" />
                     <h2 className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
                       Thông tin học tập
                     </h2>
@@ -449,7 +449,7 @@ export default function EditProfilePage() {
                 {/* Giới thiệu */}
                 <section className="space-y-4">
                   <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-6 rounded-full bg-gradient-to-b from-pink-500 via-purple-500 to-indigo-500" />
+                    <div className="w-1.5 h-6 rounded-full bg-linear-to-b from-pink-500 via-purple-500 to-indigo-500" />
                     <h2 className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
                       Giới thiệu
                     </h2>
@@ -495,7 +495,7 @@ export default function EditProfilePage() {
                     </Button>
                     <Button
                       type="submit"
-                      className="rounded-full bg-gradient-to-r text-white from-blue-600 via-purple-600 to-pink-600 text-xs font-medium shadow-md hover:opacity-90"
+                      className="rounded-full bg-linear-to-r text-white from-blue-600 via-purple-600 to-pink-600 text-xs font-medium shadow-md hover:opacity-90"
                     >
                       Lưu hồ sơ
                     </Button>

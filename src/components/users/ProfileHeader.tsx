@@ -39,10 +39,10 @@ export default function ProfileHeader({
     fullName || profile?.username || (profile ? "Profile" : "Welcome");
 
   return (
-    <Card className="overflow-hidden border-0 shadow-xl bg-gradient-to-br from-background via-background to-muted/20">
+    <Card className="overflow-hidden border-0 shadow-xl bg-linear-to-br from-background via-background to-muted/20">
       {/* COVER */}
-      <div className="relative md:h-[260px] h-[180px] bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 dark:from-blue-800 dark:via-purple-800 dark:to-pink-800">
-        <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-black/10 to-transparent" />
+      <div className="relative md:h-[260px] h-[180px] bg-linear-to-br from-blue-600 via-purple-600 to-pink-600 dark:from-blue-800 dark:via-purple-800 dark:to-pink-800">
+        <div className="absolute inset-0 bg-linear-to-t from-black/25 via-black/10 to-transparent" />
         <Image
           src={`https://placehold.co/1200x400/6366f1/ffffff?text=${encodeURIComponent(
             coverText
@@ -55,12 +55,12 @@ export default function ProfileHeader({
       </div>
 
       {/* INFO */}
-      <div className="relative px-6 pb-6 bg-gradient-to-b from-background to-muted/10">
+      <div className="relative px-6 pb-6 bg-linear-to-b from-background to-muted/10">
         {/* Avatar nổi lên cover */}
         <div className="absolute -top-16 left-6">
           <Avatar className="w-32 h-32 shadow-2xl ring-4 ring-background bg-background">
             <AvatarImage src={profile?.avatar_url || ""} alt={displayName} />
-            <AvatarFallback className="bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 text-white text-2xl font-semibold">
+            <AvatarFallback className="bg-linear-to-br from-blue-500 via-purple-500 to-pink-500 text-white text-2xl font-semibold">
               {displayName.charAt(0)?.toUpperCase()}
             </AvatarFallback>
           </Avatar>
@@ -69,7 +69,7 @@ export default function ProfileHeader({
         <div className="pt-20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           {/* Tên + username + stats */}
           <div className="space-y-2">
-            <h1 className="text-2xl sm:text-3xl font-bold mb-1 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+            <h1 className="text-2xl sm:text-3xl font-bold mb-1 bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
               {displayName}
             </h1>
 
