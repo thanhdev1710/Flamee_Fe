@@ -165,7 +165,7 @@ export default function LogsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground px-4 py-8">
+    <div className="min-h-svh bg-background text-foreground px-4 py-8">
       <div className="mx-auto w-full max-w-7xl space-y-6">
         <div className="space-y-2">
           <div className="flex items-center gap-3">

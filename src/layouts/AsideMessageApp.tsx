@@ -42,6 +42,7 @@ import { navigationItems } from "@/global/const";
 import Link from "next/link";
 import { Socket } from "socket.io-client";
 import { getChatSocket } from "@/lib/chatSocket";
+import { CONFIG } from "@/global/config";
 
 type AsideMessageAppProps = {
   currentUserId: string;
@@ -116,16 +117,13 @@ export default function AsideMessageAppEnhanced({
   // tránh spam toast khi chính mình xoá
   const isSelfDeleting = useRef(false);
 
-  const apiBase = process.env.NEXT_PUBLIC_CHAT_API;
-  const socketUrl = process.env.NEXT_PUBLIC_CHAT_SOCKET;
-
   // --- FETCH CONVERSATIONS ---
   const fetchConversations = useCallback(() => {
     if (!currentUserId) return;
 
     setIsLoadingConversations(true);
     axios
-      .get(apiBase + `/conversations?user_id=${currentUserId}`)
+      .get(CONFIG.API.CHAT_URL + `/conversations?user_id=${currentUserId}`)
       .then((res) => {
         const raw = (Array.isArray(res.data) ? res.data : res.data.data) || [];
         const rawConvs = raw as Conversation[];
@@ -167,7 +165,7 @@ export default function AsideMessageAppEnhanced({
         toast.error("Lỗi tải danh sách chat");
       })
       .finally(() => setIsLoadingConversations(false));
-  }, [currentUserId, apiBase]);
+  }, [currentUserId]);
 
   useEffect(() => {
     fetchConversations();
@@ -177,7 +175,7 @@ export default function AsideMessageAppEnhanced({
   useEffect(() => {
     if (!currentUserId) return;
 
-    const s = getChatSocket(currentUserId, socketUrl!);
+    const s = getChatSocket(currentUserId);
     setSocket(s);
 
     // join user room
@@ -271,7 +269,7 @@ export default function AsideMessageAppEnhanced({
       s.off("conversation-updated-unread", handleUpdate);
       s.off("conversation-removed", handleRemoveConv);
     };
-  }, [currentUserId, socketUrl, activeId, pathname, searchParams, router]);
+  }, [currentUserId, activeId, pathname, searchParams, router]);
 
   // --- OPTIMISTIC READ KHI CLICK VÀO CONVERSATION ---
   // Không gọi HTTP /read-all nữa, để socket "mark-read" bên MainMessage xử lý
@@ -297,7 +295,7 @@ export default function AsideMessageAppEnhanced({
         router.push(`${pathname}?${params.toString()}`);
       }
       await axios.post(
-        `${apiBase}/${conversationId}/delete`,
+        `${CONFIG.API.CHAT_URL}/${conversationId}/delete`,
         {},
         { headers: { "x-user-id": currentUserId } }
       );
@@ -396,7 +394,7 @@ export default function AsideMessageAppEnhanced({
               memberIds: [...selectedFriendIds, currentUserId],
             };
 
-      const res = await axios.post(`${apiBase}/create`, payload);
+      const res = await axios.post(`${CONFIG.API.CHAT_URL}/create`, payload);
       const newId: string | undefined = res.data?.id;
 
       if (newId) {

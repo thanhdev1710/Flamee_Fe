@@ -338,7 +338,7 @@ export default function VideoCallPage() {
   // RENDER UI
   // =====================================================
   return (
-    <div className="w-screen h-screen bg-slate-950 flex flex-col overflow-hidden">
+    <div className="w-screen h-svh bg-slate-950 flex flex-col overflow-hidden">
       {/* Video Grid */}
       <div className="flex-1 bg-black p-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
         {/* Local Video */}

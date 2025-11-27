@@ -18,6 +18,8 @@ export const CONFIG = {
 
   API: {
     BASE_URL: process.env.NEXT_PUBLIC_API_URL || "",
+    CHAT_URL: process.env.NEXT_PUBLIC_CHAT_API || "",
+    VIDEO_URL: process.env.NEXT_PUBLIC_VIDEO_API || "",
     VERSION: process.env.NEXT_PUBLIC_API_VERSION || "",
     X_API_KEY: process.env.NEXT_PUBLIC_X_API_KEY || "",
     CHECK_STUDENT_CARD_URL:

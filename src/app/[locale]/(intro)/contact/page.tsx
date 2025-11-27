@@ -79,7 +79,7 @@ export default function ContactPage() {
   ];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-svh">
       <MenuBar />
 
       {/* Hero Section */}

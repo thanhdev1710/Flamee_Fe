@@ -1,6 +1,5 @@
 "use client";
 import MobileSearch from "@/components/shared/MobileSearch";
-import Stories from "@/components/shared/Stories";
 import AsideFriendApp from "@/layouts/AsideFriendApp";
 import SectionPost from "@/layouts/SectionPost";
 
@@ -25,7 +24,7 @@ export default function Feeds() {
           <MobileSearch />
 
           {/* Stories */}
-          <Stories />
+          {/* <Stories /> */}
 
           {/* Recent Post */}
           <div className="flex justify-between items-center mb-4">

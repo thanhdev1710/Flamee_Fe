@@ -1,7 +1,5 @@
 "use client";
 
-import React, { useEffect } from "react";
-
 import { Logout } from "@/actions/auth.action";
 import { Logo } from "@/components/shared/Logo";
 import { SearchCommand } from "@/components/shared/SearchCommand";
@@ -27,10 +25,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { getChatSocket, disconnectSocket } from "@/lib/chatSocket";
-
-const SOCKET_URL =
-  process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:4004";
+import { disconnectSocket } from "@/lib/chatSocket";
 
 export default function HeaderApp() {
   const router = useRouter();
@@ -41,26 +36,6 @@ export default function HeaderApp() {
   const fullName = profile
     ? `${profile.lastName || ""} ${profile.firstName || ""}`.trim()
     : "Đang tải...";
-
-  useEffect(() => {
-    if (!profile?.user_id) return;
-
-    const userId = String(profile.user_id);
-    const socket = getChatSocket(userId, SOCKET_URL);
-
-    // Join room cá nhân để server track presence
-    socket.emit("join-user", { userId });
-
-    // Gửi heartbeat định kỳ để cập nhật last_seen
-    const interval = setInterval(() => {
-      socket.emit("user-activity");
-    }, 30000);
-
-    return () => {
-      clearInterval(interval);
-      // KHÔNG disconnect ở đây, logout sẽ xử lý
-    };
-  }, [profile?.user_id]);
 
   return (
     <header className="sticky top-0 z-50 shadow-lg border-b">

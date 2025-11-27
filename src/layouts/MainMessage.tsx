@@ -36,6 +36,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { CONFIG } from "@/global/config";
 
 // ================= TYPES =================
 type ReadByEntry = {
@@ -92,8 +93,6 @@ type Conversation = {
 };
 
 type Props = {
-  apiBase: string;
-  socketUrl: string;
   conversationId: string;
   userId: string;
   setIsShow: React.Dispatch<React.SetStateAction<boolean>>;
@@ -140,15 +139,11 @@ const MessageSkeletonList = ({ count = 4 }: { count?: number }) => {
 
 // =============== MAIN ===============
 export default function MainMessage({
-  apiBase,
-  socketUrl,
   conversationId,
   userId,
   isShow,
   setIsShow,
 }: Props) {
-  const videoApiBase = process.env.NEXT_PUBLIC_VIDEO_API;
-
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isPartnerTyping, setIsPartnerTyping] = useState(false);
@@ -214,7 +209,7 @@ export default function MainMessage({
 
   const handleStartCall = async () => {
     try {
-      const res = await axios.post(`${videoApiBase}/create`, {
+      const res = await axios.post(`${CONFIG.API.VIDEO_URL}/create`, {
         conversationId,
         hostId: userId,
       });
@@ -232,7 +227,7 @@ export default function MainMessage({
   useEffect(() => {
     if (!userId || !conversationId) return;
 
-    const socket = getChatSocket(userId, socketUrl);
+    const socket = getChatSocket(userId);
     socketRef.current = socket;
 
     socket.emit("join-room", conversationId);
@@ -423,7 +418,7 @@ export default function MainMessage({
       socket.off("conversation-updated", handleConversationUpdated);
       socket.off("incoming-call", handleIncomingCall);
     };
-  }, [conversationId, userId, socketUrl, conversation, openVideoCallWindow]);
+  }, [conversationId, userId, conversation, openVideoCallWindow]);
 
   // =======================
   // SCROLL BOTTOM KHI CÓ TIN MỚI
@@ -480,8 +475,8 @@ export default function MainMessage({
 
       try {
         const [resC, resM] = await Promise.all([
-          axios.get(`${apiBase}/conversations?user_id=${userId}`),
-          axios.get(`${apiBase}/${conversationId}/history`, {
+          axios.get(`${CONFIG.API.CHAT_URL}/conversations?user_id=${userId}`),
+          axios.get(`${CONFIG.API.CHAT_URL}/${conversationId}/history`, {
             params: { userId, limit: LIMIT },
           }),
         ]);
@@ -548,7 +543,7 @@ export default function MainMessage({
     };
 
     fetchData();
-  }, [conversationId, userId, apiBase]);
+  }, [conversationId, userId]);
 
   // =======================
   // HANDLERS
@@ -591,7 +586,7 @@ export default function MainMessage({
     });
 
     try {
-      await axios.post(`${apiBase}/send`, {
+      await axios.post(`${CONFIG.API.CHAT_URL}/send`, {
         conversationId,
         senderId: userId,
         message: txt,
@@ -607,9 +602,12 @@ export default function MainMessage({
     setLoadingMore(true);
     try {
       const LIMIT = 20;
-      const res = await axios.get(`${apiBase}/${conversationId}/history`, {
-        params: { userId, limit: LIMIT, cursor: oldestCursor },
-      });
+      const res = await axios.get(
+        `${CONFIG.API.CHAT_URL}/${conversationId}/history`,
+        {
+          params: { userId, limit: LIMIT, cursor: oldestCursor },
+        }
+      );
       const raw = res.data || [];
       const shaped: ChatMessage[] = raw.map((m: any) => ({
         id: m.id,
@@ -654,7 +652,7 @@ export default function MainMessage({
     setRenaming(true);
     try {
       await axios.post(
-        `${apiBase}/group/rename`,
+        `${CONFIG.API.CHAT_URL}/group/rename`,
         {
           conversationId,
           newName: newGroupName.trim(),
@@ -674,7 +672,7 @@ export default function MainMessage({
     if (!deletingMessage) return;
     try {
       await axios.post(
-        `${apiBase}/message/${deletingMessage.id}/delete`,
+        `${CONFIG.API.CHAT_URL}/message/${deletingMessage.id}/delete`,
         {},
         { headers: { "x-user-id": userId } }
       );
@@ -819,7 +817,7 @@ export default function MainMessage({
                     <Avatar className="h-8 w-8 mr-2 mt-1">
                       <AvatarImage src={msg.sender?.avatarUrl} />
                       <AvatarFallback className="bg-slate-700 text-[10px]">
-                        {msg.sender?.username?.[0] || msg.sender?.fullname?.[0]}
+                        {msg.sender?.username?.[1]}
                       </AvatarFallback>
                     </Avatar>
                   )}

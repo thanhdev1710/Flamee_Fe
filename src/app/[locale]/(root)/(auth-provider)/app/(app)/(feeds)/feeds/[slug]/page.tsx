@@ -28,7 +28,7 @@ export default function PostPage({
   if (!post) return null;
 
   return (
-    <div className="min-h-screen px-3">
+    <div className="min-h-svh px-3">
       <div className="w-full h-[85vh] rounded-xl overflow-hidden mt-3">
         <ScrollArea className="w-full h-full">
           <PostCardDetail

@@ -17,7 +17,7 @@ export const metadata = {
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen w-full bg-background flex flex-col items-center justify-center text-center p-4">
+    <div className="min-h-svh w-full bg-background flex flex-col items-center justify-center text-center p-4">
       <div className="animate-fade-in space-y-6">
         <div className="flex justify-center">
           <Logo size={64} />
