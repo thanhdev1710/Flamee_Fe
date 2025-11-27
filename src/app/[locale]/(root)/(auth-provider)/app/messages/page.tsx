@@ -30,13 +30,9 @@ export default function MessagesPage() {
   const userIdFromToken = meData?.user?.sub || "";
   const userId = searchParams.get("me") || userIdFromToken || "";
 
-  // Base URL cho API và Socket (GIỮ NGUYÊN URL)
-  const apiBase = process.env.NEXT_PUBLIC_CHAT_API;
-  const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL;
-
   if (meLoading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-slate-950 text-slate-100">
+      <div className="flex h-svh items-center justify-center bg-slate-950 text-slate-100">
         <div className="text-center space-y-2">
           <p className="text-sm text-slate-400">
             Đang tải thông tin người dùng...
@@ -48,7 +44,7 @@ export default function MessagesPage() {
 
   if (!userId) {
     return (
-      <div className="flex h-screen items-center justify-center bg-slate-950 text-slate-100">
+      <div className="flex h-svh items-center justify-center bg-slate-950 text-slate-100">
         <div className="text-center space-y-2">
           <p className="text-sm text-slate-400">
             Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại để tiếp
@@ -61,7 +57,7 @@ export default function MessagesPage() {
 
   if (!conversationId) {
     return (
-      <div className="flex h-screen overflow-hidden bg-slate-950 relative">
+      <div className="flex h-svh overflow-hidden bg-slate-950 relative">
         {/* Sidebar Trái */}
         <AsideMessageApp
           isShow={isShow}
@@ -92,7 +88,7 @@ export default function MessagesPage() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-white dark:bg-slate-950">
+    <div className="flex h-svh overflow-hidden bg-white dark:bg-slate-950">
       {/* Sidebar Trái */}
       <AsideMessageApp
         isShow={isShow}
@@ -103,8 +99,6 @@ export default function MessagesPage() {
       {/* Chat Chính */}
       <main className="flex-1 min-w-0 border-r border-slate-200 dark:border-slate-800">
         <MainMessage
-          apiBase={apiBase!}
-          socketUrl={socketUrl!}
           conversationId={conversationId}
           userId={userId}
           isShow={isShow}

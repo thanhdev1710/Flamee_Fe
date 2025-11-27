@@ -84,10 +84,6 @@ function UserCard({
 
   const isFollowerSection = variant === "followers";
 
-  // Chuẩn hoá username nếu bạn muốn bỏ @ trên URL,
-  // còn nếu backend xử lý được @ thì có thể dùng luôn user.username
-  const usernameSlug = user.username?.replace(/^@/, "") || user.user_id;
-
   return (
     <Card className="flex flex-col items-center p-5 gap-4 hover:shadow-xl hover:border-primary/50 transition-all duration-300 border border-border">
       <div className="relative">
@@ -119,7 +115,7 @@ function UserCard({
             size="sm"
             variant="outline"
           >
-            <Link href={`/app/users/${usernameSlug}`}>View profile</Link>
+            <Link href={`/app/users/${user.username}`}>View profile</Link>
           </Button>
         ) : variant === "following" ? (
           <Button

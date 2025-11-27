@@ -70,7 +70,7 @@ export default function AboutPage() {
   ];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-svh">
       <MenuBar />
 
       {/* Hero Section */}

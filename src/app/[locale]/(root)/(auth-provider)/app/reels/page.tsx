@@ -153,7 +153,7 @@ export default function ReelsPage() {
   const currentReel = reels[currentReelIndex];
 
   return (
-    <div className="h-screen bg-background relative overflow-hidden">
+    <div className="h-svh bg-background relative overflow-hidden">
       {/* Header */}
       <div className="absolute top-0 left-0 right-0 z-20 dark:bg-gradient-to-b dark:from-background/50 dark:to-transparent p-4">
         <div className="flex items-center justify-between">
