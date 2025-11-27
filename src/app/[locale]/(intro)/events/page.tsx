@@ -11,109 +11,107 @@ import {
 } from "@/components/ui/select";
 import { Calendar, MapPin, Users, Clock, Search, Filter } from "lucide-react";
 import Image from "next/image";
-import Footer from "@/components/landing-page/Footer";
-import MenuBar from "@/components/landing-page/MenuBar";
+
+const upcomingEvents = [
+  {
+    id: 1,
+    title: "Hội chợ Việc làm HUIT 2025",
+    date: "2025-03-15",
+    time: "08:00",
+    location: "Cơ sở chính – 140 Lê Trọng Tấn",
+    attendees: 350,
+    maxAttendees: 2000,
+    category: "Sự kiện lớn",
+    image:
+      "https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=900&q=60",
+    description:
+      "Quy tụ hơn 60 doanh nghiệp hàng đầu và mang đến hàng nghìn cơ hội việc làm cho sinh viên.",
+  },
+  {
+    id: 2,
+    title: "Workshop: Kỹ năng phỏng vấn chuyên nghiệp",
+    date: "2025-02-22",
+    time: "09:00",
+    location: "Hội trường A – Cơ sở Tân Bình",
+    attendees: 120,
+    maxAttendees: 180,
+    category: "Workshop",
+    image:
+      "https://images.unsplash.com/photo-1598257006458-087169a1f08d?auto=format&fit=crop&w=900&q=60",
+    description:
+      "Hướng dẫn thực chiến các dạng câu hỏi phỏng vấn, kỹ năng xử lý tình huống và xây dựng CV.",
+  },
+  {
+    id: 3,
+    title: "Tech Talk: AI & Blockchain Trends 2025",
+    date: "2025-04-02",
+    time: "18:00",
+    location: "Hội trường lớn – Cơ sở Quận 9",
+    attendees: 220,
+    maxAttendees: 300,
+    category: "Công nghệ",
+    image:
+      "https://images.unsplash.com/photo-1555949963-aa79dcee981c?auto=format&fit=crop&w=900&q=60",
+    description:
+      "Cập nhật xu hướng công nghệ mới nhất: AI thế hệ mới, Blockchain Layer 2 và ứng dụng doanh nghiệp.",
+  },
+  {
+    id: 4,
+    title: "Cuộc thi Lập trình Web HUIT 2025",
+    date: "2025-03-28",
+    time: "13:00",
+    location: "Phòng máy – Cơ sở Tân Bình",
+    attendees: 80,
+    maxAttendees: 120,
+    category: "Cuộc thi",
+    image:
+      "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=900&q=60",
+    description:
+      "Thử thách lập trình React – NodeJS dành cho sinh viên yêu thích Web Development.",
+  },
+  {
+    id: 5,
+    title: "Ngày hội CLB – Hoạt động HUIT 2025",
+    date: "2025-02-28",
+    time: "07:30",
+    location: "Sân trường – Cơ sở chính",
+    attendees: 500,
+    maxAttendees: 2500,
+    category: "CLB – Hoạt động",
+    image:
+      "https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?auto=format&fit=crop&w=900&q=60",
+    description:
+      "50+ CLB học thuật – nghệ thuật – thể thao tham gia giao lưu và tuyển thành viên.",
+  },
+  {
+    id: 6,
+    title: "Chiến dịch Xuân Yêu Thương 2025",
+    date: "2025-02-10",
+    time: "06:30",
+    location: "Quận 12 – TP.HCM",
+    attendees: 80,
+    maxAttendees: 100,
+    category: "Tình nguyện",
+    image:
+      "https://images.unsplash.com/photo-1509099836639-18ba1795216d?auto=format&fit=crop&w=900&q=60",
+    description:
+      "Hoạt động thiện nguyện hỗ trợ trẻ em khó khăn và các mái ấm địa phương.",
+  },
+];
+
+const categories = [
+  "Tất cả",
+  "Sự kiện lớn",
+  "Workshop",
+  "Công nghệ",
+  "Cuộc thi",
+  "CLB – Hoạt động",
+  "Tình nguyện",
+];
 
 export default function EventsPage() {
-  const upcomingEvents = [
-    {
-      id: 1,
-      title: "Ngày hội Việc làm HUIT 2025",
-      date: "2025-03-15",
-      time: "08:00",
-      location: "Cơ sở chính – 140 Lê Trọng Tấn",
-      attendees: 350,
-      maxAttendees: 2000,
-      category: "Sự kiện lớn",
-      image:
-        "https://huit.edu.vn/wp-content/uploads/2024/11/ngay-hoi-viec-lam-2048x1365.jpg",
-      description:
-        "Sự kiện quy mô lớn quy tụ hơn 50 doanh nghiệp, mang đến cơ hội thực tập và việc làm cho sinh viên.",
-    },
-    {
-      id: 2,
-      title: "Workshop: Kỹ năng phỏng vấn chuyên nghiệp",
-      date: "2025-02-22",
-      time: "09:00",
-      location: "Hội trường A – Cơ sở Tân Bình",
-      attendees: 120,
-      maxAttendees: 180,
-      category: "Workshop",
-      image:
-        "https://huit.edu.vn/wp-content/uploads/2024/05/hoi-thao-2048x1366.jpg",
-      description:
-        "Hướng dẫn cách trả lời phỏng vấn và xử lý tình huống thực tế cho sinh viên năm cuối.",
-    },
-    {
-      id: 3,
-      title: "HUIT Tech Talk: Blockchain & AI",
-      date: "2025-04-02",
-      time: "18:00",
-      location: "Hội trường lớn – Cơ sở Quận 9",
-      attendees: 220,
-      maxAttendees: 300,
-      category: "Công nghệ",
-      image:
-        "https://huit.edu.vn/wp-content/uploads/2024/12/hoi-thao-cn-1536x1025.jpg",
-      description:
-        "Buổi chia sẻ về ứng dụng Blockchain, AI vào doanh nghiệp và định hướng nghề nghiệp IT.",
-    },
-    {
-      id: 4,
-      title: "Cuộc thi Lập trình Web HUIT 2025",
-      date: "2025-03-28",
-      time: "13:00",
-      location: "Phòng máy – Cơ sở Tân Bình",
-      attendees: 80,
-      maxAttendees: 120,
-      category: "Cuộc thi",
-      image:
-        "https://huit.edu.vn/wp-content/uploads/2024/05/lap-trinh-competition.jpg",
-      description:
-        "Cuộc thi lập trình cấp trường dành cho sinh viên yêu thích Web, React, NodeJS.",
-    },
-    {
-      id: 5,
-      title: "Ngày hội CLB HUIT 2025",
-      date: "2025-02-28",
-      time: "07:30",
-      location: "Sân trường – Cơ sở chính",
-      attendees: 500,
-      maxAttendees: 2500,
-      category: "CLB – Hoạt động",
-      image: "https://huit.edu.vn/wp-content/uploads/2024/03/huit-club-day.jpg",
-      description:
-        "31 CLB học thuật – văn nghệ – thể thao cùng giao lưu, tuyển thành viên mới.",
-    },
-    {
-      id: 6,
-      title: "Hoạt động tình nguyện: Xuân Yêu Thương",
-      date: "2025-02-10",
-      time: "06:30",
-      location: "Quận 12 – TP.HCM",
-      attendees: 80,
-      maxAttendees: 100,
-      category: "Tình nguyện",
-      image: "https://huit.edu.vn/wp-content/uploads/2024/01/tinh-nguyen.jpg",
-      description:
-        "Chương trình thiện nguyện giúp đỡ trẻ em khó khăn trước thềm năm mới.",
-    },
-  ];
-
-  const categories = [
-    "Tất cả",
-    "Sự kiện lớn",
-    "Workshop",
-    "Công nghệ",
-    "Cuộc thi",
-    "CLB – Hoạt động",
-    "Tình nguyện",
-  ];
-
   return (
     <div className="min-h-svh">
-      <MenuBar />
-
       {/* Hero Section */}
       <section className="py-20 px-4 bg-linear-to-b from-background to-muted/30">
         <div className="container mx-auto text-center">
@@ -183,34 +181,38 @@ export default function EventsPage() {
             <Button variant="outline">Tạo sự kiện</Button>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 grid-rows-[auto_1fr_auto]">
             {upcomingEvents.map((event) => (
               <Card
                 key={event.id}
-                className="overflow-hidden hover:shadow-lg transition-all hover:-translate-y-1"
+                className="grid grid-rows-subgrid row-span-3 overflow-hidden hover:shadow-lg transition-all hover:-translate-y-1
+      "
               >
-                <div className="relative">
+                {/* 1. IMAGE */}
+                <div className="relative w-full h-48">
                   <Image
+                    src={event.image}
                     width={600}
                     height={400}
-                    src={event.image}
                     alt={event.title}
-                    className="w-full h-48 object-cover"
+                    className="w-full h-full object-cover"
                   />
-                  <Badge className="absolute top-4 left-4 bg-primary text-white">
+                  <Badge className="absolute top-4 left-4">
                     {event.category}
                   </Badge>
                 </div>
 
-                <CardHeader className="pb-3">
+                {/* 2. CONTENT */}
+                <CardHeader>
                   <h3 className="font-semibold text-lg line-clamp-2">
                     {event.title}
                   </h3>
-                  <p className="text-sm text-muted-foreground line-clamp-2">
+                  <p className="text-sm text-muted-foreground line-clamp-3">
                     {event.description}
                   </p>
                 </CardHeader>
 
+                {/* 3. FOOTER */}
                 <CardContent className="space-y-3">
                   <div className="flex items-center text-sm text-muted-foreground">
                     <Calendar className="h-4 w-4 mr-2" />
@@ -236,19 +238,13 @@ export default function EventsPage() {
                           (event.attendees / event.maxAttendees) * 100
                         }%`,
                       }}
-                    ></div>
+                    />
                   </div>
 
                   <Button className="w-full mt-4">Đăng ký tham gia</Button>
                 </CardContent>
               </Card>
             ))}
-          </div>
-
-          <div className="text-center mt-12">
-            <Button variant="outline" size="lg">
-              Xem thêm sự kiện
-            </Button>
           </div>
         </div>
       </section>
@@ -310,7 +306,7 @@ export default function EventsPage() {
               <Image
                 width={600}
                 height={400}
-                src="https://huit.edu.vn/wp-content/uploads/2024/11/ngay-hoi-viec-lam-2048x1365.jpg"
+                src="https://huit.edu.vn/images/bgr-nhvl2025.jpg"
                 alt="Ngày hội việc làm HUIT 2025"
                 className="rounded-2xl shadow-lg"
               />
@@ -318,8 +314,6 @@ export default function EventsPage() {
           </div>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 }

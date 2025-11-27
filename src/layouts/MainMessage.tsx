@@ -817,7 +817,7 @@ export default function MainMessage({
                     <Avatar className="h-8 w-8 mr-2 mt-1">
                       <AvatarImage src={msg.sender?.avatarUrl} />
                       <AvatarFallback className="bg-slate-700 text-[10px]">
-                        {msg.sender?.username?.[1]}
+                        {msg.sender?.username?.[1].toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                   )}

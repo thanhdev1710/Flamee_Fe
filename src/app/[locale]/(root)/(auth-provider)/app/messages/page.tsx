@@ -88,7 +88,7 @@ export default function MessagesPage() {
   }
 
   return (
-    <div className="flex h-svh overflow-hidden bg-white dark:bg-slate-950">
+    <div className="flex h-svh overflow-hidden">
       {/* Sidebar Trái */}
       <AsideMessageApp
         isShow={isShow}
@@ -97,7 +97,7 @@ export default function MessagesPage() {
       />
 
       {/* Chat Chính */}
-      <main className="flex-1 min-w-0 border-r border-slate-200 dark:border-slate-800">
+      <main className="flex-1 min-w-0">
         <MainMessage
           conversationId={conversationId}
           userId={userId}

@@ -3,76 +3,72 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Users, Target, Heart, Zap, Globe } from "lucide-react";
-import Footer from "@/components/landing-page/Footer";
-import MenuBar from "@/components/landing-page/MenuBar";
 import Image from "next/image";
 
+const teamMembers = [
+  {
+    name: "Nguyễn Minh Khang",
+    role: "Founder & Backend Engineer",
+    image: "https://randomuser.me/api/portraits/men/36.jpg",
+    bio: "Sinh viên HUIT đam mê công nghệ và mong muốn xây dựng một nền tảng kết nối dành riêng cho trường.",
+  },
+  {
+    name: "Lê Hoàng Thư",
+    role: "Frontend Developer",
+    image: "https://randomuser.me/api/portraits/women/65.jpg",
+    bio: "Tập trung tạo nên giao diện hiện đại – thân thiện để sinh viên dễ dàng sử dụng.",
+  },
+  {
+    name: "Trần Gia Huy",
+    role: "UI/UX Designer",
+    image: "https://randomuser.me/api/portraits/men/9.jpg",
+    bio: "Thiết kế trải nghiệm phù hợp với sinh viên: tối giản, trực quan và đẹp mắt.",
+  },
+  {
+    name: "Phạm Quỳnh Anh",
+    role: "Content & Community Lead",
+    image: "https://randomuser.me/api/portraits/women/61.jpg",
+    bio: "Kết nối sinh viên, câu lạc bộ và khoa để xây dựng cộng đồng HUIT năng động.",
+  },
+];
+
+const values = [
+  {
+    icon: <Users className="h-8 w-8" />,
+    title: "Kết nối cộng đồng",
+    description:
+      "Tạo không gian chung nơi sinh viên, cựu sinh viên và giảng viên có thể chia sẻ, học hỏi và hỗ trợ lẫn nhau.",
+  },
+  {
+    icon: <Heart className="h-8 w-8" />,
+    title: "Tôn trọng & Văn minh",
+    description:
+      "Ưu tiên sự tôn trọng, minh bạch và tinh thần sinh viên HUIT trong mọi tương tác.",
+  },
+  {
+    icon: <Zap className="h-8 w-8" />,
+    title: "Đổi mới sáng tạo",
+    description:
+      "Không ngừng cải tiến để mang lại trải nghiệm tốt nhất cho cộng đồng HUIT.",
+  },
+  {
+    icon: <Globe className="h-8 w-8" />,
+    title: "Tác động tích cực",
+    description:
+      "HUIT Social thúc đẩy môi trường năng động, lan tỏa giá trị tốt đẹp và tinh thần sinh viên.",
+  },
+];
+
+const stats = [
+  { number: "10,000+", label: "Sinh viên tham gia" },
+  { number: "20+", label: "Câu lạc bộ hoạt động" },
+  { number: "50,000+", label: "Bài viết & khoảnh khắc" },
+  { number: "99.9%", label: "Thời gian hoạt động" },
+];
+
 export default function AboutPage() {
-  const teamMembers = [
-    {
-      name: "Nguyễn Minh Khang",
-      role: "Founder & Backend Engineer",
-      image: "/placeholder.svg?height=200&width=200",
-      bio: "Sinh viên HUIT đam mê công nghệ và mong muốn xây dựng một nền tảng kết nối dành riêng cho trường.",
-    },
-    {
-      name: "Lê Hoàng Thư",
-      role: "Frontend Developer",
-      image: "/placeholder.svg?height=200&width=200",
-      bio: "Tập trung tạo nên giao diện hiện đại – thân thiện để sinh viên dễ dàng sử dụng.",
-    },
-    {
-      name: "Trần Gia Huy",
-      role: "UI/UX Designer",
-      image: "/placeholder.svg?height=200&width=200",
-      bio: "Thiết kế trải nghiệm phù hợp với sinh viên: tối giản, trực quan và đẹp mắt.",
-    },
-    {
-      name: "Phạm Quỳnh Anh",
-      role: "Content & Community Lead",
-      image: "/placeholder.svg?height=200&width=200",
-      bio: "Kết nối sinh viên, câu lạc bộ và khoa để xây dựng cộng đồng HUIT năng động.",
-    },
-  ];
-
-  const values = [
-    {
-      icon: <Users className="h-8 w-8" />,
-      title: "Kết nối cộng đồng",
-      description:
-        "Tạo không gian chung nơi sinh viên, cựu sinh viên và giảng viên có thể chia sẻ, học hỏi và hỗ trợ lẫn nhau.",
-    },
-    {
-      icon: <Heart className="h-8 w-8" />,
-      title: "Tôn trọng & Văn minh",
-      description:
-        "Ưu tiên sự tôn trọng, minh bạch và tinh thần sinh viên HUIT trong mọi tương tác.",
-    },
-    {
-      icon: <Zap className="h-8 w-8" />,
-      title: "Đổi mới sáng tạo",
-      description:
-        "Không ngừng cải tiến để mang lại trải nghiệm tốt nhất cho cộng đồng HUIT.",
-    },
-    {
-      icon: <Globe className="h-8 w-8" />,
-      title: "Tác động tích cực",
-      description:
-        "HUIT Social thúc đẩy môi trường năng động, lan tỏa giá trị tốt đẹp và tinh thần sinh viên.",
-    },
-  ];
-
-  const stats = [
-    { number: "10,000+", label: "Sinh viên tham gia" },
-    { number: "20+", label: "Câu lạc bộ hoạt động" },
-    { number: "50,000+", label: "Bài viết & khoảnh khắc" },
-    { number: "99.9%", label: "Thời gian hoạt động" },
-  ];
-
   return (
     <div className="min-h-svh">
-      <MenuBar />
-
       {/* Hero Section */}
       <section className="py-20 px-4 bg-linear-to-b from-background to-muted/30">
         <div className="container mx-auto text-center">
@@ -148,7 +144,7 @@ export default function AboutPage() {
               <Image
                 height={400}
                 width={600}
-                src="/placeholder.svg?height=400&width=600"
+                src="/assets/landing-page.webp"
                 alt="Sinh viên HUIT"
                 className="rounded-2xl shadow-lg"
               />
@@ -272,8 +268,6 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 }

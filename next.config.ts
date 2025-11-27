@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
       { hostname: "thanhdevne.s3.us-east-005.backblazeb2.com" },
       { hostname: "huit.edu.vn" },
     ],
+    unoptimized: true,
     dangerouslyAllowSVG: true,
   },
   output: "standalone",

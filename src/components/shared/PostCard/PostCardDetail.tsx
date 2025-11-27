@@ -15,6 +15,7 @@ import {
   MoreHorizontal,
   ChevronDown,
   Loader2,
+  Play,
 } from "lucide-react";
 
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -81,9 +82,6 @@ export default function PostCardDetail({
   const [loadingShare, setLoadingShare] = useState(false);
   const [loadingComment, setLoadingComment] = useState(false);
 
-  const hasImages = images.length > 0;
-  const hasFiles = files.length > 0;
-  const hasVideos = videos.length > 0;
   const { data: currentUser } = useProfile();
 
   const isLiked =
@@ -249,44 +247,75 @@ export default function PostCardDetail({
               </div>
             )}
 
-            {/* MEDIA */}
-            {hasImages && (
-              <div className="mt-4">
+            {/* MEDIA FULL PREVIEW */}
+            <div className="space-y-4 mt-4">
+              {/* IMAGE GRID */}
+              {images.length > 0 && (
                 <PostImageGrid
                   images={images}
                   imageLoadStates={imageLoadStates}
                   onImageLoad={handleImageLoad}
                   onImageClick={handleImageClickForLightbox}
                   onShowAllFiles={() => setShowMediaModal(true)}
-                  aspectRatio="16/10"
                 />
-              </div>
-            )}
+              )}
 
-            {hasVideos && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground bg-transparent"
-                onClick={() => setShowMediaModal(true)}
-              >
-                <FileText className="w-4 h-4" />
-                {videos.length} video{videos.length > 1 ? "s" : ""} - Click to
-                view
-              </Button>
-            )}
+              {/* ========= VIDEO GRID (NEW) ========= */}
+              {videos.length > 0 && (
+                <div className="grid grid-cols-2 gap-3 rounded-lg overflow-hidden">
+                  {videos.map((video, idx) => (
+                    <div
+                      key={idx}
+                      className="relative group cursor-pointer rounded-lg bg-black"
+                      onClick={() => setShowMediaModal(true)}
+                    >
+                      <video
+                        src={video.mediaUrl}
+                        className="w-full h-40 object-cover opacity-70 group-hover:opacity-100 transition"
+                        muted
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="bg-black/60 p-2 rounded-full">
+                          <Play className="w-6 h-6 text-white" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
 
-            {hasFiles && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowMediaModal(true)}
-                className="w-full text-left justify-start text-muted-foreground hover:text-foreground"
-              >
-                <FileText className="w-4 h-4 mr-2" />
-                {files.length} file{files.length > 1 ? "s" : ""}
-              </Button>
-            )}
+              {/* ========= FILE LIST (NEW) ========= */}
+              {files.length > 0 && (
+                <div className="space-y-2">
+                  {files.map((file, idx) => (
+                    <a
+                      key={idx}
+                      href={file.mediaUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 p-2 rounded-md border hover:bg-muted transition"
+                    >
+                      <FileText className="w-5 h-5 text-primary" />
+                      <span className="text-sm font-medium truncate">
+                        {file.name}
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              )}
+
+              {/* BUTTON: SEE ALL MEDIA */}
+              {(images.length > 0 || videos.length > 0 || files.length > 0) && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs text-muted-foreground px-0"
+                  onClick={() => setShowMediaModal(true)}
+                >
+                  Xem tất cả media & files
+                </Button>
+              )}
+            </div>
 
             {/* TAGS - Enhanced styling */}
             {hashtags.length > 0 && (

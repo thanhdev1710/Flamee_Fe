@@ -201,7 +201,6 @@ export default function PostCard({
                   onImageLoad={handleImageLoad}
                   onImageClick={handleCardClick}
                   onShowAllFiles={() => setShowMediaModal(true)}
-                  aspectRatio="3/2"
                 />
               </div>
             )}
