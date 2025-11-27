@@ -31,7 +31,7 @@ export function PostImageGrid({
     return (
       <div
         onClick={(e) => onImageClick(e, img.mediaUrl)}
-        className="relative w-full rounded-lg overflow-hidden cursor-pointer aspect-[4/3] bg-muted"
+        className="relative w-full rounded-lg overflow-hidden cursor-pointer aspect-4/3 bg-muted"
       >
         {!imageLoadStates[img.id] && renderSkeleton}
 
@@ -57,7 +57,7 @@ export function PostImageGrid({
           <div
             key={img.id}
             onClick={(e) => onImageClick(e, img.mediaUrl)}
-            className="relative aspect-[4/3] cursor-pointer rounded-lg overflow-hidden bg-muted"
+            className="relative aspect-4/3 cursor-pointer rounded-lg overflow-hidden bg-muted"
           >
             {!imageLoadStates[img.id] && renderSkeleton}
 
@@ -84,7 +84,7 @@ export function PostImageGrid({
         {/* big left image */}
         <div
           onClick={(e) => onImageClick(e, images[0].mediaUrl)}
-          className="relative col-span-2 aspect-[4/3] rounded-lg overflow-hidden bg-muted cursor-pointer"
+          className="relative col-span-2 aspect-4/3 rounded-lg overflow-hidden bg-muted cursor-pointer"
         >
           {!imageLoadStates[images[0].id] && renderSkeleton}
 
@@ -106,7 +106,7 @@ export function PostImageGrid({
             <div
               key={img.id}
               onClick={(e) => onImageClick(e, img.mediaUrl)}
-              className="relative aspect-[4/3] rounded-lg overflow-hidden bg-muted cursor-pointer"
+              className="relative aspect-4/3 rounded-lg overflow-hidden bg-muted cursor-pointer"
             >
               {!imageLoadStates[img.id] && renderSkeleton}
 
@@ -134,7 +134,7 @@ export function PostImageGrid({
         <div
           key={img.id}
           onClick={(e) => onImageClick(e, img.mediaUrl)}
-          className="relative aspect-[4/3] rounded-lg overflow-hidden cursor-pointer bg-muted"
+          className="relative aspect-4/3 rounded-lg overflow-hidden cursor-pointer bg-muted"
         >
           {!imageLoadStates[img.id] && renderSkeleton}
 
@@ -153,7 +153,7 @@ export function PostImageGrid({
 
       {/* last tile: show overlay */}
       <div
-        className="relative aspect-[4/3] rounded-lg overflow-hidden cursor-pointer bg-muted flex items-center justify-center"
+        className="relative aspect-4/3 rounded-lg overflow-hidden cursor-pointer bg-muted flex items-center justify-center"
         onClick={onShowAllFiles}
       >
         <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
