@@ -197,8 +197,8 @@ export default function FriendsPage() {
   const { data } = useSWR("invitationUsers", getFriendSuggestions);
 
   return (
-    <ScrollArea className="h-full py-8">
-      <div className="px-4 space-y-8">
+    <ScrollArea className="h-full">
+      <div className="px-4 py-8 space-y-8">
         <UserSection
           title="Followers (Follow You)"
           subtitle="These people are already following you. Follow them back to connect."

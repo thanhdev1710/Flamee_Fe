@@ -172,7 +172,7 @@ export default function CreatePostPage() {
       formData.append("file", fileWithProgress.file);
 
       try {
-        const res = await axios.post("/api/upload-cloud", formData, {
+        const res = await axios.post("/api/upload-local", formData, {
           onUploadProgress: (progressEvent) => {
             const progress = Math.round(
               (progressEvent.loaded * 100) / (progressEvent.total || 1)

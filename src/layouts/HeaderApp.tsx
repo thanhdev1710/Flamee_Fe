@@ -38,14 +38,14 @@ export default function HeaderApp() {
     : "Đang tải...";
 
   return (
-    <header className="sticky top-0 z-50 shadow-lg border-b">
+    <header className="sticky top-0 z-50 shadow border-b">
       <div className="px-3 min-[400px]:px-4 py-4 flex items-center justify-between">
         {/* ===== LEFT SECTION ===== */}
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
             size="sm"
-            className="lg:hidden text-slate-200 hover:bg-slate-700"
+            className="lg:hidden hover:bg-slate-700"
             onClick={() => setIsSidebarOpen()}
           >
             <Menu className="h-5 w-5" />
@@ -63,34 +63,19 @@ export default function HeaderApp() {
 
         {/* ===== RIGHT SECTION ===== */}
         <div className="flex items-center gap-2 sm:gap-4">
-          <Button
-            asChild
-            variant="ghost"
-            size="sm"
-            className="hidden md:flex text-slate-300 hover:text-blue-400 hover:bg-slate-700"
-          >
+          <Button asChild variant="ghost" size="sm" className="hidden md:flex">
             <Link href="/app/friends">
               <UserPlus className="h-5 w-5" />
             </Link>
           </Button>
 
-          <Button
-            asChild
-            variant="ghost"
-            size="sm"
-            className="hidden md:flex text-slate-300 hover:text-blue-400 hover:bg-slate-700"
-          >
+          <Button asChild variant="ghost" size="sm" className="hidden md:flex">
             <Link href="/app/messages">
               <MessageCircleMore className="h-5 w-5" />
             </Link>
           </Button>
 
-          <Button
-            asChild
-            variant="ghost"
-            size="sm"
-            className="hidden md:flex text-slate-300 hover:text-blue-400 hover:bg-slate-700"
-          >
+          <Button asChild variant="ghost" size="sm" className="hidden md:flex">
             <Link href="/app/notifications">
               <BellPlus className="h-5 w-5" />
             </Link>
@@ -103,7 +88,7 @@ export default function HeaderApp() {
                 size="sm"
                 className="flex items-center gap-2 sm:gap-3 cursor-pointer"
               >
-                <Avatar className="h-9 w-9 border-2 border-blue-400 flex items-center justify-center rounded-full overflow-hidden">
+                <Avatar className="size-8 border-2 border-blue-400 flex items-center justify-center rounded-full overflow-hidden">
                   <AvatarImage
                     src={avatarSrc}
                     alt={profile?.username || "user avatar"}
@@ -115,29 +100,24 @@ export default function HeaderApp() {
                 </Avatar>
 
                 <div className="hidden sm:flex flex-col items-start">
-                  <span className="text-sm font-semibold text-slate-100 truncate max-w-[120px]">
+                  <span className="text-sm font-semibold truncate max-w-[120px]">
                     {isLoading ? "..." : fullName || "Người dùng"}
                   </span>
-                  <span className="text-xs text-slate-400">
-                    {profile?.username || "user"}
-                  </span>
+                  <span className="text-xs">{profile?.username || "user"}</span>
                 </div>
               </Button>
             </DropdownMenuTrigger>
 
-            <DropdownMenuContent
-              align="end"
-              className="w-56 bg-slate-800 border-slate-700 text-slate-100"
-            >
+            <DropdownMenuContent align="end" className="w-56">
               {/* Profile Section */}
-              <DropdownMenuItem asChild className="hover:bg-slate-700">
+              <DropdownMenuItem asChild>
                 <Link href="/app/users" className="flex items-center gap-2">
                   <User className="h-4 w-4" />
                   <span>Trang cá nhân</span>
                 </Link>
               </DropdownMenuItem>
 
-              <DropdownMenuItem asChild className="hover:bg-slate-700">
+              <DropdownMenuItem asChild>
                 <Link
                   href="/app/users/edit"
                   className="flex items-center gap-2"
@@ -147,7 +127,7 @@ export default function HeaderApp() {
                 </Link>
               </DropdownMenuItem>
 
-              <DropdownMenuSeparator className="bg-slate-700" />
+              <DropdownMenuSeparator />
 
               {/* Logout */}
               <DropdownMenuItem
@@ -156,10 +136,12 @@ export default function HeaderApp() {
                   disconnectSocket(); // chủ động hủy socket khi logout
                   router.push("/auth/signin");
                 }}
-                className="hover:bg-red-900/20 text-red-400 cursor-pointer"
+                className="group hover:bg-red-900! cursor-pointer"
               >
-                <LogOut className="h-4 w-4" />
-                <span>Đăng xuất</span>
+                <LogOut className="h-4 w-4 text-red-400 group-hover:text-white" />
+                <span className="text-red-400 group-hover:text-white">
+                  Đăng xuất
+                </span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

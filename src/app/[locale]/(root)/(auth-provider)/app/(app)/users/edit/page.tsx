@@ -169,7 +169,7 @@ export default function EditProfilePage() {
 
                                     try {
                                       const res = await fetch(
-                                        "/api/upload-cloud",
+                                        "/api/upload-local",
                                         {
                                           method: "POST",
                                           body: formData,

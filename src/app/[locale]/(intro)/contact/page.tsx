@@ -20,8 +20,6 @@ import {
   Users,
   Headphones,
 } from "lucide-react";
-import Footer from "@/components/landing-page/Footer";
-import MenuBar from "@/components/landing-page/MenuBar";
 
 export default function ContactPage() {
   const contactInfo = [
@@ -80,8 +78,6 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-svh">
-      <MenuBar />
-
       {/* Hero Section */}
       <section className="py-20 px-4 bg-linear-to-b from-background to-muted/30">
         <div className="container mx-auto text-center">
@@ -278,12 +274,11 @@ export default function ContactPage() {
 
           <div className="relative rounded-2xl overflow-hidden shadow-lg">
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.025965269857!2d106.6172028759348!3d10.80687378934469!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752b24b8c9e7af%3A0xf4a8cc5b64cf685!2zVHLGsOG7nW5nIMSQ4bqhaSBI4buNYyBDw7RuZyBUaMawxqFuZw!5e0!3m2!1svi!2s!4v1710000000000"
-              width="100%"
-              height="450"
-              style={{ border: 0 }}
+              src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d979.7670177548272!2d106.6287321!3d10.8060985!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752be27d8b4f4d%3A0x92dcba2950430867!2zVHLGsOG7nW5nIMSQ4bqhaSBo4buNYyBDw7RuZyBUaMawxqFuZyBUUC4gSOG7kyBDaMOtIE1pbmggKEhVSVQp!5e0!3m2!1svi!2s!4v1764245546410!5m2!1svi!2s"
+              className="w-full h-auto aspect-video border-none"
               allowFullScreen
               loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
             ></iframe>
           </div>
         </div>
@@ -352,16 +347,8 @@ export default function ContactPage() {
               </CardContent>
             </Card>
           </div>
-
-          <div className="text-center mt-12">
-            <Button variant="outline" size="lg">
-              Xem thêm FAQ
-            </Button>
-          </div>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 }

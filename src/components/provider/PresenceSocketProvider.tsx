@@ -38,7 +38,7 @@ export function PresenceSocketProvider() {
       socket.off("presence-init", handleInit);
       socket.off("user-presence", handlePresence);
     };
-  }, [profile?.user_id]);
+  }, [profile?.user_id, setInitialPresence, setPresence]);
 
   return null;
 }

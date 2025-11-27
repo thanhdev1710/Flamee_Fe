@@ -71,13 +71,13 @@ export function SearchCommand() {
         onClick={() => setOpen(true)}
         className="relative w-full cursor-text"
       >
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" />
         <Input
           disabled
           placeholder="Search users, posts, hashtags..."
-          className="pl-10 border-none bg-muted/30"
+          className="pl-10 border shadow placeholder:text-foreground"
         />
-        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs">
           Press{" "}
           <kbd className="bg-muted px-1.5 py-0.5 rounded text-[10px] font-mono border select-none shadow">
             ⌘ J

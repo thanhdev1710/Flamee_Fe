@@ -418,8 +418,7 @@ export default function AsideMessageAppEnhanced({
   const filtered = conversations.filter((c) => {
     const name = c.is_group
       ? c.name
-      : c.members?.find((m) => m.user_id !== currentUserId)?.user?.username ||
-        "User";
+      : c.members?.find((m) => m.user_id !== currentUserId)?.user?.username;
     return (name || "").toLowerCase().includes(search.toLowerCase());
   });
 
@@ -498,10 +497,9 @@ export default function AsideMessageAppEnhanced({
               filtered.map((c) => {
                 const name = c.is_group
                   ? c.name
-                  : c.members?.find(
-                      (m: ConversationMember) => m.user_id !== currentUserId
-                    )?.user?.username || "User";
-
+                  : c.members
+                      ?.find((m) => m.user_id !== currentUserId)
+                      ?.user?.username?.replace("@", "");
                 const avatar = c.is_group
                   ? ""
                   : c.members?.find(
@@ -627,10 +625,8 @@ export default function AsideMessageAppEnhanced({
                 variant="ghost"
                 size="sm"
                 className={`${
-                  item.href.includes("/messages")
-                    ? "bg-flamee-primary text-white hover:bg-flamee-primary! hover:text-white"
-                    : ""
-                } p-2 flex flex-col items-center`}
+                  item.href.includes("/messages") ? "bg-blue-600" : ""
+                } p-2 flex flex-col items-center text-white hover:bg-blue-600! hover:text-white!`}
                 asChild
               >
                 <Link href={item.href}>
