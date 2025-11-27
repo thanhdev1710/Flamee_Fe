@@ -50,7 +50,7 @@ export default function AsideFriendApp() {
 
   return (
     <aside className="hidden xl:block w-80 sticky top-0">
-      <Card className="h-[90vh] flex flex-col">
+      <Card className="h-[80vh] flex flex-col">
         <CardContent className="p-4 flex flex-col h-full">
           {/* Search */}
           <div className="mb-4 relative">

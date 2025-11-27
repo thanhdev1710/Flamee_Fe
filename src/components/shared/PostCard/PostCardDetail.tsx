@@ -309,7 +309,7 @@ export default function PostCardDetail({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-xs text-muted-foreground px-0"
+                  className="text-xs text-muted-foreground"
                   onClick={() => setShowMediaModal(true)}
                 >
                   Xem tất cả media & files

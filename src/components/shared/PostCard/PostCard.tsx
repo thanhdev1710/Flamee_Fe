@@ -357,7 +357,7 @@ export default function PostCard({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-xs text-muted-foreground px-0 cursor-pointer"
+                  className="text-xs text-muted-foreground cursor-pointer"
                   onClick={(e) => {
                     e.stopPropagation();
                     setShowMediaModal(true);

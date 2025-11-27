@@ -50,4 +50,5 @@ export const navigationItems = [
   { icon: MessageCircle, label: "Messages", href: "/app/messages" },
   // { icon: Video, label: "Reels", href: "/app/reels" },
   { icon: Plus, label: "Create", href: "/app/create" },
+  { icon: BookOpen, label: "Learn Toeic", href: "/app/learn" },
 ];
