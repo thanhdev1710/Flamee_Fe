@@ -59,7 +59,7 @@ import {
 } from "@/components/ui/loading-skeleton";
 import type { Socket } from "socket.io-client";
 import { getChatSocket } from "@/lib/chatSocket";
-import { CONFIG } from "@/global/config";
+import { CLIENT_CONFIG } from "@/global/config";
 
 type UserRole = "admin" | "member";
 
@@ -137,7 +137,7 @@ export default function AsideDirectoryPanelEnhanced({
     try {
       const res = await axios.get<
         ConversationItem[] | { data: ConversationItem[] }
-      >(`${CONFIG.API.CHAT_URL}/conversations?user_id=${currentUserId}`);
+      >(`${CLIENT_CONFIG.API.CHAT_URL}/conversations?user_id=${currentUserId}`);
 
       const all: ConversationItem[] = Array.isArray(res.data)
         ? res.data
@@ -316,7 +316,7 @@ export default function AsideDirectoryPanelEnhanced({
     setIsAddingMembers(true);
 
     try {
-      await axios.post(`${CONFIG.API.CHAT_URL}/group/add`, {
+      await axios.post(`${CLIENT_CONFIG.API.CHAT_URL}/group/add`, {
         conversationId,
         memberIds: selectedFriendIds,
       });
@@ -364,7 +364,7 @@ export default function AsideDirectoryPanelEnhanced({
     try {
       if (type === "leave") {
         await axios.post(
-          `${CONFIG.API.CHAT_URL}/group/leave`,
+          `${CLIENT_CONFIG.API.CHAT_URL}/group/leave`,
           { conversationId: targetCid },
           { headers: { "x-user-id": currentUserId } }
         );
@@ -372,7 +372,7 @@ export default function AsideDirectoryPanelEnhanced({
         router.push(pathname);
       } else if (type === "disband") {
         await axios.post(
-          `${CONFIG.API.CHAT_URL}/group/disband`,
+          `${CLIENT_CONFIG.API.CHAT_URL}/group/disband`,
           { conversationId: targetCid },
           { headers: { "x-user-id": currentUserId } }
         );
@@ -381,14 +381,14 @@ export default function AsideDirectoryPanelEnhanced({
       } else if (type === "kick" && targetId) {
         // optimistic remove
         setMembers((prev) => prev.filter((m) => m.id !== targetId));
-        await axios.post(`${CONFIG.API.CHAT_URL}/group/remove`, {
+        await axios.post(`${CLIENT_CONFIG.API.CHAT_URL}/group/remove`, {
           conversationId: targetCid,
           userId: targetId,
         });
         toast.success(`Đã mời ${targetName ?? "thành viên"} ra khỏi nhóm`);
       } else if (type === "transfer" && targetId) {
         await axios.post(
-          `${CONFIG.API.CHAT_URL}/group/transfer`,
+          `${CLIENT_CONFIG.API.CHAT_URL}/group/transfer`,
           { conversationId: targetCid, newOwnerId: targetId },
           { headers: { "x-user-id": currentUserId } }
         );

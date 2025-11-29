@@ -7,14 +7,14 @@ import { GetFriendSuggestionsResult } from "@/types/follow.type";
 import FriendRow from "../shared/FriendRow";
 import { addOrUnFollowById } from "@/actions/follow.actions";
 import { toast } from "sonner";
-import useSWR, { mutate } from "swr";
+import useSWR from "swr";
 import { notify } from "@/actions/notify.action";
 import { useProfile } from "@/services/user.hook";
 import { searchPost } from "@/services/post.service";
 import type { Post } from "@/types/post.type";
 import PostCard from "../shared/PostCard/PostCard";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type Props = {
   friend?: GetFriendSuggestionsResult;
@@ -28,46 +28,62 @@ export default function PostSectionCard({
   user_id,
 }: Props) {
   const { data: currentUser } = useProfile();
+
+  // ===================== SEARCH =====================
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(0);
+      setAllPosts([]);
+    }, 350);
+
+    return () => clearTimeout(timeout);
+  }, [search]);
+
   // ===================== PAGINATION =====================
   const [page, setPage] = useState(0);
   const limit = 5;
 
-  const {
-    data: posts,
-    isLoading,
-    mutate: mutatePost,
-  } = useSWR<Post[]>(
-    ["posts-section", notMe, page, user_id],
+  const swrKey = ["posts-section", notMe, user_id, debouncedSearch, page];
+
+  const { data, isLoading } = useSWR(
+    swrKey,
     async () => {
       const res = await searchPost({
-        q: "",
+        q: debouncedSearch || "",
         limit,
         start: page * limit,
         userId: notMe ? user_id : undefined,
         onlyMe: !notMe,
       });
+
       return res;
     },
     { revalidateOnFocus: false }
   );
 
+  const posts = useMemo(() => data?.items ?? [], [data?.items]);
+  const total = data?.total ?? 0;
+
   const [allPosts, setAllPosts] = useState<Post[]>([]);
 
-  // ---------- FIX: append posts đúng cách ----------
+  // ---------- Append posts đúng cách ----------
   useEffect(() => {
     if (posts && posts.length > 0) {
       setAllPosts((prev) => {
         const ids = new Set(prev.map((p) => p.id));
         const filtered = posts.filter((p) => !ids.has(p.id));
-        return [...prev, ...filtered];
+        return page === 0 ? posts : [...prev, ...filtered];
       });
     }
-  }, [posts]);
-  // ----------------------------------------------------
+  }, [posts, page]);
 
-  const isLoadMore = posts && posts.length === limit;
+  const isLoadMore = (page + 1) * limit < total;
 
-  // ===================== FRIEND LIST =====================
+  // ===================== FOLLOW / UNFOLLOW =====================
   const mutualFriends = friend?.mutualFriends ?? [];
   const followersOnly = friend?.followers ?? [];
   const followingOnly = friend?.following ?? [];
@@ -78,26 +94,13 @@ export default function PostSectionCard({
   const isMutual = (userId: string) =>
     mutualFriends.some((u) => u.user_id === userId);
 
-  // ===================== FOLLOW / UNFOLLOW =====================
   const handleFollow = (
     user_id: string,
     variant: "followers" | "following" | "mutual" | "suggest"
   ) => {
     const followPromise = addOrUnFollowById(user_id).then(async (err) => {
       if (!err) {
-        let successMessage = "Thao tác thành công";
-
-        switch (variant) {
-          case "followers":
-            successMessage = "Bạn đã follow back";
-            break;
-          case "following":
-            successMessage = "Bạn đã unfollow người này";
-            break;
-          case "mutual":
-            successMessage = "Đã cập nhật kết nối";
-            break;
-        }
+        const successMessage = "Thao tác thành công";
 
         if (variant !== "following") {
           await notify({
@@ -110,7 +113,6 @@ export default function PostSectionCard({
           });
         }
 
-        await mutate("invitationUsers");
         return successMessage;
       } else {
         throw new Error("Đã xảy ra lỗi, vui lòng thử lại.");
@@ -121,16 +123,10 @@ export default function PostSectionCard({
       loading: "Đang xử lý...",
       success: (msg) => msg,
       error: (err) => err.message || "Đã xảy ra lỗi",
-
-      className:
-        variant === "following"
-          ? "bg-red-600 text-white"
-          : variant === "followers"
-          ? "bg-blue-600 text-white"
-          : "bg-primary text-white",
     });
   };
 
+  // 🔥 RETURN UI
   return (
     <Card className="shadow-lg py-0 overflow-hidden border-0 bg-linear-to-br from-background via-background to-muted/20 backdrop-blur-sm rounded-t-none">
       <CardContent className="p-0">
@@ -158,27 +154,34 @@ export default function PostSectionCard({
             </TabsTrigger>
           </TabsList>
 
-          {/* ========================= POSTS ========================= */}
+          {/* ========================= POSTS TAB ========================= */}
           <TabsContent value="posts" className="p-6 flex flex-col gap-6">
+            {/* 🔍 SEARCH BAR */}
+            <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm pb-3">
+              <input
+                type="text"
+                placeholder="Tìm kiếm bài viết..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full px-4 py-2 rounded-xl bg-muted/40 border border-border focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm"
+              />
+            </div>
+
+            {/* LOADING */}
             {isLoading && page === 0 && (
               <div className="text-sm text-muted-foreground">Đang tải...</div>
             )}
 
+            {/* EMPTY */}
             {!isLoading && allPosts.length === 0 && (
               <div className="text-sm text-muted-foreground text-center">
-                Chưa có bài viết nào.
+                Không tìm thấy bài viết.
               </div>
             )}
 
+            {/* LIST POSTS */}
             {allPosts.map((post) => (
-              <PostCard
-                notPageFeed={true}
-                mutatePost={async () => {
-                  mutatePost();
-                }}
-                post={post}
-                key={post.id}
-              />
+              <PostCard key={post.id} post={post} notPageFeed />
             ))}
 
             {/* LOAD MORE */}
@@ -186,12 +189,13 @@ export default function PostSectionCard({
               <Button
                 className="mx-auto mt-2"
                 variant="outline"
-                onClick={() => setPage((p) => p + 1)}
+                onClick={() => setPage((prev) => prev + 1)}
               >
                 Xem thêm
               </Button>
             )}
 
+            {/* LOADING MORE */}
             {isLoading && page > 0 && (
               <div className="text-center text-xs text-muted-foreground">
                 Đang tải thêm...

@@ -1,3 +1,5 @@
+import FullScreenLoader from "@/components/loading/FullScreenLoader";
+
 export default function Loading() {
-  return null
+  return <FullScreenLoader />;
 }

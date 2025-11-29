@@ -17,7 +17,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Loader2, RefreshCw } from "lucide-react";
-import { CONFIG } from "@/global/config";
+import { CLIENT_CONFIG } from "@/global/config";
 
 type LogEntry = {
   level: string;
@@ -108,11 +108,12 @@ export default function LogsPage() {
       if (status) params.set("status", status);
 
       const res = await fetch(
-        `${CONFIG.API.BASE_URL}${CONFIG.API.VERSION}/logs?` + params.toString(),
+        `${CLIENT_CONFIG.API.BASE_URL}${CLIENT_CONFIG.API.VERSION}/logs?` +
+          params.toString(),
         {
           method: "GET",
           headers: {
-            "X-API-KEY": CONFIG.API.X_API_KEY,
+            "X-API-KEY": CLIENT_CONFIG.API.X_API_KEY,
             "Content-Type": "application/json",
           },
           credentials: "include",

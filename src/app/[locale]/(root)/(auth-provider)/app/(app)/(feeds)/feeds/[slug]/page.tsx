@@ -3,8 +3,7 @@
 import { use } from "react";
 import PostCardDetail from "@/components/shared/PostCard/PostCardDetail";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { getInteractionsPostById, getPostById } from "@/services/post.service";
-import useSWR from "swr";
+import { useInteractions, usePostDetail } from "@/services/post.hook";
 
 export default function PostPage({
   params,
@@ -12,17 +11,13 @@ export default function PostPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = use(params);
-  const { data: post, mutate: mutatePost } = useSWR("post" + slug, () =>
-    getPostById(slug)
-  );
-  const { data: interactions, mutate: mutateInteractions } = useSWR(
-    "comment" + slug,
-    () => getInteractionsPostById(slug)
-  );
+  const { data: post, mutate: mutatePost } = usePostDetail(slug);
+  const { data: interactions, mutate: mutateInteractions } =
+    useInteractions(slug);
 
   const mutateAll = async () => {
-    await mutatePost();
-    await mutateInteractions();
+    await mutatePost(undefined, { revalidate: true });
+    await mutateInteractions(undefined, { revalidate: true });
   };
 
   if (!post) return null;

@@ -5,24 +5,17 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { use, useState } from "react";
 import PostCardDetail from "@/components/shared/PostCard/PostCardDetail";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { getInteractionsPostById, getPostById } from "@/services/post.service";
-import useSWR from "swr";
+import { useInteractions, usePostDetail } from "@/services/post.hook";
 
 export default function PostModalPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  console.log("render page post");
-
   const { slug } = use(params);
-  const { data: post, mutate: mutatePost } = useSWR("post" + slug, () =>
-    getPostById(slug)
-  );
-  const { data: interactions, mutate: mutateInteractions } = useSWR(
-    "comment" + slug,
-    () => getInteractionsPostById(slug)
-  );
+  const { data: post, mutate: mutatePost } = usePostDetail(slug);
+  const { data: interactions, mutate: mutateInteractions } =
+    useInteractions(slug);
 
   const mutateAll = async () => {
     await mutatePost();

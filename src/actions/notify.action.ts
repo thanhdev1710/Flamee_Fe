@@ -1,4 +1,4 @@
-import { CONFIG } from "@/global/config";
+import { CLIENT_CONFIG } from "@/global/config";
 import { withErrorHandler } from "@/lib/utils";
 import { Notification } from "@/types/notify.type";
 
@@ -7,12 +7,12 @@ export async function notify(notify: Notification) {
     const body = JSON.stringify(notify);
 
     const res = await fetch(
-      `${CONFIG.API.BASE_URL}${CONFIG.API.VERSION}/notifications`,
+      `${CLIENT_CONFIG.API.BASE_URL}${CLIENT_CONFIG.API.VERSION}/notifications`,
       {
         method: "POST",
         body,
         headers: {
-          "X-API-KEY": CONFIG.API.X_API_KEY,
+          "X-API-KEY": CLIENT_CONFIG.API.X_API_KEY,
           "Content-Type": "application/json",
         },
         credentials: "include",
@@ -34,11 +34,11 @@ export async function notify(notify: Notification) {
 export async function notifyReadOne(id: string) {
   return await withErrorHandler(async () => {
     const res = await fetch(
-      `${CONFIG.API.BASE_URL}${CONFIG.API.VERSION}/notifications/${id}/read`,
+      `${CLIENT_CONFIG.API.BASE_URL}${CLIENT_CONFIG.API.VERSION}/notifications/${id}/read`,
       {
         method: "PATCH",
         headers: {
-          "X-API-KEY": CONFIG.API.X_API_KEY,
+          "X-API-KEY": CLIENT_CONFIG.API.X_API_KEY,
         },
         credentials: "include",
       }
@@ -56,11 +56,11 @@ export async function notifyReadOne(id: string) {
 export async function notifyReadAll() {
   return await withErrorHandler(async () => {
     const res = await fetch(
-      `${CONFIG.API.BASE_URL}${CONFIG.API.VERSION}/notifications/read-all`,
+      `${CLIENT_CONFIG.API.BASE_URL}${CLIENT_CONFIG.API.VERSION}/notifications/read-all`,
       {
         method: "PATCH",
         headers: {
-          "X-API-KEY": CONFIG.API.X_API_KEY,
+          "X-API-KEY": CLIENT_CONFIG.API.X_API_KEY,
         },
         credentials: "include",
       }

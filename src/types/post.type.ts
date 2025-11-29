@@ -1,5 +1,13 @@
 import { FileItem } from "@/utils/fileHelpers";
 
+export interface PostCheckResult {
+  label: string;
+  confidence: number;
+  cleaned_text: string;
+  toxic_snippet: string | null;
+  message: string;
+}
+
 export interface Post {
   id: string;
 

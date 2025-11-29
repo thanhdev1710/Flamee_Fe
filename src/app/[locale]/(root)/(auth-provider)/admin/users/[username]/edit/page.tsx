@@ -10,9 +10,9 @@ import { ArrowLeft } from "lucide-react";
 export default function UserEdit({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ username: string }>;
 }) {
-  const { id } = use(params);
+  const { username } = use(params);
   const router = useRouter();
   const [formData, setFormData] = useState({
     name: "Nguyễn Văn A",
@@ -31,8 +31,8 @@ export default function UserEdit({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Update user:", id, formData);
-    router.push(`/admin/users/${id}`);
+    console.log("Update user:", username, formData);
+    router.push(`/admin/users/${username}`);
   };
 
   return (

@@ -93,8 +93,10 @@ export default function Notifications() {
 
           <Button
             onClick={async () => {
+              await mutate((cur) => cur?.map((c) => ({ ...c, isRead: true })), {
+                revalidate: false,
+              });
               await notifyReadAll();
-              await mutate();
             }}
             variant="outline"
             className="cursor-pointer"
@@ -145,8 +147,14 @@ export default function Notifications() {
                 key={`${n.userId}-${index}`}
                 onClick={async () => {
                   if (!n.isRead) {
+                    await mutate(
+                      (cur) =>
+                        cur?.map((c) =>
+                          c._id === n._id ? { ...c, isRead: true } : c
+                        ),
+                      { revalidate: false }
+                    );
                     await notifyReadOne(n._id!);
-                    await mutate();
                   }
                 }}
                 className={clsx(

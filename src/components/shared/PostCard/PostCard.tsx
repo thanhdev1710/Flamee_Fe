@@ -27,16 +27,13 @@ import { formatTimeAgo } from "@/utils/utils";
 import Link from "next/link";
 import { useProfile } from "@/services/user.hook";
 import { notify } from "@/actions/notify.action";
-import { getInteractionsPostById } from "@/services/post.service";
-import useSWR from "swr";
+import { useInteractions } from "@/services/post.hook";
 
 export default function PostCard({
   post,
-  mutatePost,
   notPageFeed = false,
 }: {
   post: Post;
-  mutatePost: () => Promise<void>;
   notPageFeed?: boolean;
 }) {
   const router = useRouter();
@@ -48,19 +45,22 @@ export default function PostCard({
   const [loadingShare, setLoadingShare] = useState(false);
 
   const { data: currentUser } = useProfile();
-  const { data: interactions, mutate: mutateInteractions } = useSWR(
-    "comment" + post.id,
-    () => getInteractionsPostById(post.id)
+  const { data: interactions, mutate: mutateInteractions } = useInteractions(
+    post.id
   );
 
   const isLiked =
     interactions?.likes.findIndex(
       (like) => like.userId === currentUser?.user_id
     ) !== -1;
+
   const isShared =
     interactions?.shares.findIndex(
       (share) => share.userId === currentUser?.user_id
     ) !== -1;
+
+  const like_count = interactions?.likes.length || 0;
+  const share_count = interactions?.shares.length || 0;
 
   const {
     author_avatar,
@@ -72,8 +72,7 @@ export default function PostCard({
     hashtags,
     id,
     images,
-    like_count,
-    share_count,
+
     title,
     videos,
     author_id,
@@ -96,8 +95,32 @@ export default function PostCard({
             entityId: id,
           });
         }
-        await mutateInteractions();
-        await mutatePost();
+
+        await mutateInteractions(
+          (cur) => {
+            if (!cur) return cur;
+            return {
+              ...cur,
+              likes: isLiked
+                ? cur.likes.filter((l) => l.userId !== currentUser!.user_id!)
+                : [
+                    ...cur.likes,
+                    {
+                      createdAt: "",
+                      id: "",
+                      postId: post.id,
+                      user: {
+                        avatarUrl: "",
+                        fullname: "",
+                        username: "",
+                      },
+                      userId: currentUser?.user_id || "",
+                    },
+                  ],
+            };
+          },
+          { revalidate: false }
+        );
       } else {
         toast.error(err, { richColors: true });
       }
@@ -123,8 +146,29 @@ export default function PostCard({
             entityId: id,
           });
         }
-        await mutateInteractions();
-        await mutatePost();
+        await mutateInteractions(
+          (cur) => {
+            if (!cur || isShared) return cur;
+            return {
+              ...cur,
+              shares: !isShared && [
+                ...cur.shares,
+                {
+                  createdAt: "",
+                  id: "",
+                  postId: post.id,
+                  user: {
+                    avatarUrl: "",
+                    fullname: "",
+                    username: "",
+                  },
+                  userId: currentUser?.user_id || "",
+                },
+              ],
+            };
+          },
+          { revalidate: false }
+        );
       } else {
         toast.error(err, { richColors: true });
       }

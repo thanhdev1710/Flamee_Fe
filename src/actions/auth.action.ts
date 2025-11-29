@@ -1,4 +1,4 @@
-import { CONFIG } from "@/global/config";
+import { CLIENT_CONFIG } from "@/global/config";
 import { getAccessToken } from "@/utils/auth";
 import { withErrorHandler } from "@/lib/utils";
 import { AuthFormData } from "@/types/formAuth.type";
@@ -12,11 +12,11 @@ export async function signin(formData: AuthFormData): Promise<string | null> {
     const body = JSON.stringify({ email, password, rememberMe });
 
     const res = await fetch(
-      `${CONFIG.API.BASE_URL}${CONFIG.API.VERSION}/auth/login`,
+      `${CLIENT_CONFIG.API.BASE_URL}${CLIENT_CONFIG.API.VERSION}/auth/login`,
       {
         method: "POST",
         headers: {
-          "X-API-KEY": CONFIG.API.X_API_KEY,
+          "X-API-KEY": CLIENT_CONFIG.API.X_API_KEY,
           "Content-Type": "application/json",
         },
         credentials: "include",
@@ -42,11 +42,11 @@ export async function signup(formData: AuthFormData): Promise<string | null> {
     const body = JSON.stringify({ email, password, role: "user" });
 
     const res = await fetch(
-      `${CONFIG.API.BASE_URL}${CONFIG.API.VERSION}/auth/register`,
+      `${CLIENT_CONFIG.API.BASE_URL}${CLIENT_CONFIG.API.VERSION}/auth/register`,
       {
         method: "POST",
         headers: {
-          "X-API-KEY": CONFIG.API.X_API_KEY,
+          "X-API-KEY": CLIENT_CONFIG.API.X_API_KEY,
           "Content-Type": "application/json",
         },
         credentials: "include",
@@ -67,24 +67,27 @@ export async function Logout() {
   const token = await getAccessToken();
   if (!token) return;
 
-  await fetch(`${CONFIG.API.BASE_URL}${CONFIG.API.VERSION}/auth/logout`, {
-    method: "POST",
-    headers: {
-      "X-API-KEY": CONFIG.API.X_API_KEY,
-      Authorization: `Bearer ${token}`,
-    },
-    credentials: "include",
-  });
+  await fetch(
+    `${CLIENT_CONFIG.API.BASE_URL}${CLIENT_CONFIG.API.VERSION}/auth/logout`,
+    {
+      method: "POST",
+      headers: {
+        "X-API-KEY": CLIENT_CONFIG.API.X_API_KEY,
+        Authorization: `Bearer ${token}`,
+      },
+      credentials: "include",
+    }
+  );
 }
 
 export async function sendResetPassword(formData: AuthFormData) {
   return await withErrorHandler(async () => {
     const res = await fetch(
-      `${CONFIG.API.BASE_URL}${CONFIG.API.VERSION}/auth/reset-password/${formData.email}`,
+      `${CLIENT_CONFIG.API.BASE_URL}${CLIENT_CONFIG.API.VERSION}/auth/reset-password/${formData.email}`,
       {
         method: "POST",
         headers: {
-          "X-API-KEY": CONFIG.API.X_API_KEY,
+          "X-API-KEY": CLIENT_CONFIG.API.X_API_KEY,
         },
       }
     );
@@ -102,11 +105,11 @@ export async function resetPassword(formData: AuthFormData, token: string) {
   return await withErrorHandler(async () => {
     const body = JSON.stringify({ password: formData.password, token });
     const res = await fetch(
-      `${CONFIG.API.BASE_URL}${CONFIG.API.VERSION}/auth/change-password/${token}`,
+      `${CLIENT_CONFIG.API.BASE_URL}${CLIENT_CONFIG.API.VERSION}/auth/change-password/${token}`,
       {
         method: "POST",
         headers: {
-          "X-API-KEY": CONFIG.API.X_API_KEY,
+          "X-API-KEY": CLIENT_CONFIG.API.X_API_KEY,
         },
         body: body,
       }
@@ -124,11 +127,11 @@ export async function resetPassword(formData: AuthFormData, token: string) {
 export async function sendVerifyEmail(email: string): Promise<string | null> {
   return await withErrorHandler(async () => {
     const res = await fetch(
-      `${CONFIG.API.BASE_URL}${CONFIG.API.VERSION}/auth/send-email/${email}`,
+      `${CLIENT_CONFIG.API.BASE_URL}${CLIENT_CONFIG.API.VERSION}/auth/send-email/${email}`,
       {
         method: "POST",
         headers: {
-          "X-API-KEY": CONFIG.API.X_API_KEY,
+          "X-API-KEY": CLIENT_CONFIG.API.X_API_KEY,
         },
       }
     );
@@ -145,10 +148,10 @@ export async function sendVerifyEmail(email: string): Promise<string | null> {
 export async function verifyEmail(token: string): Promise<string | null> {
   return await withErrorHandler(async () => {
     const res = await fetch(
-      `${CONFIG.API.BASE_URL}${CONFIG.API.VERSION}/auth/verify-email/${token}`,
+      `${CLIENT_CONFIG.API.BASE_URL}${CLIENT_CONFIG.API.VERSION}/auth/verify-email/${token}`,
       {
         headers: {
-          "X-API-KEY": CONFIG.API.X_API_KEY,
+          "X-API-KEY": CLIENT_CONFIG.API.X_API_KEY,
         },
       }
     );
