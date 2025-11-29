@@ -29,6 +29,7 @@ import { disconnectSocket } from "@/lib/chatSocket";
 
 export default function HeaderApp() {
   const router = useRouter();
+
   const { setIsSidebarOpen } = useMenuStore();
   const { data: profile, isLoading } = useProfile();
 

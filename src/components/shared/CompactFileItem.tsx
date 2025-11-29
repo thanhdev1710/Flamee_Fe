@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -5,22 +6,29 @@ import { Card, CardContent } from "@/components/ui/card";
 import { formatFileSize, getFileIcon } from "@/utils/fileHelpers";
 import { X, CheckCircle } from "lucide-react";
 
+interface FileWithUploadSuccess {
+  id: string;
+  file: any; // null for old files
+  progress: number;
+  uploaded: boolean;
+  url: string;
+  type: string; // image | video | file
+  size?: number;
+  name?: string;
+  mediaUrl?: string;
+}
+
 interface FileWithProgress {
   id: string;
-  file: File;
+  file: File | null;
   progress: number;
   uploaded: boolean;
 }
 
 interface CompactFileItemProps {
-  file: FileWithProgress;
+  file: FileWithProgress | FileWithUploadSuccess;
   onRemove: (id: string) => void;
   uploading: boolean;
-}
-
-interface CompactProgressBarProps {
-  progress: number;
-  uploaded: boolean;
 }
 
 export function CompactFileItem({
@@ -28,29 +36,52 @@ export function CompactFileItem({
   onRemove,
   uploading,
 }: CompactFileItemProps) {
-  const Icon = getFileIcon(file.file.type);
+  // ============================ MIME TYPE ============================
+  const mimeType =
+    (file as FileWithProgress).file?.type ||
+    (file as FileWithUploadSuccess).type ||
+    "application/octet-stream";
+
+  const Icon = getFileIcon(mimeType);
+
+  // ============================ NAME ============================
+  const fileName =
+    (file as FileWithProgress).file?.name ||
+    (file as FileWithUploadSuccess).name ||
+    (file as FileWithUploadSuccess).url?.split("/").pop() ||
+    (file as FileWithUploadSuccess).mediaUrl?.split("/").pop() ||
+    "Unknown file";
+
+  // ============================ SIZE ============================
+  const fileSize =
+    (file as FileWithProgress).file?.size ||
+    (file as FileWithUploadSuccess).size ||
+    0;
+
+  // ============================ UPLOADED / PROGRESS ============================
+  const uploaded = (file as any).uploaded ?? true;
+  const progress = uploaded ? 100 : (file as FileWithProgress).progress ?? 0;
 
   return (
     <Card className="overflow-hidden border transition-colors">
-      <CardContent className="px-6 py-1">
+      <CardContent className="px-6 py-2">
         <div className="flex items-center gap-3">
-          {/* File Icon */}
-          <div className="w-12 h-12 bg-linear-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-            <Icon className="w-8 h-8 text-blue-600" />
+          {/* ICON */}
+          <div className="w-12 h-12 bg-linear-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center shrink-0">
+            <Icon className="w-7 h-7 text-blue-600" />
           </div>
 
-          {/* File Info */}
+          {/* INFO */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between mb-1">
-              <p className="text-sm font-medium truncate pr-2">
-                {file.file.name}
-              </p>
+              <p className="text-sm font-medium truncate pr-2">{fileName}</p>
+
               {!uploading && (
                 <Button
                   size="sm"
                   variant="ghost"
                   onClick={() => onRemove(file.id)}
-                  className="w-6 h-6 p-0 text-gray-400 hover:text-red-500 flex-shrink-0"
+                  className="w-6 h-6 p-0 text-gray-400 hover:text-red-500"
                 >
                   <X className="w-4 h-4" />
                 </Button>
@@ -59,27 +90,21 @@ export function CompactFileItem({
 
             <div className="flex items-center justify-between">
               <span className="text-xs text-gray-500">
-                {formatFileSize(file.file.size)}
+                {fileSize ? formatFileSize(fileSize) : "Unknown size"}
               </span>
 
-              {file.uploaded ? (
+              {uploaded ? (
                 <div className="flex items-center gap-1 text-green-600">
                   <CheckCircle className="w-3 h-3" />
                   <span className="text-xs font-medium">Done</span>
                 </div>
               ) : (
-                <span className="text-xs text-gray-500">
-                  {Math.round(file.progress)}%
-                </span>
+                <span className="text-xs text-gray-500">{progress}%</span>
               )}
             </div>
 
-            {/* Progress Bar */}
             <div className="mt-2">
-              <CompactProgressBar
-                progress={file.progress}
-                uploaded={file.uploaded}
-              />
+              <CompactProgressBar progress={progress} uploaded={uploaded} />
             </div>
           </div>
         </div>
@@ -88,7 +113,13 @@ export function CompactFileItem({
   );
 }
 
-function CompactProgressBar({ progress, uploaded }: CompactProgressBarProps) {
+function CompactProgressBar({
+  progress,
+  uploaded,
+}: {
+  progress: number;
+  uploaded: boolean;
+}) {
   return (
     <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-200">
       <div

@@ -36,7 +36,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { CONFIG } from "@/global/config";
+import { CLIENT_CONFIG } from "@/global/config";
 
 // ================= TYPES =================
 type ReadByEntry = {
@@ -209,7 +209,7 @@ export default function MainMessage({
 
   const handleStartCall = async () => {
     try {
-      const res = await axios.post(`${CONFIG.API.VIDEO_URL}/create`, {
+      const res = await axios.post(`${CLIENT_CONFIG.API.VIDEO_URL}/create`, {
         conversationId,
         hostId: userId,
       });
@@ -475,8 +475,10 @@ export default function MainMessage({
 
       try {
         const [resC, resM] = await Promise.all([
-          axios.get(`${CONFIG.API.CHAT_URL}/conversations?user_id=${userId}`),
-          axios.get(`${CONFIG.API.CHAT_URL}/${conversationId}/history`, {
+          axios.get(
+            `${CLIENT_CONFIG.API.CHAT_URL}/conversations?user_id=${userId}`
+          ),
+          axios.get(`${CLIENT_CONFIG.API.CHAT_URL}/${conversationId}/history`, {
             params: { userId, limit: LIMIT },
           }),
         ]);
@@ -586,7 +588,7 @@ export default function MainMessage({
     });
 
     try {
-      await axios.post(`${CONFIG.API.CHAT_URL}/send`, {
+      await axios.post(`${CLIENT_CONFIG.API.CHAT_URL}/send`, {
         conversationId,
         senderId: userId,
         message: txt,
@@ -603,7 +605,7 @@ export default function MainMessage({
     try {
       const LIMIT = 20;
       const res = await axios.get(
-        `${CONFIG.API.CHAT_URL}/${conversationId}/history`,
+        `${CLIENT_CONFIG.API.CHAT_URL}/${conversationId}/history`,
         {
           params: { userId, limit: LIMIT, cursor: oldestCursor },
         }
@@ -652,7 +654,7 @@ export default function MainMessage({
     setRenaming(true);
     try {
       await axios.post(
-        `${CONFIG.API.CHAT_URL}/group/rename`,
+        `${CLIENT_CONFIG.API.CHAT_URL}/group/rename`,
         {
           conversationId,
           newName: newGroupName.trim(),
@@ -672,7 +674,7 @@ export default function MainMessage({
     if (!deletingMessage) return;
     try {
       await axios.post(
-        `${CONFIG.API.CHAT_URL}/message/${deletingMessage.id}/delete`,
+        `${CLIENT_CONFIG.API.CHAT_URL}/message/${deletingMessage.id}/delete`,
         {},
         { headers: { "x-user-id": userId } }
       );

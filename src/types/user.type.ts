@@ -70,6 +70,8 @@ export const createUserSchema = z.object({
     .string()
     .min(2, "Ngành học phải có ít nhất 2 ký tự")
     .max(100, "Ngành học tối đa 100 ký tự"),
+  created_at: z.string().optional(),
+  updated_at: z.string().optional(),
 });
 
 export type CreateUserType = z.infer<typeof createUserSchema>;

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { CONFIG } from "@/global/config";
+import { CLIENT_CONFIG } from "@/global/config";
 import { Notification } from "@/types/notify.type";
 
 export async function getNotification(
@@ -8,11 +8,11 @@ export async function getNotification(
 ): Promise<Notification[]> {
   try {
     const res = await fetch(
-      `${CONFIG.API.BASE_URL}${CONFIG.API.VERSION}/notifications?page=${page}&unread=${unread}`,
+      `${CLIENT_CONFIG.API.BASE_URL}${CLIENT_CONFIG.API.VERSION}/notifications?page=${page}&unread=${unread}`,
       {
         method: "GET",
         headers: {
-          "X-API-KEY": CONFIG.API.X_API_KEY,
+          "X-API-KEY": CLIENT_CONFIG.API.X_API_KEY,
           "Content-Type": "application/json",
         },
         credentials: "include",

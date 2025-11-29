@@ -5,9 +5,9 @@ import ProfileHeader from "@/components/users/ProfileHeader";
 import PostSectionCard from "@/components/users/PostSectionCard";
 import YouMightKnow from "@/components/users/YouMightKnow";
 import useSWR from "swr";
-import { getProfilesByUsername } from "@/services/user.service";
 import { getFriendSuggestionsByUsername } from "@/services/follow.service";
 import { use } from "react";
+import { useProfileByUsername } from "@/services/user.hook";
 
 export default function UserPage({
   params,
@@ -16,10 +16,8 @@ export default function UserPage({
 }) {
   const { username } = use(params);
 
-  const { data: profile, isLoading: isLoadingProfile } = useSWR(
-    username ? ["user-profile", username] : null,
-    () => getProfilesByUsername(username)
-  );
+  const { data: profile, isLoading: isLoadingProfile } =
+    useProfileByUsername(username);
   const { data: friend, isLoading: isLoadingFriend } = useSWR(
     username ? ["invitationUsers", username] : null,
     () => getFriendSuggestionsByUsername(username)

@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { CONFIG } from "@/global/config";
+import { CLIENT_CONFIG } from "@/global/config";
 import { GetFriendSuggestionsResult } from "@/types/follow.type";
 
 export async function getFriendSuggestions(): Promise<GetFriendSuggestionsResult> {
   try {
     const res = await fetch(
-      `${CONFIG.API.BASE_URL}${CONFIG.API.VERSION}/follows/friend_suggestions`,
+      `${CLIENT_CONFIG.API.BASE_URL}${CLIENT_CONFIG.API.VERSION}/follows/friend_suggestions`,
       {
         method: "GET",
         headers: {
-          "X-API-KEY": CONFIG.API.X_API_KEY,
+          "X-API-KEY": CLIENT_CONFIG.API.X_API_KEY,
           "Content-Type": "application/json",
         },
         credentials: "include",
@@ -38,11 +38,11 @@ export async function getFriendSuggestionsByUsername(
 ): Promise<GetFriendSuggestionsResult> {
   try {
     const res = await fetch(
-      `${CONFIG.API.BASE_URL}${CONFIG.API.VERSION}/follows/friend_suggestions/${username}`,
+      `${CLIENT_CONFIG.API.BASE_URL}${CLIENT_CONFIG.API.VERSION}/follows/friend_suggestions/${username}`,
       {
         method: "GET",
         headers: {
-          "X-API-KEY": CONFIG.API.X_API_KEY,
+          "X-API-KEY": CLIENT_CONFIG.API.X_API_KEY,
           "Content-Type": "application/json",
         },
         credentials: "include",

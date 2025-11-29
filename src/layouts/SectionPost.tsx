@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { PAGE_SIZE } from "@/global/base";
 import SkeletonPostCard from "@/components/shared/PostCard/SkeletonPostCard";
 import { Post } from "@/types/post.type";
-import { CONFIG } from "@/global/config";
+import { CLIENT_CONFIG } from "@/global/config";
 import useSWR from "swr";
 import { getFriendSuggestions } from "@/services/follow.service";
 
@@ -34,16 +34,16 @@ export default function SectionPost({ scrollRef }: SectionPostProps) {
       ].join(",")
     : "";
 
-  const { data, setSize, isValidating, error, mutate } = useSWRInfinite<Post[]>(
+  const { data, setSize, isValidating, error } = useSWRInfinite<Post[]>(
     (pageIndex, previousPageData) => {
-      if (!shouldLoadHotFeed) return null; // 🚀 chờ dữ liệu
+      if (!shouldLoadHotFeed) return null;
 
       if (previousPageData && previousPageData.length < PAGE_SIZE) return null;
 
       const start = pageIndex * PAGE_SIZE;
 
       return (
-        `${CONFIG.API.BASE_URL}${CONFIG.API.VERSION}/search/hot` +
+        `${CLIENT_CONFIG.API.BASE_URL}${CLIENT_CONFIG.API.VERSION}/search/hot` +
         `?start=${start}` +
         `&limit=${PAGE_SIZE}` +
         `&following=${followingIds}` +
@@ -54,7 +54,7 @@ export default function SectionPost({ scrollRef }: SectionPostProps) {
       fetch(url, {
         credentials: "include",
         headers: {
-          "X-API-KEY": CONFIG.API.X_API_KEY,
+          "X-API-KEY": CLIENT_CONFIG.API.X_API_KEY,
           "Content-Type": "application/json",
         },
       })
@@ -104,13 +104,7 @@ export default function SectionPost({ scrollRef }: SectionPostProps) {
   return (
     <div className="flex flex-col gap-3">
       {posts.map((post) => (
-        <PostCard
-          key={post.id}
-          post={post}
-          mutatePost={async () => {
-            await mutate();
-          }}
-        />
+        <PostCard key={post.id} post={post} />
       ))}
 
       {isValidating && (

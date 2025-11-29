@@ -42,7 +42,7 @@ import { navigationItems } from "@/global/const";
 import Link from "next/link";
 import { Socket } from "socket.io-client";
 import { getChatSocket } from "@/lib/chatSocket";
-import { CONFIG } from "@/global/config";
+import { CLIENT_CONFIG } from "@/global/config";
 
 type AsideMessageAppProps = {
   currentUserId: string;
@@ -123,7 +123,9 @@ export default function AsideMessageAppEnhanced({
 
     setIsLoadingConversations(true);
     axios
-      .get(CONFIG.API.CHAT_URL + `/conversations?user_id=${currentUserId}`)
+      .get(
+        CLIENT_CONFIG.API.CHAT_URL + `/conversations?user_id=${currentUserId}`
+      )
       .then((res) => {
         const raw = (Array.isArray(res.data) ? res.data : res.data.data) || [];
         const rawConvs = raw as Conversation[];
@@ -295,7 +297,7 @@ export default function AsideMessageAppEnhanced({
         router.push(`${pathname}?${params.toString()}`);
       }
       await axios.post(
-        `${CONFIG.API.CHAT_URL}/${conversationId}/delete`,
+        `${CLIENT_CONFIG.API.CHAT_URL}/${conversationId}/delete`,
         {},
         { headers: { "x-user-id": currentUserId } }
       );
@@ -394,7 +396,10 @@ export default function AsideMessageAppEnhanced({
               memberIds: [...selectedFriendIds, currentUserId],
             };
 
-      const res = await axios.post(`${CONFIG.API.CHAT_URL}/create`, payload);
+      const res = await axios.post(
+        `${CLIENT_CONFIG.API.CHAT_URL}/create`,
+        payload
+      );
       const newId: string | undefined = res.data?.id;
 
       if (newId) {

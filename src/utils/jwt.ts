@@ -1,9 +1,9 @@
-import { CONFIG } from "@/global/config";
+import { CLIENT_CONFIG, SERVER_CONFIG } from "@/global/config";
 import { jwtVerify } from "jose";
 
 // Hàm kiểm tra tính hợp lệ của token
 export const verifyToken = async (jwt: string) => {
-  const secret = new TextEncoder().encode(CONFIG.AUTH.JWT_SECRET);
+  const secret = new TextEncoder().encode(SERVER_CONFIG.AUTH.JWT_SECRET);
   const nowInSec = Math.floor(Date.now() / 1000);
   try {
     const { payload } = await jwtVerify(jwt, secret, {
@@ -21,11 +21,11 @@ export const verifyToken = async (jwt: string) => {
 
 export const refreshAccessToken = async () => {
   const res = await fetch(
-    `${CONFIG.API.BASE_URL}${CONFIG.API.VERSION}/auth/refresh-token`,
+    `${CLIENT_CONFIG.API.BASE_URL}${CLIENT_CONFIG.API.VERSION}/auth/refresh-token`,
     {
       method: "POST",
       headers: {
-        "X-API-KEY": CONFIG.API.X_API_KEY,
+        "X-API-KEY": CLIENT_CONFIG.API.X_API_KEY,
         "Content-Type": "application/json",
       },
       credentials: "include",
