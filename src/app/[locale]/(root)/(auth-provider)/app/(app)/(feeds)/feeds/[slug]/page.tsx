@@ -11,14 +11,8 @@ export default function PostPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = use(params);
-  const { data: post, mutate: mutatePost } = usePostDetail(slug);
-  const { data: interactions, mutate: mutateInteractions } =
-    useInteractions(slug);
-
-  const mutateAll = async () => {
-    await mutatePost(undefined, { revalidate: true });
-    await mutateInteractions(undefined, { revalidate: true });
-  };
+  const { data: post } = usePostDetail(slug);
+  const { data: interactions } = useInteractions(slug);
 
   if (!post) return null;
 
@@ -29,7 +23,6 @@ export default function PostPage({
           <PostCardDetail
             post={post}
             interactions={interactions}
-            mutateAll={mutateAll}
             openComment={true}
           />
         </ScrollArea>

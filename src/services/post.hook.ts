@@ -8,19 +8,31 @@ import {
   weeklyPostActivity,
 } from "@/services/post.service";
 
+export const keySWRPost = {
+  list: "posts",
+  postDetail: "post-detail",
+  interaction: "interactions",
+  postsCount: "posts-count",
+  postsWeekly: "posts-weekly",
+  postsRecent: "posts-recent",
+  postsDashboard: "posts-dashboard",
+};
+
 export function usePostDetail(id: string) {
-  return useSWR(["post-detail", id], () => getPostById(id));
+  return useSWR([keySWRPost.postDetail, id], () => getPostById(id));
 }
 
 export function useInteractions(id: string) {
-  return useSWR(["interactions", id], () => getInteractionsPostById(id));
+  return useSWR([keySWRPost.interaction, id], () =>
+    getInteractionsPostById(id)
+  );
 }
 
 /**
  * COUNT POSTS
  */
 export function useCountPosts() {
-  return useSWR("posts-count", () => countPosts(), {
+  return useSWR(keySWRPost.postsCount, () => countPosts(), {
     revalidateOnFocus: false,
   });
 }
@@ -29,7 +41,7 @@ export function useCountPosts() {
  * WEEKLY POST ACTIVITY
  */
 export function useWeeklyPostActivity() {
-  return useSWR("posts-weekly", () => weeklyPostActivity(), {
+  return useSWR(keySWRPost.postsWeekly, () => weeklyPostActivity(), {
     revalidateOnFocus: false,
   });
 }
@@ -38,7 +50,7 @@ export function useWeeklyPostActivity() {
  * RECENT POST ACTIVITIES
  */
 export function useRecentPostActivities() {
-  return useSWR("posts-recent", () => recentPostActivities(), {
+  return useSWR(keySWRPost.postsRecent, () => recentPostActivities(), {
     revalidateOnFocus: false,
   });
 }
@@ -47,7 +59,7 @@ export function useRecentPostActivities() {
  * FULL POSTS DASHBOARD (count + weekly + recent)
  */
 export function usePostDashboard() {
-  return useSWR("posts-dashboard", () => dashboardPosts(), {
+  return useSWR(keySWRPost.postsDashboard, () => dashboardPosts(), {
     revalidateOnFocus: false,
   });
 }

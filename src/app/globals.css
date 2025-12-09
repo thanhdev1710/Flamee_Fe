@@ -145,3 +145,11 @@
 @utility padding-flame {
   @apply p-3 min-[400px]:p-6;
 }
+
+.toxic-word {
+  background-color: #ff4d4f;
+  padding: 2px 4px;
+  border-radius: 4px;
+  color: white;
+  font-weight: bold;
+}

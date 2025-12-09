@@ -4,10 +4,11 @@ import AboutCard from "@/components/users/AboutCard";
 import ProfileHeader from "@/components/users/ProfileHeader";
 import PostSectionCard from "@/components/users/PostSectionCard";
 import YouMightKnow from "@/components/users/YouMightKnow";
-import useSWR from "swr";
-import { getFriendSuggestionsByUsername } from "@/services/follow.service";
 import { use } from "react";
-import { useProfileByUsername } from "@/services/user.hook";
+import {
+  useFriendSuggestionsByUsername,
+  useProfileByUsername,
+} from "@/services/user.hook";
 
 export default function UserPage({
   params,
@@ -18,10 +19,8 @@ export default function UserPage({
 
   const { data: profile, isLoading: isLoadingProfile } =
     useProfileByUsername(username);
-  const { data: friend, isLoading: isLoadingFriend } = useSWR(
-    username ? ["invitationUsers", username] : null,
-    () => getFriendSuggestionsByUsername(username)
-  );
+  const { data: friend, isLoading: isLoadingFriend } =
+    useFriendSuggestionsByUsername(username);
 
   if (isLoadingFriend || isLoadingProfile) {
     return (

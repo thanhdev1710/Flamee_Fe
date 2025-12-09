@@ -5,14 +5,11 @@ import ProfileHeader from "@/components/users/ProfileHeader";
 import PostSectionCard from "@/components/users/PostSectionCard";
 import YouMightKnow from "@/components/users/YouMightKnow";
 import useSWR from "swr";
-import { getMyProfiles } from "@/services/user.service";
 import { getFriendSuggestions } from "@/services/follow.service";
+import { useProfile } from "@/services/user.hook";
 
 export default function UserPage() {
-  const { data: profile, isLoading: isLoadingProfile } = useSWR(
-    "my-profile",
-    getMyProfiles
-  );
+  const { data: profile, isLoading: isLoadingProfile } = useProfile();
   const { data: friend, isLoading: isLoadingFriend } = useSWR(
     "invitationUsers",
     getFriendSuggestions

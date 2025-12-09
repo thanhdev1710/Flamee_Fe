@@ -34,7 +34,7 @@ export default function SectionPost({ scrollRef }: SectionPostProps) {
       ].join(",")
     : "";
 
-  const { data, setSize, isValidating, error } = useSWRInfinite<Post[]>(
+  const { data, setSize, isValidating, error, mutate } = useSWRInfinite<Post[]>(
     (pageIndex, previousPageData) => {
       if (!shouldLoadHotFeed) return null;
 
@@ -59,8 +59,13 @@ export default function SectionPost({ scrollRef }: SectionPostProps) {
         },
       })
         .then((res) => res.json())
-        .then((data) => data.items)
+        .then((data) => data.items),
+    { revalidateAll: true }
   );
+
+  const refreshPosts = async () => {
+    await mutate();
+  };
 
   const posts = data ? data.flat() : [];
   const hasMore = data ? data[data.length - 1]?.length === PAGE_SIZE : true;
@@ -104,7 +109,7 @@ export default function SectionPost({ scrollRef }: SectionPostProps) {
   return (
     <div className="flex flex-col gap-3">
       {posts.map((post) => (
-        <PostCard key={post.id} post={post} />
+        <PostCard key={post.id} post={post} refreshPosts={refreshPosts} />
       ))}
 
       {isValidating && (

@@ -20,11 +20,12 @@ import { MAX_SIZE, PAGE_SIZE } from "@/global/base";
 import { toast } from "sonner";
 import TagInput from "@/components/shared/TagInput";
 import { Input } from "@/components/ui/input";
-import { checkPostContent, createPost } from "@/actions/post.action";
+import { createPost } from "@/actions/post.action";
 import { Media, VisibilityEnum } from "@/types/post.type";
 import { useRouter } from "next/navigation";
 import { mutate } from "swr";
 import { CLIENT_CONFIG } from "@/global/config";
+import { handleToxicCheck } from "@/actions/check.handle";
 
 interface FileWithProgress {
   id: string;
@@ -221,52 +222,8 @@ export default function CreatePostPage() {
             : "file",
         }));
 
-      // 2. KIỂM DUYỆT BÀI VIẾT
-      const check = await checkPostContent(title + " " + content);
-
-      if (typeof check === "string") {
-        // xảy ra lỗi từ service
-        toast.error("Không kiểm duyệt được bài viết: " + check, {
-          richColors: true,
-        });
-        setUploading(false);
-        return;
-      }
-
-      if (check && check.label === "TOXIC") {
-        toast.error(
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-full bg-red-500/20 text-red-500">
-                ⚠️
-              </div>
-              <div className="font-semibold text-red-600 text-base">
-                Nội dung độc hại được phát hiện!
-              </div>
-            </div>
-
-            <div className="text-sm text-red-400 leading-relaxed">
-              Độ tự tin hệ thống:{" "}
-              <span className="font-bold text-red-300">
-                {check.confidence}%
-              </span>
-            </div>
-
-            <div className="p-3 mt-1 rounded-lg bg-red-500/10 border border-red-500/20 text-red-200 text-sm">
-              {check.message}
-            </div>
-          </div>,
-          {
-            richColors: true,
-            duration: 6000,
-            style: {
-              border: "1px solid rgba(255, 0, 0, 0.4)",
-              background: "linear-gradient(to bottom right, #2a0000, #3b0000)",
-              color: "#fff",
-            },
-          }
-        );
-
+      // 2. Check toxic
+      if (!(await handleToxicCheck(title + " " + content))) {
         setUploading(false);
         return;
       }

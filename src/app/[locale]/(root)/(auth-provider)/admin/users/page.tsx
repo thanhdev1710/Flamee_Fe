@@ -133,7 +133,7 @@ export default function UsersPage() {
 
                       <div>
                         <p className="font-medium text-foreground">
-                          @{u.username}
+                          {u.username}
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {u.firstName} {u.lastName}
