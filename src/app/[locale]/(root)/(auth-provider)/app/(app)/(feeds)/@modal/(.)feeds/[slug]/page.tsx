@@ -13,14 +13,8 @@ export default function PostModalPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = use(params);
-  const { data: post, mutate: mutatePost } = usePostDetail(slug);
-  const { data: interactions, mutate: mutateInteractions } =
-    useInteractions(slug);
-
-  const mutateAll = async () => {
-    await mutatePost();
-    await mutateInteractions();
-  };
+  const { data: post } = usePostDetail(slug);
+  const { data: interactions } = useInteractions(slug);
 
   const router = useRouter();
   const [open, setOpen] = useState(true);
@@ -44,11 +38,7 @@ export default function PostModalPage({
         <DialogContent className="p-0 max-w-xl w-full overflow-hidden rounded-2xl">
           <DialogTitle className="sr-only">Post Details</DialogTitle>
           <ScrollArea className="max-h-[80vh] z-10">
-            <PostCardDetail
-              post={post}
-              interactions={interactions}
-              mutateAll={mutateAll}
-            />
+            <PostCardDetail post={post} interactions={interactions} />
           </ScrollArea>
         </DialogContent>
       </Dialog>

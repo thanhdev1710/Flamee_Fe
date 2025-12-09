@@ -8,16 +8,34 @@ import {
   recentUserActivities,
   weeklyUserActivity,
 } from "./user.service";
+import { getFriendSuggestionsByUsername } from "./follow.service";
+
+export const keySWRUser = {
+  myProfile: "my-profile",
+  userDetail: "user-profile",
+  allUser: "all-user",
+  usersInvitation: "users-invitation",
+  usersCount: "users-count",
+  usersWeekly: "users-weekly",
+  usersRecent: "users-recent",
+  usersDashboard: "users-dashboard",
+};
 
 export function useProfile() {
-  return useSWR("my-profile", () => getMyProfiles(), {
+  return useSWR(keySWRUser.myProfile, () => getMyProfiles(), {
     revalidateOnFocus: false,
   });
 }
 
+export function useFriendSuggestionsByUsername(username: string) {
+  return useSWR(username ? [keySWRUser.usersInvitation, username] : null, () =>
+    getFriendSuggestionsByUsername(username)
+  );
+}
+
 export function useProfileByUsername(username: string) {
   return useSWR(
-    ["user-profile", username],
+    [keySWRUser.userDetail, username],
     () => getProfilesByUsername(username),
     { revalidateOnFocus: false }
   );
@@ -32,7 +50,7 @@ export function useAllUser({
   page?: number;
   search?: string;
 }) {
-  const key = ["all-user", limit, page, search];
+  const key = [keySWRUser.allUser, limit, page, search];
 
   const { data, error, isLoading, mutate } = useSWR(
     key,
@@ -53,7 +71,7 @@ export function useAllUser({
 // GET COUNT USERS
 // ==========================================
 export function useCountUsers() {
-  return useSWR("dashboard-count-users", () => countUsers(), {
+  return useSWR(keySWRUser.usersCount, () => countUsers(), {
     revalidateOnFocus: false,
   });
 }
@@ -62,7 +80,7 @@ export function useCountUsers() {
 // GET WEEKLY USER ACTIVITY
 // ==========================================
 export function useWeeklyUserActivity() {
-  return useSWR("dashboard-weekly-users", () => weeklyUserActivity(), {
+  return useSWR(keySWRUser.usersWeekly, () => weeklyUserActivity(), {
     revalidateOnFocus: false,
   });
 }
@@ -71,7 +89,7 @@ export function useWeeklyUserActivity() {
 // GET RECENT USER ACTIVITIES
 // ==========================================
 export function useRecentUserActivities() {
-  return useSWR("dashboard-recent-users", () => recentUserActivities(), {
+  return useSWR(keySWRUser.usersRecent, () => recentUserActivities(), {
     revalidateOnFocus: false,
   });
 }
@@ -80,7 +98,7 @@ export function useRecentUserActivities() {
 // FULL DASHBOARD (count + weekly + recent)
 // ==========================================
 export function useUserDashboard() {
-  return useSWR("dashboard-users", () => dashboardUsers(), {
+  return useSWR(keySWRUser.usersDashboard, () => dashboardUsers(), {
     revalidateOnFocus: false,
   });
 }

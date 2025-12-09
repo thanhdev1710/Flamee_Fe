@@ -50,7 +50,7 @@ export default function AsideFriendApp() {
 
   return (
     <aside className="hidden xl:block w-80 sticky top-0">
-      <Card className="h-[80vh] flex flex-col">
+      <Card className="h-[80vh] flex flex-col overflow-hidden pb-[90px]">
         <CardContent className="p-4 flex flex-col h-full">
           {/* Search */}
           <div className="mb-4 relative">
@@ -66,7 +66,7 @@ export default function AsideFriendApp() {
           <h3 className="font-semibold mb-3">Mutual Friends</h3>
 
           {/* Scroll Area */}
-          <ScrollArea className="flex-1 pr-2">
+          <ScrollArea className="flex-1 pr-2 h-full">
             {isLoading && (
               <div className="space-y-3">
                 {Array.from({ length: 5 }).map((_, i) => (

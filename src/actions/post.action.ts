@@ -158,8 +158,6 @@ export async function checkPostContent(
   return await withErrorHandler(async () => {
     const body = JSON.stringify({ text: text.trim() });
 
-    console.log(body);
-
     const res = await fetch(`${CLIENT_CONFIG.API.CHECK_POST_URL}/predict`, {
       method: "POST",
       headers: {

@@ -34,12 +34,13 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import CropImage from "@/components/shared/CropImage";
-import { getMyProfiles } from "@/services/user.service";
-import useSWR from "swr";
 import { updateProfile } from "@/actions/user.action";
+import { useProfile } from "@/services/user.hook";
+import { useRouter } from "next/navigation";
 
 export default function EditProfilePage() {
-  const { data: profile } = useSWR("my-profile", getMyProfiles);
+  const { data: profile } = useProfile();
+  const router = useRouter();
   const [isUploading, setIsUploading] = useState(false);
 
   const form = useForm<CreateUserType>({
@@ -82,7 +83,10 @@ export default function EditProfilePage() {
 
     toast.promise(promise, {
       loading: "Đang lưu thay đổi...",
-      success: "Cập nhật hồ sơ thành công!",
+      success: () => {
+        router.replace(`/app/users/${values.username}`);
+        return "Cập nhật hồ sơ thành công!";
+      },
       error: "Cập nhật hồ sơ thất bại. Vui lòng thử lại.",
     });
   };

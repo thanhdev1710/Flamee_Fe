@@ -1,11 +1,13 @@
 import { FileItem } from "@/utils/fileHelpers";
 
 export interface PostCheckResult {
-  label: string;
-  confidence: number;
-  cleaned_text: string;
-  toxic_snippet: string | null;
-  message: string;
+  label: string; // "TOXIC" | "NORMAL"
+  confidence: number; // % độ tin cậy
+  severity: string;
+  cleaned_text: string; // text đã clean
+  highlighted_text: string; // 🔥 HTML highlight
+  toxic_words: string[]; // danh sách từ tục
+  message: string; // thông báo
 }
 
 export interface Post {

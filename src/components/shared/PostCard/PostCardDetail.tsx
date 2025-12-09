@@ -3,6 +3,7 @@ import type React from "react";
 import { useState } from "react";
 import Image from "next/image";
 import parse from "html-react-parser";
+import { useSWRConfig } from "swr";
 
 import {
   Heart,
@@ -39,16 +40,16 @@ import Link from "next/link";
 import { useProfile } from "@/services/user.hook";
 import { Button } from "@/components/ui/button";
 import { notify } from "@/actions/notify.action";
+import { handleToxicCheck } from "@/actions/check.handle";
+import { keySWRPost } from "@/services/post.hook";
 
 export default function PostCardDetail({
   post,
   interactions,
-  mutateAll,
   openComment,
 }: {
   post: Post;
   interactions?: Interaction;
-  mutateAll: () => Promise<void>;
   openComment?: boolean;
 }) {
   const {
@@ -59,15 +60,13 @@ export default function PostCardDetail({
     videos = [],
     author_avatar,
     author_username,
-    comment_count,
     content,
     created_at,
     hashtags,
-    like_count,
-    share_count,
     author_id,
   } = post;
 
+  const { mutate } = useSWRConfig();
   const [replyId, setReplyId] = useState({ id: "", username: "" });
   const [newComment, setNewComment] = useState("");
   const [imageLoadStates, setImageLoadStates] = useState<
@@ -93,6 +92,14 @@ export default function PostCardDetail({
       (share) => share.userId === currentUser?.user_id
     ) !== -1;
 
+  const like_count = interactions?.likes.length || 0;
+  const share_count = interactions?.shares.length || 0;
+  const comment_count =
+    interactions?.comments.reduce(
+      (total, c) => total + 1 + (c.replies?.length || 0),
+      0
+    ) || 0;
+
   const handleLike = async () => {
     setLoadingLike(true);
     try {
@@ -110,7 +117,7 @@ export default function PostCardDetail({
             entityId: id,
           });
         }
-        await mutateAll();
+        await mutate([keySWRPost.interaction, id]);
       } else {
         toast.error(err, { richColors: true });
       }
@@ -136,7 +143,7 @@ export default function PostCardDetail({
             entityId: id,
           });
         }
-        await mutateAll();
+        await mutate([keySWRPost.interaction, id]);
       } else {
         toast.error(err, { richColors: true });
       }
@@ -149,6 +156,10 @@ export default function PostCardDetail({
     if (!newComment.trim()) return;
     setLoadingComment(true);
     try {
+      if (!(await handleToxicCheck(newComment))) {
+        setLoadingComment(false);
+        return;
+      }
       const err = await commentPost(id, {
         content: newComment,
         parent_id: replyId.id || null,
@@ -164,7 +175,7 @@ export default function PostCardDetail({
             entityId: id,
           });
         }
-        await mutateAll();
+        await mutate([keySWRPost.interaction, id]);
       } else {
         toast.error(err, { richColors: true });
       }
@@ -503,6 +514,7 @@ export default function PostCardDetail({
                     )}
                   </div>
                 ))}
+                <div className="h-5"></div>
               </div>
             )}
           </div>
