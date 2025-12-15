@@ -32,34 +32,26 @@ export function useInteractions(id: string) {
  * COUNT POSTS
  */
 export function useCountPosts() {
-  return useSWR(keySWRPost.postsCount, () => countPosts(), {
-    revalidateOnFocus: false,
-  });
+  return useSWR(keySWRPost.postsCount, () => countPosts());
 }
 
 /**
  * WEEKLY POST ACTIVITY
  */
 export function useWeeklyPostActivity() {
-  return useSWR(keySWRPost.postsWeekly, () => weeklyPostActivity(), {
-    revalidateOnFocus: false,
-  });
+  return useSWR(keySWRPost.postsWeekly, () => weeklyPostActivity());
 }
 
 /**
  * RECENT POST ACTIVITIES
  */
 export function useRecentPostActivities() {
-  return useSWR(keySWRPost.postsRecent, () => recentPostActivities(), {
-    revalidateOnFocus: false,
-  });
+  return useSWR(keySWRPost.postsRecent, () => recentPostActivities());
 }
 
 /**
  * FULL POSTS DASHBOARD (count + weekly + recent)
  */
 export function usePostDashboard() {
-  return useSWR(keySWRPost.postsDashboard, () => dashboardPosts(), {
-    revalidateOnFocus: false,
-  });
+  return useSWR(keySWRPost.postsDashboard, () => dashboardPosts());
 }

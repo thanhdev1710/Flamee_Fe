@@ -1,9 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
-import type { Viewport } from "next";
-import { ThemeProvider } from "next-themes";
+import { RootProvider } from "@/components/provider/RootProvider";
 
 const geistInter = Inter({
   subsets: ["latin", "vietnamese"],
@@ -169,14 +168,14 @@ export default async function RootLayout({
   return (
     <html suppressHydrationWarning>
       <body className={`${geistInter.className} antialiased relative`}>
-        <ThemeProvider
+        <RootProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
           {children}
-        </ThemeProvider>
+        </RootProvider>
       </body>
     </html>
   );
