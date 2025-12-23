@@ -1,10 +1,11 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import useSWR from "swr";
 import AsideMessageApp from "@/layouts/AsideMessageApp";
 import MainMessage from "@/layouts/MainMessage";
 import AsideDirectoryPanel from "@/layouts/AsideDirectoryPanel";
+import { Menu } from "lucide-react";
 
 // Hàm getMe lấy user hiện tại
 async function getMe() {
@@ -17,10 +18,8 @@ async function getMe() {
   }
 }
 
-// SWR fetcher
-const fetcher = (url: string) => fetch(url).then((r) => r.json());
-
 export default function MessagesPage() {
+  const [isShow, setIsShow] = useState(false);
   const searchParams = useSearchParams();
   const conversationId = searchParams.get("conv") || "";
 
@@ -31,15 +30,9 @@ export default function MessagesPage() {
   const userIdFromToken = meData?.user?.sub || "";
   const userId = searchParams.get("me") || userIdFromToken || "";
 
-  // Base URL cho API và Socket (GIỮ NGUYÊN URL)
-  const apiBase =
-    process.env.NEXT_PUBLIC_CHAT_API || "http://localhost:4004/api/v1/chat";
-  const socketUrl =
-    process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:4004";
-
   if (meLoading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-slate-950 text-slate-100">
+      <div className="flex h-svh items-center justify-center bg-slate-950 text-slate-100">
         <div className="text-center space-y-2">
           <p className="text-sm text-slate-400">
             Đang tải thông tin người dùng...
@@ -51,7 +44,7 @@ export default function MessagesPage() {
 
   if (!userId) {
     return (
-      <div className="flex h-screen items-center justify-center bg-slate-950 text-slate-100">
+      <div className="flex h-svh items-center justify-center bg-slate-950 text-slate-100">
         <div className="text-center space-y-2">
           <p className="text-sm text-slate-400">
             Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại để tiếp
@@ -64,12 +57,20 @@ export default function MessagesPage() {
 
   if (!conversationId) {
     return (
-      <div className="flex h-screen overflow-hidden bg-white dark:bg-slate-950">
+      <div className="flex h-svh overflow-hidden bg-slate-950 relative">
         {/* Sidebar Trái */}
-        <AsideMessageApp currentUserId={userId} />
+        <AsideMessageApp
+          isShow={isShow}
+          setIsShow={setIsShow}
+          currentUserId={userId}
+        />
 
         {/* Khu vực chính hiển thị hướng dẫn chọn đoạn chat */}
-        <div className="flex-1 min-w-0 flex items-center justify-center border-l border-slate-200 dark:border-slate-800">
+        <Menu
+          onClick={() => setIsShow(!isShow)}
+          className="block md:hidden cursor-pointer hover:text-blue-400 absolute top-3 left-3"
+        />
+        <div className="flex-1 min-w-0 flex items-center justify-center border-l border-slate-800">
           <div className="max-w-md text-center">
             <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
               Chọn một đoạn hội thoại
@@ -87,17 +88,21 @@ export default function MessagesPage() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-white dark:bg-slate-950">
+    <div className="flex h-svh overflow-hidden">
       {/* Sidebar Trái */}
-      <AsideMessageApp currentUserId={userId} />
+      <AsideMessageApp
+        isShow={isShow}
+        setIsShow={setIsShow}
+        currentUserId={userId}
+      />
 
       {/* Chat Chính */}
-      <main className="flex-1 min-w-0 border-r border-slate-200 dark:border-slate-800">
+      <main className="flex-1 min-w-0">
         <MainMessage
-          apiBase={apiBase}
-          socketUrl={socketUrl}
           conversationId={conversationId}
           userId={userId}
+          isShow={isShow}
+          setIsShow={setIsShow}
         />
       </main>
 
@@ -106,4 +111,3 @@ export default function MessagesPage() {
     </div>
   );
 }
-import { formatLastSeen } from "@/utils/time";

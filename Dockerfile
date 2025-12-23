@@ -1,74 +1,72 @@
 # ================================
-# Stage 1: Base image dùng chung
-# ================================
-FROM node:20-alpine AS base
-WORKDIR /app
-ENV NODE_ENV=production
-
-# ================================
-# Stage 2: Cài đặt dependencies
-# ================================
-FROM base AS deps
-# Copy file package để tách layer cache
-COPY package.json package-lock.json* ./
-# Cài đặt dependencies production (bỏ devDeps)
-RUN npm ci --omit=dev --legacy-peer-deps && npm cache clean --force
-
-# Tạo thư mục cache cho Next.js runtime
-RUN mkdir -p /app/.next/cache \
-    && chown -R node:node /app/.next
-
-# ================================
-# Stage 3: Build ứng dụng
+# Stage 1: Build ứng dụng
 # ================================
 FROM node:20-alpine AS builder
 WORKDIR /app
 
+# Cài Python + build tools + ffmpeg (mediasoup + fluent-ffmpeg)
+RUN apk add --no-cache python3 py3-pip make g++ ffmpeg \
+    && ln -sf /usr/bin/python3 /usr/bin/python
+
+# KHÔNG set NODE_ENV ở đây để npm ci cài cả devDependencies
+# (vì @tailwindcss/postcss đang ở devDependencies)
+
+# Nhận biến môi trường public của Next (nếu bạn truyền từ docker-compose)
 ARG NEXT_PUBLIC_API_URL
 ARG NEXT_PUBLIC_API_VERSION
 ARG NEXT_PUBLIC_X_API_KEY
 ARG NEXT_PUBLIC_CHECK_STUDENT_CARD_URL
+ARG NEXT_PUBLIC_CHECK_POST_URL
+ARG NEXT_PUBLIC_CHAT_API
+ARG NEXT_PUBLIC_SOCKET_URL
+ARG NEXT_PUBLIC_VIDEO_API
 
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 ENV NEXT_PUBLIC_API_VERSION=${NEXT_PUBLIC_API_VERSION}
 ENV NEXT_PUBLIC_X_API_KEY=${NEXT_PUBLIC_X_API_KEY}
 ENV NEXT_PUBLIC_CHECK_STUDENT_CARD_URL=${NEXT_PUBLIC_CHECK_STUDENT_CARD_URL}
+ENV NEXT_PUBLIC_CHECK_POST_URL=${NEXT_PUBLIC_CHECK_POST_URL}
+ENV NEXT_PUBLIC_CHAT_API=${NEXT_PUBLIC_CHAT_API}
+ENV NEXT_PUBLIC_SOCKET_URL=${NEXT_PUBLIC_SOCKET_URL}
+ENV NEXT_PUBLIC_VIDEO_API=${NEXT_PUBLIC_VIDEO_API}
 
-# Cài full dependencies (bao gồm devDeps)
+# Cài dependencies theo lockfile (BAO GỒM devDependencies)
 COPY package.json package-lock.json* ./
 RUN npm ci --legacy-peer-deps
 
-# Copy toàn bộ source code
+# Copy toàn bộ source code vào image
 COPY . .
 
 # Build Next.js
 RUN npm run build && npm cache clean --force
 
 # ================================
-# Stage 4: Runtime production
+# Stage 2: Runtime production
 # ================================
-FROM base AS runner
+FROM node:20-alpine AS runner
 WORKDIR /app
 
-# Cài đặt ffmpeg
+# Runtime mới là production
+ENV NODE_ENV=production
+
+# Cài ffmpeg cho compress / xử lý media nếu cần
 RUN apk add --no-cache ffmpeg
 
-# Tạo user không có quyền root
+# Tạo user non-root để chạy app an toàn hơn
 RUN addgroup -g 1001 nodejs && adduser -D -u 1001 nextjs -G nodejs
 
-# Copy file cần thiết để chạy production
+# Copy từ builder sang
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
-# Tạo thư mục cache và gán quyền cho user non-root
+# Tạo thư mục cache + uploads và phân quyền
 RUN mkdir -p /app/.next/cache \
     && mkdir -p /app/public/uploads \
     && chown -R nextjs:nodejs /app/.next /app/public/uploads \
-    && chmod -R 755 /app/public/uploads
+    && chmod -R 777 /app/public/uploads
 
-# Chạy app bằng user non-root
 USER nextjs
-
 EXPOSE 3000
+
 CMD ["node", "server.js"]

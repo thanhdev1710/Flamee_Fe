@@ -188,10 +188,10 @@ export default function CropImage({
           </div>
 
           <div className="flex items-center justify-center gap-4 mt-6">
-            <Button onClick={handleChangeImage} variant="outline">
+            <Button type="button" onClick={handleChangeImage} variant="outline">
               Chọn ảnh khác
             </Button>
-            <Button onClick={handleCrop}>
+            <Button type="button" onClick={handleCrop}>
               {isProcessing && <Loader2 className="animate-spin mr-2" />}
               Xem trước ảnh
             </Button>
@@ -219,13 +219,18 @@ export default function CropImage({
           </div>
           <div className="flex justify-center gap-4 mt-4">
             <Button
+              type="button"
               onClick={handleChangeImage}
               disabled={isProcessing}
               variant="outline"
             >
               Chọn lại ảnh
             </Button>
-            <Button onClick={handleConfirm} disabled={isProcessing}>
+            <Button
+              type="button"
+              onClick={handleConfirm}
+              disabled={isProcessing}
+            >
               {isProcessing && <Loader2 className="animate-spin mr-2" />}
               Xác nhận ảnh thẻ
             </Button>

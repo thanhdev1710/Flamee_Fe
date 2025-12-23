@@ -24,7 +24,8 @@ import { createPost } from "@/actions/post.action";
 import { Media, VisibilityEnum } from "@/types/post.type";
 import { useRouter } from "next/navigation";
 import { mutate } from "swr";
-import { CONFIG } from "@/global/config";
+import { CLIENT_CONFIG } from "@/global/config";
+import { handleToxicCheck } from "@/actions/check.handle";
 
 interface FileWithProgress {
   id: string;
@@ -172,7 +173,7 @@ export default function CreatePostPage() {
       formData.append("file", fileWithProgress.file);
 
       try {
-        const res = await axios.post("/api/upload-file", formData, {
+        const res = await axios.post("/api/upload-local", formData, {
           onUploadProgress: (progressEvent) => {
             const progress = Math.round(
               (progressEvent.loaded * 100) / (progressEvent.total || 1)
@@ -202,46 +203,59 @@ export default function CreatePostPage() {
 
   async function handleCreatePost() {
     setUploading(true);
-    let uploadedFiles = files;
-    // Upload nếu chưa upload hết
-    if (files.length > 0 && !files.every((f) => f.uploaded)) {
-      uploadedFiles = await handleUpload(); // lấy kết quả mới
-    }
 
-    // Bây giờ dùng uploadedFiles thay vì state cũ
-    const uploadedOnly: Media[] = uploadedFiles
-      .filter((f) => f.uploaded)
-      .map((f) => ({
-        mediaUrl: f.url || "",
-        mediaType: f.file.type.startsWith("image")
-          ? "image"
-          : f.file.type.startsWith("video")
-          ? "video"
-          : "file",
-      }));
+    try {
+      // 1. Upload media nếu cần
+      let uploadedFiles = files;
+      if (files.length > 0 && !files.every((f) => f.uploaded)) {
+        uploadedFiles = await handleUpload();
+      }
 
-    const err = await createPost({
-      postType: "post",
-      content,
-      hashtags: tags,
-      title,
-      visibility: privacy,
-      mediaUrls: uploadedOnly,
-    });
+      const uploadedOnly: Media[] = uploadedFiles
+        .filter((f) => f.uploaded)
+        .map((f) => ({
+          mediaUrl: f.url || "",
+          mediaType: f.file.type.startsWith("image")
+            ? "image"
+            : f.file.type.startsWith("video")
+            ? "video"
+            : "file",
+        }));
 
-    if (err) {
-      toast.error(`Đăng bài thất bại: `, err);
-    } else {
+      // 2. Check toxic
+      if (!(await handleToxicCheck(title + " " + content))) {
+        setUploading(false);
+        return;
+      }
+
+      // 3. Tạo bài viết
+      const err = await createPost({
+        postType: "post",
+        content,
+        hashtags: tags,
+        title,
+        visibility: privacy,
+        mediaUrls: uploadedOnly,
+      });
+
+      if (err) {
+        toast.error("Đăng bài thất bại: " + err);
+        return;
+      }
+
+      // 4. Cập nhật feed
       await mutate(
-        `${CONFIG.API.BASE_URL}${
-          CONFIG.API.VERSION
-        }/search/hot?start=${0}&limit=${PAGE_SIZE}`
+        `${CLIENT_CONFIG.API.BASE_URL}${CLIENT_CONFIG.API.VERSION}/search/hot?start=0&limit=${PAGE_SIZE}`
       );
+
+      // 5. Hoàn tất
       router.push("/app/feeds");
       toast.success("Đăng bài thành công");
+    } catch {
+      toast.error("Lỗi không xác định khi đăng bài");
+    } finally {
+      setUploading(false);
     }
-
-    setUploading(false);
   }
 
   return (
@@ -385,7 +399,7 @@ export default function CreatePostPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="public">Public</SelectItem>
-                      <SelectItem value="friends">Friends Only</SelectItem>
+                      {/* <SelectItem value="friends">Friends Only</SelectItem> */}
                       <SelectItem value="private">Private</SelectItem>
                     </SelectContent>
                   </Select>

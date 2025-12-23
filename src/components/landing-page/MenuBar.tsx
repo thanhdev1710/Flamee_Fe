@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   NavigationMenu,
@@ -7,8 +9,8 @@ import {
 } from "@/components/ui/navigation-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import Link from "next/link";
-import { Menu } from "lucide-react";
 import {
+  Menu,
   Home,
   Users,
   Calendar,
@@ -18,214 +20,175 @@ import {
   Bell,
   LogIn,
   UserPlus,
-  Facebook,
-  Twitter,
-  Instagram,
 } from "lucide-react";
 import Image from "next/image";
+import useSWR from "swr";
+import { getMyProfiles } from "@/services/user.service";
 
 function MenuBar() {
+  const {
+    data: profile,
+    isLoading,
+    error,
+  } = useSWR("my-profile", getMyProfiles);
+
+  const isLoggedIn = profile && !error;
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/90 backdrop-blur supports-backdrop-filter:bg-background/40">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        {/* Logo */}
-        <Link href="/" className="flex items-center space-x-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+        {/* LOGO */}
+        <Link href="/" className="flex items-center gap-2">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary shadow">
             <Image
               width={100}
               height={100}
               src="/assets/images/logo.svg"
-              alt="Flamee logo"
+              alt="HUIT Social"
               className="h-5 w-5"
             />
           </div>
-          <span className="text-xl font-bold text-primary">Flamee</span>
+          <span className="text-xl font-bold text-primary">HUIT Social</span>
         </Link>
 
-        {/* Desktop Navigation */}
-        <NavigationMenu className="hidden md:flex w-full">
-          <NavigationMenuList className="space-x-6">
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link
-                  href="/"
-                  className="text-sm font-medium transition-colors hover:text-primary"
-                >
-                  Home
-                </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link
-                  href="/about"
-                  className="text-sm font-medium transition-colors hover:text-primary"
-                >
-                  About
-                </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link
-                  href="/events"
-                  className="text-sm font-medium transition-colors hover:text-primary"
-                >
-                  Events
-                </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link
-                  href="/blog"
-                  className="text-sm font-medium transition-colors hover:text-primary"
-                >
-                  Blog
-                </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link
-                  href="/contact"
-                  className="text-sm font-medium transition-colors hover:text-primary"
-                >
-                  Contact
-                </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
+        {/* DESKTOP MENU */}
+        <NavigationMenu className="hidden md:flex ml-10">
+          <NavigationMenuList className="flex gap-6">
+            {["Home", "About", "Events", "Contact"].map((item) => (
+              <NavigationMenuItem key={item}>
+                <NavigationMenuLink asChild>
+                  <Link
+                    href={`/${
+                      item.toLowerCase() === "home" ? "" : item.toLowerCase()
+                    }`}
+                    className="text-sm font-medium transition-colors hover:text-primary"
+                  >
+                    {item}
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            ))}
           </NavigationMenuList>
         </NavigationMenu>
 
-        {/* Auth Buttons */}
-        <div className="hidden md:flex items-center space-x-3">
-          <Button variant="outline" asChild>
-            <Link href="/auth/signin">Sign in</Link>
-          </Button>
-          <Button asChild>
-            <Link href="/auth/signup">Sign up</Link>
-          </Button>
+        {/* RIGHT SECTION (Desktop) */}
+        <div className="hidden md:flex items-center gap-3">
+          {/* Loading */}
+          {isLoading && (
+            <div className="text-sm text-muted-foreground animate-pulse">
+              Loading...
+            </div>
+          )}
+
+          {/* Logged in */}
+          {isLoggedIn && (
+            <Link
+              href="/app/users"
+              className="flex items-center gap-3 px-3 py-2 rounded-lg border hover:bg-muted transition"
+            >
+              <Image
+                src={profile.avatar_url}
+                alt="avatar"
+                width={32}
+                height={32}
+                className="rounded-full h-8 w-8 object-cover"
+              />
+              <span className="font-medium">{profile.username}</span>
+            </Link>
+          )}
+
+          {/* Not logged in */}
+          {!isLoggedIn && !isLoading && (
+            <>
+              <Button variant="outline" asChild>
+                <Link href="/auth/signin">Sign in</Link>
+              </Button>
+              <Button asChild>
+                <Link href="/auth/signup">Sign up</Link>
+              </Button>
+            </>
+          )}
         </div>
 
-        {/* Mobile Menu */}
+        {/* MOBILE MENU BUTTON */}
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="md:hidden">
               <Menu className="h-5 w-5" />
-              <span className="sr-only">Toggle menu</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="w-[320px] p-0">
-            <div className="flex flex-col h-full">
-              {/* Header */}
-              <div className="p-6 border-b bg-gradient-to-r from-primary/5 to-primary/10">
-                <Link href="/" className="flex items-center space-x-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary shadow-lg">
-                    <Image
-                      width={100}
-                      height={100}
-                      src="/assets/images/logo.svg"
-                      alt="Flamee logo"
-                      className="h-6 w-6"
-                    />
-                  </div>
-                  <div>
-                    <span className="text-xl font-bold text-primary">
-                      Flamee
-                    </span>
-                    <p className="text-xs text-muted-foreground">
-                      Social Platform
-                    </p>
-                  </div>
-                </Link>
+
+          {/* MOBILE SLIDE MENU */}
+          <SheetContent side="right" className="w-[300px] p-0">
+            {/* Header */}
+            <div className="p-6 border-b flex items-center gap-3 bg-primary/5">
+              <div className="rounded-xl bg-primary h-10 w-10 flex items-center justify-center shadow">
+                <Image
+                  src="/assets/images/logo.svg"
+                  alt="HUIT logo"
+                  width={100}
+                  height={100}
+                  className="h-6 w-6"
+                />
               </div>
+              <div>
+                <p className="text-lg font-bold text-primary">HUIT Social</p>
+                <p className="text-xs text-muted-foreground">
+                  Student Community
+                </p>
+              </div>
+            </div>
 
-              {/* Navigation Links */}
-              <div className="flex-1 p-6">
-                <nav className="space-y-2">
+            {/* Navigation */}
+            <div className="p-6 flex-1">
+              <nav className="space-y-2">
+                {[
+                  { icon: Home, label: "Home", href: "/" },
+                  { icon: Users, label: "About", href: "/about" },
+                  { icon: Calendar, label: "Events", href: "/events" },
+                  { icon: BookOpen, label: "Blog", href: "/blog" },
+                  { icon: MessageCircle, label: "Contact", href: "/contact" },
+                ].map((item) => (
                   <Link
-                    href="/"
-                    className="flex items-center space-x-3 rounded-lg px-3 py-3 text-sm font-medium transition-all hover:bg-primary/10 hover:text-primary group"
+                    key={item.href}
+                    href={item.href}
+                    className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-all hover:bg-primary/10 hover:text-primary group"
                   >
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted group-hover:bg-primary/20 transition-colors">
-                      <Home className="h-4 w-4" />
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted group-hover:bg-primary/20">
+                      <item.icon className="h-4 w-4" />
                     </div>
-                    <span>Home</span>
+                    <span>{item.label}</span>
                   </Link>
+                ))}
+              </nav>
 
-                  <Link
-                    href="/about"
-                    className="flex items-center space-x-3 rounded-lg px-3 py-3 text-sm font-medium transition-all hover:bg-primary/10 hover:text-primary group"
+              {/* Quick actions */}
+              <div className="mt-6 space-y-3">
+                <h4 className="text-xs font-semibold text-muted-foreground uppercase">
+                  Quick Actions
+                </h4>
+                <div className="grid grid-cols-2 gap-3">
+                  <Button
+                    variant="outline"
+                    className="h-12 flex flex-col gap-1"
                   >
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted group-hover:bg-primary/20 transition-colors">
-                      <Users className="h-4 w-4" />
-                    </div>
-                    <span>About</span>
-                  </Link>
-
-                  <Link
-                    href="/events"
-                    className="flex items-center space-x-3 rounded-lg px-3 py-3 text-sm font-medium transition-all hover:bg-primary/10 hover:text-primary group"
+                    <Search className="h-4 w-4" />
+                    <span className="text-xs">Search</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="h-12 flex flex-col gap-1"
                   >
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted group-hover:bg-primary/20 transition-colors">
-                      <Calendar className="h-4 w-4" />
-                    </div>
-                    <span>Events</span>
-                  </Link>
-
-                  <Link
-                    href="/blog"
-                    className="flex items-center space-x-3 rounded-lg px-3 py-3 text-sm font-medium transition-all hover:bg-primary/10 hover:text-primary group"
-                  >
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted group-hover:bg-primary/20 transition-colors">
-                      <BookOpen className="h-4 w-4" />
-                    </div>
-                    <span>Blog</span>
-                  </Link>
-
-                  <Link
-                    href="/contact"
-                    className="flex items-center space-x-3 rounded-lg px-3 py-3 text-sm font-medium transition-all hover:bg-primary/10 hover:text-primary group"
-                  >
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted group-hover:bg-primary/20 transition-colors">
-                      <MessageCircle className="h-4 w-4" />
-                    </div>
-                    <span>Contact</span>
-                  </Link>
-                </nav>
-
-                {/* Divider */}
-                <div className="my-6 border-t"></div>
-
-                {/* Quick Actions */}
-                <div className="space-y-3">
-                  <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    Quick Actions
-                  </h4>
-                  <div className="grid grid-cols-2 gap-3">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-12 flex-col space-y-1"
-                    >
-                      <Search className="h-4 w-4" />
-                      <span className="text-xs">Search</span>
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-12 flex-col space-y-1"
-                    >
-                      <Bell className="h-4 w-4" />
-                      <span className="text-xs">Notifications</span>
-                    </Button>
-                  </div>
+                    <Bell className="h-4 w-4" />
+                    <span className="text-xs">Notify</span>
+                  </Button>
                 </div>
               </div>
+            </div>
 
-              {/* Footer with Auth Buttons */}
-              <div className="p-6 border-t bg-muted/30">
+            {/* Auth Buttons */}
+            <div className="p-6 border-t">
+              {!isLoggedIn ? (
                 <div className="space-y-3">
                   <Button
                     variant="outline"
@@ -233,36 +196,20 @@ function MenuBar() {
                     asChild
                   >
                     <Link href="/auth/signin">
-                      <LogIn className="mr-2 h-4 w-4" />
-                      Sign in
+                      <LogIn className="mr-2 h-4 w-4" /> Sign in
                     </Link>
                   </Button>
                   <Button className="w-full justify-start" asChild>
                     <Link href="/auth/signup">
-                      <UserPlus className="mr-2 h-4 w-4" />
-                      Sign up
+                      <UserPlus className="mr-2 h-4 w-4" /> Sign up
                     </Link>
                   </Button>
                 </div>
-
-                {/* Social Links */}
-                <div className="mt-4 pt-4 border-t">
-                  <p className="text-xs text-muted-foreground mb-3">
-                    Follow us
-                  </p>
-                  <div className="flex space-x-3">
-                    <Button size="icon" variant="ghost" className="h-8 w-8">
-                      <Facebook className="h-4 w-4" />
-                    </Button>
-                    <Button size="icon" variant="ghost" className="h-8 w-8">
-                      <Twitter className="h-4 w-4" />
-                    </Button>
-                    <Button size="icon" variant="ghost" className="h-8 w-8">
-                      <Instagram className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
+              ) : (
+                <Button asChild className="w-full">
+                  <Link href="/app/users">Go to Dashboard</Link>
+                </Button>
+              )}
             </div>
           </SheetContent>
         </Sheet>

@@ -158,7 +158,7 @@ export default function ReportDetail({
                   key={index}
                   className="flex items-center gap-3 p-3 bg-muted rounded-lg"
                 >
-                  <AlertCircle className="h-4 w-4 text-destructive flex-shrink-0" />
+                  <AlertCircle className="h-4 w-4 text-destructive shrink-0" />
                   <p className="text-sm text-foreground">{item}</p>
                 </div>
               ))}

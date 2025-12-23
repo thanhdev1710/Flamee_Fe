@@ -1,10 +1,23 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import useSWR from "swr";
+
+import { searchPost } from "@/services/post.service";
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+
 import {
   Table,
   TableBody,
@@ -13,190 +26,300 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, Plus, Eye } from "lucide-react";
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+import {
+  Search,
+  Images,
+  Video,
+  File as FileIcon,
+  Lock,
+  Users,
+  Globe,
+} from "lucide-react";
+
 import { ActionMenu } from "@/components/admin/action-menu";
+import { toast } from "sonner";
+import { deletePost } from "@/actions/post.action";
 
-const posts = [
-  {
-    id: "1",
-    title: "Bài viết về du lịch",
-    author: "Nguyễn Văn A",
-    views: 1250,
-    likes: 89,
-    status: "published",
-    date: "2024-03-15",
-  },
-  {
-    id: "2",
-    title: "Chia sẻ kinh nghiệm lập trình",
-    author: "Trần Thị B",
-    views: 2340,
-    likes: 156,
-    status: "published",
-    date: "2024-03-14",
-  },
-  {
-    id: "3",
-    title: "Mẹo nấu ăn hàng ngày",
-    author: "Lê Văn C",
-    views: 890,
-    likes: 45,
-    status: "draft",
-    date: "2024-03-13",
-  },
-  {
-    id: "4",
-    title: "Review sản phẩm mới",
-    author: "Phạm Thị D",
-    views: 3100,
-    likes: 234,
-    status: "published",
-    date: "2024-03-12",
-  },
-];
+export default function AdminPostsPage() {
+  // ====================== SEARCH ======================
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
-export default function PostsPage() {
-  const [searchTerm, setSearchTerm] = useState("");
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(search), 350);
+    return () => clearTimeout(t);
+  }, [search]);
 
-  const handleViewPost = (postId: number) => {
-    console.log("View post:", postId);
-    // API call will be added here
-  };
+  // ====================== FILTERS ======================
+  const [hasMedia, setHasMedia] = useState<"all" | "yes" | "no">("all");
+  const [mediaType, setMediaType] = useState<
+    "all" | "image" | "video" | "file"
+  >("all");
 
-  const handleEditPost = (postId: number) => {
-    console.log("Edit post:", postId);
-    // API call will be added here
-  };
+  // ====================== PAGINATION ======================
+  const [page, setPage] = useState(1);
+  const limit = 20;
 
-  const handleApprovePost = (postId: number) => {
-    console.log("Approve post:", postId);
-    // API call will be added here
-  };
+  const { data, isLoading, mutate } = useSWR(
+    ["admin-posts", debouncedSearch, hasMedia, mediaType, page],
+    async () => {
+      const start = (page - 1) * limit;
 
-  const handleRejectPost = (postId: number) => {
-    console.log("Reject post:", postId);
-    // API call will be added here
-  };
+      const res = await searchPost({
+        q: debouncedSearch || undefined,
+        limit,
+        start,
+        hasMedia: hasMedia === "all" ? undefined : hasMedia === "yes",
+        mediaType: mediaType === "all" ? undefined : mediaType,
+      });
 
-  const handleDeletePost = (postId: number) => {
-    console.log("Delete post:", postId);
-    // API call will be added here
-  };
-
-  const filteredPosts = posts.filter(
-    (post) =>
-      post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      post.author.toLowerCase().includes(searchTerm.toLowerCase())
+      return res; //
+    },
+    { revalidateOnFocus: false }
   );
+
+  // ====================== PARSE DATA ======================
+  const posts = data?.items || [];
+  const total = data?.total || 0;
+  const size = data?.size || limit;
+
+  const totalPages = Math.ceil(total / size);
 
   return (
     <div className="p-6 space-y-6">
-      {/* Header */}
+      {/* HEADER */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">
-            Quản lý Bài viết
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Tổng cộng {posts.length} bài viết
-          </p>
-        </div>
-        <Button className="gap-2">
-          <Plus className="w-4 h-4" />
-          Thêm bài viết
-        </Button>
+        <h1 className="text-3xl font-bold tracking-tight">Quản lý Bài viết</h1>
       </div>
 
-      {/* Search */}
-      <Card className="p-4">
+      {/* SEARCH + FILTERS */}
+      <Card className="p-4 space-y-4 border">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 opacity-60 w-4 h-4" />
           <Input
-            placeholder="Tìm kiếm theo tiêu đề hoặc tác giả..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Tìm kiếm theo nội dung / tiêu đề / hashtags..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
             className="pl-10"
           />
         </div>
+
+        <div className="flex gap-4">
+          {/* FILTER hasMedia */}
+          <Select value={hasMedia} onValueChange={(v: any) => setHasMedia(v)}>
+            <SelectTrigger>
+              <SelectValue placeholder="Media" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tất cả bài viết</SelectItem>
+              <SelectItem value="yes">Có media</SelectItem>
+              <SelectItem value="no">Không có media</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {/* FILTER mediaType */}
+          <Select value={mediaType} onValueChange={(v: any) => setMediaType(v)}>
+            <SelectTrigger>
+              <SelectValue placeholder="Loại media" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Mọi loại media</SelectItem>
+              <SelectItem value="image">Hình ảnh</SelectItem>
+              <SelectItem value="video">Video</SelectItem>
+              <SelectItem value="file">Tập tin</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </Card>
 
-      {/* Table */}
-      <Card>
+      {/* TABLE */}
+      <Card className="overflow-hidden border">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Tiêu đề</TableHead>
               <TableHead>Tác giả</TableHead>
-              <TableHead>Lượt xem</TableHead>
-              <TableHead>Lượt thích</TableHead>
-              <TableHead>Trạng thái</TableHead>
-              <TableHead>Ngày đăng</TableHead>
-              <TableHead className="w-10"></TableHead>
+              <TableHead>Tiêu đề</TableHead>
+              <TableHead>Media</TableHead>
+              <TableHead>Like</TableHead>
+              <TableHead>Comment</TableHead>
+              <TableHead>Share</TableHead>
+              <TableHead>Hiển thị</TableHead>
+              <TableHead>Ngày tạo</TableHead>
+              <TableHead></TableHead>
             </TableRow>
           </TableHeader>
+
           <TableBody>
-            {filteredPosts.map((post) => (
-              <TableRow key={post.id}>
-                <TableCell className="font-medium">{post.title}</TableCell>
-                <TableCell>{post.author}</TableCell>
-                <TableCell className="flex items-center gap-1">
-                  <Eye className="w-4 h-4 text-muted-foreground" />
-                  {post.views}
-                </TableCell>
-                <TableCell>{post.likes}</TableCell>
-                <TableCell>
-                  <span
-                    className={`text-xs font-semibold px-2 py-1 rounded ${
-                      post.status === "published"
-                        ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                        : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                    }`}
-                  >
-                    {post.status === "published" ? "Đã đăng" : "Nháp"}
-                  </span>
-                </TableCell>
-                <TableCell>{post.date}</TableCell>
-                <TableCell>
-                  <ActionMenu
-                    resourceId={post.id}
-                    resourceType="post"
-                    actions={[
-                      {
-                        label: "Xem bài viết",
-                        action: "view",
-                      },
-                      {
-                        label: "Chỉnh sửa",
-                        action: "edit",
-                      },
-                      {
-                        label: "Duyệt",
-                        action: "custom",
-                        onCustomAction: () =>
-                          console.log("Approve post:", post.id),
-                      },
-                      {
-                        label: "Từ chối",
-                        action: "custom",
-                        onCustomAction: () =>
-                          console.log("Reject post:", post.id),
-                        variant: "destructive",
-                      },
-                      {
-                        label: "Xóa",
-                        action: "custom",
-                        onCustomAction: () =>
-                          console.log("Delete post:", post.id),
-                        variant: "destructive",
-                      },
-                    ]}
-                  />
+            {posts.length > 0 ? (
+              posts.map((post) => (
+                <TableRow key={post.id}>
+                  {/* AUTHOR */}
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-9 w-9">
+                        <AvatarImage src={post.author_avatar} />
+                        <AvatarFallback>U</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <div className="font-medium">
+                          {post.author_username}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          @{post.author_id}
+                        </div>
+                      </div>
+                    </div>
+                  </TableCell>
+
+                  {/* TITLE */}
+                  <TableCell className="max-w-xs truncate font-medium">
+                    {post.title || "Không có tiêu đề"}
+                  </TableCell>
+
+                  {/* MEDIA */}
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {post.images.length > 0 && (
+                        <Images className="w-4 h-4 text-blue-400" />
+                      )}
+                      {post.videos.length > 0 && (
+                        <Video className="w-4 h-4 text-purple-400" />
+                      )}
+                      {post.files.length > 0 && (
+                        <FileIcon className="w-4 h-4 text-orange-400" />
+                      )}
+                    </div>
+                  </TableCell>
+
+                  {/* STATS */}
+                  <TableCell>{post.like_count}</TableCell>
+                  <TableCell>{post.comment_count}</TableCell>
+                  <TableCell>{post.share_count}</TableCell>
+
+                  {/* VISIBILITY */}
+                  <TableCell>
+                    {post.visibility === "public" && (
+                      <Badge
+                        variant="outline"
+                        className="gap-1 text-green-600 border-green-500/40"
+                      >
+                        <Globe className="w-4 h-4" /> Public
+                      </Badge>
+                    )}
+
+                    {post.visibility === "friends" && (
+                      <Badge
+                        variant="outline"
+                        className="gap-1 text-blue-600 border-blue-500/40"
+                      >
+                        <Users className="w-4 h-4" /> Friends
+                      </Badge>
+                    )}
+
+                    {post.visibility === "private" && (
+                      <Badge
+                        variant="outline"
+                        className="gap-1 text-gray-600 border-gray-500/40"
+                      >
+                        <Lock className="w-4 h-4" /> Private
+                      </Badge>
+                    )}
+                  </TableCell>
+
+                  {/* DATE */}
+                  <TableCell>
+                    {new Date(post.created_at).toLocaleDateString("vi-VN")}
+                  </TableCell>
+
+                  {/* ACTIONS */}
+                  <TableCell>
+                    <ActionMenu
+                      resourceId={post.id}
+                      resourceType="post"
+                      actions={[
+                        { label: "Xem bài viết", action: "view" },
+                        { label: "Chỉnh sửa", action: "edit" },
+                        {
+                          label: "Xóa",
+                          action: "custom",
+                          variant: "destructive",
+                          onCustomAction: () => {
+                            toast.promise(
+                              async () => {
+                                const backup = structuredClone(data);
+                                await mutate(
+                                  (current: any) => {
+                                    if (!current) return current;
+                                    return {
+                                      ...current,
+                                      items: current.items.filter(
+                                        (p: any) => p.id !== post.id
+                                      ),
+                                      total: current.total - 1,
+                                    };
+                                  },
+                                  { revalidate: false }
+                                );
+                                try {
+                                  const err = await deletePost(post.id);
+                                  if (err) throw err;
+
+                                  return true;
+                                } catch (err) {
+                                  await mutate(backup, { revalidate: false });
+                                  throw err;
+                                }
+                              },
+                              {
+                                loading: "Đang xoá bài viết...",
+                                success: "Đã xoá bài viết thành công!",
+                                error: (err) => err,
+                                richColors: true,
+                              }
+                            );
+                          },
+                        },
+                      ]}
+                    />
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={9} className="text-center py-6">
+                  {isLoading ? "Đang tải..." : "Không có bài viết nào."}
                 </TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
       </Card>
+
+      {/* PAGINATION */}
+      <div className="flex justify-between items-center pt-4">
+        <Button
+          disabled={page <= 1}
+          onClick={() => setPage((p) => p - 1)}
+          variant="secondary"
+        >
+          ← Trang trước
+        </Button>
+
+        <div className="font-medium">
+          Trang {page} / {totalPages || 1}
+        </div>
+
+        <Button
+          disabled={page >= totalPages}
+          onClick={() => setPage((p) => p + 1)}
+          variant="secondary"
+        >
+          Trang tiếp →
+        </Button>
+      </div>
     </div>
   );
 }

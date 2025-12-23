@@ -24,7 +24,7 @@ export default function AvatarUploader() {
       formData.append("file", file);
 
       try {
-        const res = await fetch("/api/upload-file", {
+        const res = await fetch("/api/upload-local", {
           method: "POST",
           body: formData,
         });

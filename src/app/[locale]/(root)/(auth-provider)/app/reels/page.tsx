@@ -153,9 +153,9 @@ export default function ReelsPage() {
   const currentReel = reels[currentReelIndex];
 
   return (
-    <div className="h-screen bg-background relative overflow-hidden">
+    <div className="h-svh bg-background relative overflow-hidden">
       {/* Header */}
-      <div className="absolute top-0 left-0 right-0 z-20 dark:bg-gradient-to-b dark:from-background/50 dark:to-transparent p-4">
+      <div className="absolute top-0 left-0 right-0 z-20 dark:bg-linear-to-b dark:from-background/50 dark:to-transparent p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Button asChild variant="ghost" size="icon">
@@ -178,7 +178,7 @@ export default function ReelsPage() {
           <div className="relative w-full max-w-sm h-full bg-background md:rounded-lg overflow-hidden">
             {/* Video Placeholder */}
             <div
-              className="w-full h-full bg-gradient-to-br from-orange-400 to-red-600 flex items-center justify-center cursor-pointer"
+              className="w-full h-full bg-linear-to-br from-orange-400 to-red-600 flex items-center justify-center cursor-pointer"
               onClick={togglePlayPause}
             >
               <Image
@@ -277,7 +277,7 @@ export default function ReelsPage() {
         </div>
 
         {/* Bottom Info */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 dark:bg-gradient-to-t dark:from-background/70 dark:to-transparent">
+        <div className="absolute bottom-0 left-0 right-0 p-4 dark:bg-linear-to-t dark:from-background/70 dark:to-transparent">
           <div className="sm:max-w-sm max-w-[300px]">
             <div className="flex items-center gap-2 mb-2">
               <span className="font-semibold">{currentReel.user.name}</span>
@@ -305,7 +305,7 @@ export default function ReelsPage() {
 
             <div className="flex items-center gap-2 text-xs">
               <div className="flex items-center gap-1">
-                <div className="w-4 h-4 bg-gradient-to-r from-orange-400 to-red-500 rounded animate-spin"></div>
+                <div className="w-4 h-4 bg-linear-to-r from-orange-400 to-red-500 rounded animate-spin"></div>
                 <span>
                   {currentReel.music.title} - {currentReel.music.artist}
                 </span>

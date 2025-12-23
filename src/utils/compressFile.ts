@@ -1,6 +1,6 @@
 import sharp from "sharp";
 import { PDFDocument } from "pdf-lib";
-import ffmpeg from "fluent-ffmpeg";
+const ffmpeg = (await import("fluent-ffmpeg")).default;
 import archiver from "archiver";
 import { PassThrough } from "stream";
 import { tmpdir } from "os";
@@ -55,31 +55,76 @@ export async function compressPDF(fileBuffer: Buffer): Promise<Buffer> {
   }
 }
 
+// Lấy codec video từ file input
+async function getVideoCodec(filePath: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    ffmpeg.ffprobe(filePath, (err, metadata) => {
+      if (err) return reject(err);
+
+      try {
+        const videoStream = metadata.streams.find(
+          (s) => s.codec_type === "video"
+        );
+        resolve(videoStream?.codec_name || "unknown");
+      } catch {
+        resolve("unknown");
+      }
+    });
+  });
+}
+
 export async function compressVideo(fileBuffer: Buffer): Promise<Buffer> {
   const inputPath = join(tmpdir(), `${randomUUID()}.mp4`);
   const outputPath = join(tmpdir(), `${randomUUID()}-compressed.mp4`);
+
+  // Tạo file input tạm
   await writeFile(inputPath, fileBuffer);
 
-  return new Promise((resolve, reject) => {
-    ffmpeg(inputPath)
-      .outputOptions([
-        "-c:v libx264",
-        "-preset fast",
-        "-crf 28",
-        "-movflags +faststart",
-      ])
-      .on("end", async () => {
-        const result = await readFile(outputPath);
-        await unlink(inputPath);
-        await unlink(outputPath);
-        resolve(result);
-      })
-      .on("error", async (err) => {
-        await unlink(inputPath).catch(() => {});
-        reject(new Error("Nén video thất bại: " + err.message));
-      })
-      .save(outputPath);
-  });
+  try {
+    // ===== 1️⃣ Kiểm tra codec input trước =====
+    const codec = await getVideoCodec(inputPath);
+
+    return await new Promise((resolve, reject) => {
+      const process = ffmpeg(inputPath);
+
+      // ===== 2️⃣ Nếu video đã là H.264 → không cần encode lại → remux cho nhanh =====
+      if (codec === "h264") {
+        process
+          .videoCodec("copy")
+          .audioCodec("copy")
+          .outputOptions(["-movflags +faststart"]);
+      } else {
+        // ===== 3️⃣ Nếu KHÔNG phải H.264 → encode với profile tối ưu =====
+        process.videoCodec("libx264").outputOptions([
+          "-preset veryfast", // encode nhanh hơn nhiều
+          "-crf 24", // chất lượng đẹp + nhẹ
+          "-movflags +faststart",
+        ]);
+      }
+
+      process
+        .on("end", async () => {
+          try {
+            const compressed = await readFile(outputPath);
+            await unlink(inputPath).catch(() => {});
+            await unlink(outputPath).catch(() => {});
+            resolve(compressed);
+          } catch (err) {
+            reject(err);
+          }
+        })
+        .on("error", async (err) => {
+          await unlink(inputPath).catch(() => {});
+          await unlink(outputPath).catch(() => {});
+          reject(new Error("Nén video thất bại: " + err.message));
+        })
+        .save(outputPath);
+    });
+  } catch (err) {
+    await unlink(inputPath).catch(() => {});
+    await unlink(outputPath).catch(() => {});
+    throw err;
+  }
 }
 
 export async function zipGenericFile(

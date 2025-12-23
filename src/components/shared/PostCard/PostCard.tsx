@@ -1,6 +1,5 @@
 "use client";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import type React from "react";
 
 import parse from "html-react-parser";
 
@@ -12,29 +11,47 @@ import {
   Share2,
   Play,
   Loader2,
+  MoreVertical,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
-import { useState, memo } from "react";
+import { useState } from "react";
 import { FilesModal } from "@/components/shared/FilesModal";
 import { PostImageGrid } from "./PostImageGrid";
 import type { Post } from "@/types/post.type";
-import type { SWRInfiniteKeyedMutator } from "swr/infinite";
-import { likeOrDislikePostById, sharePost } from "@/actions/post.action";
+import {
+  deletePost,
+  likeOrDislikePostById,
+  sharePost,
+} from "@/actions/post.action";
 import { toast } from "sonner";
 import { formatTimeAgo } from "@/utils/utils";
 import Link from "next/link";
+import { useProfile } from "@/services/user.hook";
+import { notify } from "@/actions/notify.action";
+import { keySWRPost, useInteractions } from "@/services/post.hook";
+import { useSWRConfig } from "swr";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-const PostCard = memo(function PostCard({
+export default function PostCard({
   post,
-  mutatePost,
+  notPageFeed = false,
+  refreshPosts,
 }: {
   post: Post;
-  mutatePost: SWRInfiniteKeyedMutator<Post[][]>;
+  notPageFeed?: boolean;
+  refreshPosts: () => Promise<void>;
 }) {
   const router = useRouter();
+  const { mutate } = useSWRConfig();
   const [showMediaModal, setShowMediaModal] = useState(false);
   const [imageLoadStates, setImageLoadStates] = useState<
     Record<string, boolean>
@@ -42,22 +59,38 @@ const PostCard = memo(function PostCard({
   const [loadingLike, setLoadingLike] = useState(false);
   const [loadingShare, setLoadingShare] = useState(false);
 
+  const { data: currentUser } = useProfile();
+  const { data: interactions } = useInteractions(post.id);
+
+  const isLiked =
+    interactions?.likes.findIndex(
+      (like) => like.userId === currentUser?.user_id
+    ) !== -1 || false;
+  const isShared =
+    interactions?.shares.findIndex(
+      (share) => share.userId === currentUser?.user_id
+    ) !== -1 || false;
+
+  const like_count = interactions?.likes.length || 0;
+  const share_count = interactions?.shares.length || 0;
+  const comment_count =
+    interactions?.comments.reduce(
+      (total, c) => total + 1 + (c.replies?.length || 0),
+      0
+    ) || 0;
+
   const {
     author_avatar,
     author_username,
-    comment_count,
     content,
     created_at,
     files,
     hashtags,
     id,
     images,
-    isLiked,
-    isShared,
-    like_count,
-    share_count,
     title,
     videos,
+    author_id,
   } = post;
 
   const handleLike = async () => {
@@ -65,7 +98,20 @@ const PostCard = memo(function PostCard({
     try {
       const err = await likeOrDislikePostById(id);
       if (!err) {
-        await mutatePost();
+        if (currentUser?.user_id !== author_id) {
+          await notify({
+            title: "Ai đó đã tương tác với bài viết",
+            message: `${currentUser?.username} đã ${
+              isLiked ? "bỏ thích" : "thích"
+            } bài viết của bạn`,
+            type: "like",
+            userId: author_id,
+            entityType: "post",
+            entityId: id,
+          });
+        }
+
+        await mutate([keySWRPost.interaction, id]);
       } else {
         toast.error(err, { richColors: true });
       }
@@ -79,7 +125,19 @@ const PostCard = memo(function PostCard({
     try {
       const err = await sharePost(id);
       if (!err) {
-        await mutatePost();
+        if (currentUser?.user_id !== author_id) {
+          await notify({
+            title: "Ai đó đã tương tác với bài viết",
+            message: `${currentUser?.username} đã ${
+              isShared ? "bỏ chia sẽ" : "chia sẽ"
+            } bài viết của bạn`,
+            type: "share",
+            userId: author_id,
+            entityType: "post",
+            entityId: id,
+          });
+        }
+        await mutate([keySWRPost.interaction, id]);
       } else {
         toast.error(err, { richColors: true });
       }
@@ -90,7 +148,12 @@ const PostCard = memo(function PostCard({
 
   const handleCardClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    router.push(`/app/feeds/${id}`);
+
+    if (!notPageFeed) {
+      router.push(`/app/feeds/${id}`);
+    } else {
+      window.location.href = `/app/feeds/${id}`;
+    }
   };
 
   const handleImageLoad = (imageId: string) => {
@@ -122,6 +185,7 @@ const PostCard = memo(function PostCard({
                   </AvatarFallback>
                 </Avatar>
               </Link>
+
               <div>
                 <Link
                   href={`/app/users/${author_username}`}
@@ -129,6 +193,7 @@ const PostCard = memo(function PostCard({
                 >
                   {author_username}
                 </Link>
+
                 {created_at && (
                   <div className="text-sm text-muted-foreground">
                     {formatTimeAgo(created_at)}
@@ -136,6 +201,63 @@ const PostCard = memo(function PostCard({
                 )}
               </div>
             </div>
+
+            {/* 🔥 NÚT XÓA BÀI VIẾT */}
+            {/* === ACTION MENU (SHADCN DROPDOWN) === */}
+            {currentUser?.user_id === author_id && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 p-0 rounded-full hover:bg-muted"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <MoreVertical className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent
+                  align="end"
+                  sideOffset={8}
+                  className="w-40 rounded-lg shadow-lg border bg-popover p-1"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* Delete */}
+                  <DropdownMenuItem
+                    variant="destructive"
+                    className="cursor-pointer flex items-center gap-2"
+                    onClick={() => {
+                      toast("Bạn có chắc muốn xóa bài viết này?", {
+                        description: "Hành động này không thể hoàn tác.",
+                        action: {
+                          label: "Xóa",
+                          onClick: async () => {
+                            const promise = (async () => {
+                              const err = await deletePost(id);
+                              if (err) throw new Error(err);
+                              return true;
+                            })();
+
+                            toast.promise(promise, {
+                              loading: "Đang xóa bài viết...",
+                              success: async () => {
+                                await refreshPosts();
+                                return "Đã xóa bài viết!";
+                              },
+                              error: (err) => err.message || "Xóa thất bại!",
+                            });
+                          },
+                        },
+                      });
+                    }}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Xóa bài viết
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
 
           <div
@@ -151,7 +273,6 @@ const PostCard = memo(function PostCard({
                   onImageLoad={handleImageLoad}
                   onImageClick={handleCardClick}
                   onShowAllFiles={() => setShowMediaModal(true)}
-                  aspectRatio="3/2"
                 />
               </div>
             )}
@@ -308,7 +429,7 @@ const PostCard = memo(function PostCard({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-xs text-muted-foreground px-0 cursor-pointer"
+                  className="text-xs text-muted-foreground cursor-pointer"
                   onClick={(e) => {
                     e.stopPropagation();
                     setShowMediaModal(true);
@@ -334,6 +455,4 @@ const PostCard = memo(function PostCard({
       )}
     </>
   );
-});
-
-export default PostCard;
+}

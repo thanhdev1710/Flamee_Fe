@@ -16,7 +16,7 @@ const geistInter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://flamee-fe.vercel.app"),
+  metadataBase: new URL("https://flame.id.vn"),
 
   title: {
     default: "Flamee",
@@ -86,11 +86,11 @@ export const metadata: Metadata = {
     title: "Flamee - Mạng xã hội kết nối thời đại số",
     description:
       "Tham gia Flamee để chia sẻ hình ảnh, video và kết nối với cộng đồng người Việt năng động. Nền tảng mạng xã hội hiện đại, đơn giản và an toàn.",
-    url: "https://flamee-fe.vercel.app",
+    url: "https://flame.id.vn",
     siteName: "Flamee",
     images: [
       {
-        url: "https://flamee-fe.vercel.app/og-image.png",
+        url: "https://flame.id.vn/og-image.png",
         width: 1200,
         height: 630,
         alt: "Giao diện mạng xã hội Flamee",
@@ -106,7 +106,7 @@ export const metadata: Metadata = {
     description:
       "Khám phá Flamee – ứng dụng mạng xã hội dành cho người Việt để kết nối, chia sẻ và tương tác mỗi ngày.",
     creator: "@Chiithanh1",
-    images: ["https://flamee-fe.vercel.app/og-image.png"],
+    images: ["https://flame.id.vn/og-image.png"],
   },
 
   icons: {
@@ -123,9 +123,9 @@ export const metadata: Metadata = {
   },
 
   alternates: {
-    canonical: "https://flamee-fe.vercel.app",
+    canonical: "https://flame.id.vn",
     languages: {
-      vi: "https://flamee-fe.vercel.app",
+      vi: "https://flame.id.vn",
     },
   },
 
