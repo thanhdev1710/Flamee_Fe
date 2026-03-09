@@ -228,7 +228,7 @@ export default function ReelsPage() {
             <Button
               size="icon"
               variant="default"
-              className="h-6 w-6 text-white bg-flamee-primary rounded-full absolute -bottom-1.5 -right-1.5"
+              className="h-6 w-6 text-white bg-flame-primary rounded-full absolute -bottom-1.5 -right-1.5"
             >
               <Plus />
             </Button>
@@ -240,7 +240,7 @@ export default function ReelsPage() {
                 <Heart
                   className={`h-7 w-7 ${
                     currentReel.isLiked
-                      ? "fill-flamee-primary text-flamee-primary"
+                      ? "fill-flame-primary text-flame-primary"
                       : ""
                   }`}
                 />

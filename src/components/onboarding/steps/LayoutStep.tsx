@@ -37,7 +37,7 @@ export default function LayoutStep({
         {isNext && (
           <button
             onClick={onClickNext}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-flamee-primary text-white hover:bg-flamee-primary/90 transition"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-flame-primary text-white hover:bg-flame-primary/90 transition"
           >
             {isFinish ? (
               <>

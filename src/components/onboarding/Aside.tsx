@@ -26,7 +26,7 @@ export default function AsideOnboarding() {
                 index < step
                   ? "text-green-500"
                   : index === step
-                  ? "font-bold text-flamee-primary"
+                  ? "font-bold text-flame-primary"
                   : "text-gray-600"
               }`}
             >
@@ -35,7 +35,7 @@ export default function AsideOnboarding() {
                   index < step
                     ? "bg-green-500 text-white"
                     : index === step
-                    ? "bg-flamee-primary text-white"
+                    ? "bg-flame-primary text-white"
                     : ""
                 }`}
               >

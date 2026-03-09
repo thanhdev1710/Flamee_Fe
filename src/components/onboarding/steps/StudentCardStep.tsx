@@ -101,7 +101,7 @@ export default function StudentCardStep() {
   return (
     <LayoutStep isPrev={false} isNext={false}>
       <div className="max-w-md mx-auto mb-4 text-center space-y-6 p-6 shadow rounded-xl">
-        <h2 className="text-2xl font-bold text-flamee-primary">
+        <h2 className="text-2xl font-bold text-flame-primary">
           Ảnh thẻ sinh viên
         </h2>
         <p className="text-sm text-gray-400 leading-relaxed text-left space-y-2">

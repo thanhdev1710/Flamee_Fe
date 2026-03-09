@@ -128,7 +128,7 @@ export default function CropImage({
       {!imageSrc && !croppedImageUrl && (
         <div
           className={`w-full h-[300px] border-4 border-dashed rounded-xl transition flex items-center justify-center cursor-pointer ${
-            isDragging ? "border-flamee-primary" : "border-gray-500"
+            isDragging ? "border-flame-primary" : "border-gray-500"
           }`}
           onClick={() => fileInputRef.current?.click()}
           onDragOver={handleDragOver}
@@ -138,7 +138,7 @@ export default function CropImage({
         >
           <div
             className={`flex flex-col items-center ${
-              isDragging ? "text-flamee-primary" : "text-gray-500"
+              isDragging ? "text-flame-primary" : "text-gray-500"
             } pointer-events-none`}
           >
             <Camera size={40} />

@@ -126,19 +126,19 @@
   }
 }
 
-@utility text-flamee-primary {
+@utility text-flame-primary {
   color: var(--color-primary);
 }
 
-@utility fill-flamee-primary {
+@utility fill-flame-primary {
   fill: var(--color-primary);
 }
 
-@utility bg-flamee-primary {
+@utility bg-flame-primary {
   background-color: var(--color-primary);
 }
 
-@utility border-flamee-primary {
+@utility border-flame-primary {
   border-color: var(--color-primary);
 }
 

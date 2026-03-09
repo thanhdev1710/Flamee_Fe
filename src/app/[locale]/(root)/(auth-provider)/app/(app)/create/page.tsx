@@ -473,7 +473,7 @@ function FileUploadArea({
   return (
     <div
       className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-        isDragOver ? "border-flamee-primary" : ""
+        isDragOver ? "border-flame-primary" : ""
       }`}
       onDrop={onDrop}
       onDragOver={onDragOver}
