@@ -1,6 +1,6 @@
-# 🔥 Flamee – Mạng Xã Hội Chia Sẻ Nội Dung
+# 🔥 Flame – Mạng Xã Hội Chia Sẻ Nội Dung
 
-**Flamee** là một nền tảng mạng xã hội hiện đại giúp người dùng **kết nối, chia sẻ** và **tương tác** trong thời đại số.
+**Flame** là một nền tảng mạng xã hội hiện đại giúp người dùng **kết nối, chia sẻ** và **tương tác** trong thời đại số.
 
 Người dùng có thể:
 
@@ -9,7 +9,7 @@ Người dùng có thể:
 - Thả tim, bình luận và trò chuyện theo thời gian thực
 - Nhận thông báo và cập nhật nhanh chóng
 
-Flamee được xây dựng với tiêu chí: **nhanh – mượt – mở rộng dễ dàng**, hướng đến trải nghiệm người dùng tốt nhất.
+Flame được xây dựng với tiêu chí: **nhanh – mượt – mở rộng dễ dàng**, hướng đến trải nghiệm người dùng tốt nhất.
 
 ---
 

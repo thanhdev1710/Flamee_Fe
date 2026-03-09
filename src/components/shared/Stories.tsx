@@ -24,7 +24,7 @@ export default function Stories() {
             {stories.map((story, index) => (
               <div key={index} className="flex-shrink-0">
                 <div className="relative">
-                  <div className="lg:h-52 h-36 aspect-[2/3] rounded-lg border-2 border-flamee-primary"></div>
+                  <div className="lg:h-52 h-36 aspect-[2/3] rounded-lg border-2 border-flame-primary"></div>
                   <p className="text-xs mt-2 max-w-[80%] truncate absolute bottom-2 left-2">
                     {story.name}
                   </p>

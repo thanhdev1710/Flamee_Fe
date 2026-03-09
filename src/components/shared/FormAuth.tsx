@@ -239,7 +239,7 @@ export default function FormAuth({
                         <Switch
                           checked={field.value}
                           onCheckedChange={field.onChange}
-                          className="data-[state=checked]:bg-flamee-primary"
+                          className="data-[state=checked]:bg-flame-primary"
                         />
                       </FormControl>
                     </FormItem>
@@ -261,7 +261,7 @@ export default function FormAuth({
                         <Switch
                           checked={field.value}
                           onCheckedChange={field.onChange}
-                          className="data-[state=checked]:bg-flamee-primary"
+                          className="data-[state=checked]:bg-flame-primary"
                         />
                       </FormControl>
                     </FormItem>
@@ -269,7 +269,7 @@ export default function FormAuth({
                 />
                 <Link
                   href="/auth/reset-password"
-                  className="text-flamee-primary underline"
+                  className="text-flame-primary underline"
                   aria-label="Quên mật khẩu?"
                 >
                   Quên mật khẩu?
@@ -278,7 +278,7 @@ export default function FormAuth({
             )}
 
             <button
-              className="w-full bg-flamee-primary text-white rounded-lg py-2 font-semibold cursor-pointer"
+              className="w-full bg-flame-primary text-white rounded-lg py-2 font-semibold cursor-pointer"
               type="submit"
             >
               {textSubmit[type]}
@@ -300,7 +300,7 @@ export default function FormAuth({
                 </p>
                 <Link
                   href={type === "signin" ? "/auth/signup" : "/auth/signin"}
-                  className="text-flamee-primary underline"
+                  className="text-flame-primary underline"
                   aria-label={type === "signin" ? "Đăng ký" : "Đăng nhập"}
                 >
                   {type === "signin" ? "Đăng ký" : "Đăng nhập"}

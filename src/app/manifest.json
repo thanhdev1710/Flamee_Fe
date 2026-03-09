@@ -1,7 +1,7 @@
 {
-  "name": "Flamee - Mạng xã hội kết nối và tương tác",
-  "short_name": "Flamee",
-  "description": "Flamee là nền tảng mạng xã hội giúp bạn kết nối, chia sẻ hình ảnh và tương tác với bạn bè một cách dễ dàng và nhanh chóng.",
+  "name": "Flame - Mạng xã hội kết nối và tương tác",
+  "short_name": "Flame",
+  "description": "Flame là nền tảng mạng xã hội giúp bạn kết nối, chia sẻ hình ảnh và tương tác với bạn bè một cách dễ dàng và nhanh chóng.",
   "lang": "vi-VN",
   "start_url": "/",
   "scope": "/",
@@ -28,7 +28,7 @@
       "src": "/screenshots/home.png",
       "sizes": "640x1136",
       "type": "image/png",
-      "label": "Trang chủ Flamee"
+      "label": "Trang chủ Flame"
     },
     {
       "src": "/screenshots/profile.png",

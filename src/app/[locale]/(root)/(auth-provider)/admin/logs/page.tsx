@@ -179,7 +179,7 @@ export default function LogsPage() {
             </Badge>
           </div>
           <p className="text-muted-foreground text-sm">
-            Monitor API requests from your Flamee Auth service in real time.
+            Monitor API requests from your Flame Auth service in real time.
           </p>
         </div>
 
