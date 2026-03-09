@@ -30,7 +30,6 @@ import {
 import FullScreenLoader from "../loading/FullScreenLoader";
 import { toast } from "sonner";
 import ButtonSignin from "./ButtonSignin";
-import { useRouter } from "next/navigation";
 
 export default function FormAuth({
   type,
@@ -39,7 +38,6 @@ export default function FormAuth({
   type: FormType;
   token?: string;
 }) {
-  const router = useRouter();
   const [isShowPass, setIsShowPass] = useState(false);
   const [isSubmitLoading, setIsSubmitLoading] = useState(false);
   const textPrimary: { [key in FormType]: string } = {
@@ -61,15 +59,15 @@ export default function FormAuth({
     defaultValues:
       type === "signin"
         ? {
-            email: "chithanh171004@gmail.com",
-            password: "Chithanh123456@",
+            email: "",
+            password: "",
             rememberMe: false,
             type: "signin",
           }
         : type === "signup"
         ? {
-            email: "chithanh171004@gmail.com",
-            password: "Chithanh123456@",
+            email: "",
+            password: "",
             confirmPassword: "",
             confirmPolicy: false,
             type: "signup",
@@ -103,7 +101,7 @@ export default function FormAuth({
         error = await signup(data);
         if (!error) {
           toast.success("Đăng ký thành công!");
-          router.push("/auth/signin");
+          await checkSession("/auth/verify-email");
         }
         break;
       }
@@ -241,7 +239,7 @@ export default function FormAuth({
                         <Switch
                           checked={field.value}
                           onCheckedChange={field.onChange}
-                          className="data-[state=checked]:bg-flamee-primary"
+                          className="data-[state=checked]:bg-flame-primary"
                         />
                       </FormControl>
                     </FormItem>
@@ -263,7 +261,7 @@ export default function FormAuth({
                         <Switch
                           checked={field.value}
                           onCheckedChange={field.onChange}
-                          className="data-[state=checked]:bg-flamee-primary"
+                          className="data-[state=checked]:bg-flame-primary"
                         />
                       </FormControl>
                     </FormItem>
@@ -271,7 +269,7 @@ export default function FormAuth({
                 />
                 <Link
                   href="/auth/reset-password"
-                  className="text-flamee-primary underline"
+                  className="text-flame-primary underline"
                   aria-label="Quên mật khẩu?"
                 >
                   Quên mật khẩu?
@@ -280,7 +278,7 @@ export default function FormAuth({
             )}
 
             <button
-              className="w-full bg-flamee-primary text-white rounded-lg py-2 font-semibold cursor-pointer"
+              className="w-full bg-flame-primary text-white rounded-lg py-2 font-semibold cursor-pointer"
               type="submit"
             >
               {textSubmit[type]}
@@ -302,7 +300,7 @@ export default function FormAuth({
                 </p>
                 <Link
                   href={type === "signin" ? "/auth/signup" : "/auth/signin"}
-                  className="text-flamee-primary underline"
+                  className="text-flame-primary underline"
                   aria-label={type === "signin" ? "Đăng ký" : "Đăng nhập"}
                 >
                   {type === "signin" ? "Đăng ký" : "Đăng nhập"}

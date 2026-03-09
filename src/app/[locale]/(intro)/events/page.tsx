@@ -11,157 +11,163 @@ import {
 } from "@/components/ui/select";
 import { Calendar, MapPin, Users, Clock, Search, Filter } from "lucide-react";
 import Image from "next/image";
-import Footer from "@/components/landing-page/Footer";
-import MenuBar from "@/components/landing-page/MenuBar";
+
+const upcomingEvents = [
+  {
+    id: 1,
+    title: "Hội chợ Việc làm HUIT 2025",
+    date: "2025-03-15",
+    time: "08:00",
+    location: "Cơ sở chính – 140 Lê Trọng Tấn",
+    attendees: 350,
+    maxAttendees: 2000,
+    category: "Sự kiện lớn",
+    image:
+      "https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=900&q=60",
+    description:
+      "Quy tụ hơn 60 doanh nghiệp hàng đầu và mang đến hàng nghìn cơ hội việc làm cho sinh viên.",
+  },
+  {
+    id: 2,
+    title: "Workshop: Kỹ năng phỏng vấn chuyên nghiệp",
+    date: "2025-02-22",
+    time: "09:00",
+    location: "Hội trường A – Cơ sở Tân Bình",
+    attendees: 120,
+    maxAttendees: 180,
+    category: "Workshop",
+    image:
+      "https://images.unsplash.com/photo-1598257006458-087169a1f08d?auto=format&fit=crop&w=900&q=60",
+    description:
+      "Hướng dẫn thực chiến các dạng câu hỏi phỏng vấn, kỹ năng xử lý tình huống và xây dựng CV.",
+  },
+  {
+    id: 3,
+    title: "Tech Talk: AI & Blockchain Trends 2025",
+    date: "2025-04-02",
+    time: "18:00",
+    location: "Hội trường lớn – Cơ sở Quận 9",
+    attendees: 220,
+    maxAttendees: 300,
+    category: "Công nghệ",
+    image:
+      "https://images.unsplash.com/photo-1555949963-aa79dcee981c?auto=format&fit=crop&w=900&q=60",
+    description:
+      "Cập nhật xu hướng công nghệ mới nhất: AI thế hệ mới, Blockchain Layer 2 và ứng dụng doanh nghiệp.",
+  },
+  {
+    id: 4,
+    title: "Cuộc thi Lập trình Web HUIT 2025",
+    date: "2025-03-28",
+    time: "13:00",
+    location: "Phòng máy – Cơ sở Tân Bình",
+    attendees: 80,
+    maxAttendees: 120,
+    category: "Cuộc thi",
+    image:
+      "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=900&q=60",
+    description:
+      "Thử thách lập trình React – NodeJS dành cho sinh viên yêu thích Web Development.",
+  },
+  {
+    id: 5,
+    title: "Ngày hội CLB – Hoạt động HUIT 2025",
+    date: "2025-02-28",
+    time: "07:30",
+    location: "Sân trường – Cơ sở chính",
+    attendees: 500,
+    maxAttendees: 2500,
+    category: "CLB – Hoạt động",
+    image:
+      "https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?auto=format&fit=crop&w=900&q=60",
+    description:
+      "50+ CLB học thuật – nghệ thuật – thể thao tham gia giao lưu và tuyển thành viên.",
+  },
+  {
+    id: 6,
+    title: "Chiến dịch Xuân Yêu Thương 2025",
+    date: "2025-02-10",
+    time: "06:30",
+    location: "Quận 12 – TP.HCM",
+    attendees: 80,
+    maxAttendees: 100,
+    category: "Tình nguyện",
+    image:
+      "https://images.unsplash.com/photo-1509099836639-18ba1795216d?auto=format&fit=crop&w=900&q=60",
+    description:
+      "Hoạt động thiện nguyện hỗ trợ trẻ em khó khăn và các mái ấm địa phương.",
+  },
+];
+
+const categories = [
+  "Tất cả",
+  "Sự kiện lớn",
+  "Workshop",
+  "Công nghệ",
+  "Cuộc thi",
+  "CLB – Hoạt động",
+  "Tình nguyện",
+];
 
 export default function EventsPage() {
-  const upcomingEvents = [
-    {
-      id: 1,
-      title: "Flamee Community Meetup",
-      date: "2024-02-15",
-      time: "18:00",
-      location: "Ho Chi Minh City",
-      attendees: 45,
-      maxAttendees: 100,
-      category: "Meetup",
-      image: "/placeholder.svg?height=200&width=400",
-      description:
-        "Join fellow Flamee users for an evening of networking and community building.",
-    },
-    {
-      id: 2,
-      title: "Social Media Workshop",
-      date: "2024-02-20",
-      time: "14:00",
-      location: "Online",
-      attendees: 120,
-      maxAttendees: 200,
-      category: "Workshop",
-      image: "/placeholder.svg?height=200&width=400",
-      description:
-        "Learn advanced social media strategies and content creation techniques.",
-    },
-    {
-      id: 3,
-      title: "Flamee Creator Conference",
-      date: "2024-03-05",
-      time: "09:00",
-      location: "Hanoi",
-      attendees: 200,
-      maxAttendees: 500,
-      category: "Conference",
-      image: "/placeholder.svg?height=200&width=400",
-      description:
-        "Annual conference for content creators and social media influencers.",
-    },
-    {
-      id: 4,
-      title: "Photography Challenge",
-      date: "2024-03-12",
-      time: "10:00",
-      location: "Da Nang",
-      attendees: 30,
-      maxAttendees: 50,
-      category: "Challenge",
-      image: "/placeholder.svg?height=200&width=400",
-      description:
-        "Capture the beauty of Da Nang in our monthly photography challenge.",
-    },
-    {
-      id: 5,
-      title: "Tech Talk: Future of Social",
-      date: "2024-03-18",
-      time: "19:00",
-      location: "Online",
-      attendees: 85,
-      maxAttendees: 150,
-      category: "Tech Talk",
-      image: "/placeholder.svg?height=200&width=400",
-      description:
-        "Explore the future of social media and emerging technologies.",
-    },
-    {
-      id: 6,
-      title: "Community Volunteer Day",
-      date: "2024-03-25",
-      time: "08:00",
-      location: "Ho Chi Minh City",
-      attendees: 60,
-      maxAttendees: 80,
-      category: "Volunteer",
-      image: "/placeholder.svg?height=200&width=400",
-      description:
-        "Give back to the community with our monthly volunteer activities.",
-    },
-  ];
-
-  const categories = [
-    "All",
-    "Meetup",
-    "Workshop",
-    "Conference",
-    "Challenge",
-    "Tech Talk",
-    "Volunteer",
-  ];
-
   return (
-    <div className="min-h-screen">
-      <MenuBar />
-
+    <div className="min-h-svh">
       {/* Hero Section */}
-      <section className="py-20 px-4 bg-gradient-to-b from-background to-muted/30">
+      <section className="py-20 px-4 bg-linear-to-b from-background to-muted/30">
         <div className="container mx-auto text-center">
           <Badge
             variant="secondary"
-            className="mb-4 bg-orange-100 text-orange-600"
+            className="mb-4 bg-emerald-100 text-emerald-600"
           >
-            Events
+            Sự kiện HUIT
           </Badge>
+
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-6">
-            Connect Through
-            <span className="block text-primary">Amazing Events</span>
+            Kết nối qua
+            <span className="block text-primary">Các sự kiện tại HUIT</span>
           </h1>
+
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed mb-8">
-            Join our vibrant community at exciting events, workshops, and
-            meetups. Network with like-minded people and grow your social
-            connections.
+            Tham gia sự kiện – hội thảo – workshop – hoạt động CLB để mở rộng
+            mối quan hệ và phát triển kỹ năng trong môi trường đại học.
           </p>
 
-          {/* Search and Filter */}
+          {/* Search & Filter */}
           <div className="max-w-4xl mx-auto">
             <div className="flex flex-col md:flex-row gap-4 bg-background p-6 rounded-2xl shadow-lg">
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Search events..." className="pl-10" />
+                <Input placeholder="Tìm kiếm sự kiện..." className="pl-10" />
               </div>
+
               <Select>
                 <SelectTrigger className="w-full md:w-48">
                   <Filter className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="Category" />
+                  <SelectValue placeholder="Danh mục" />
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map((category) => (
-                    <SelectItem key={category} value={category.toLowerCase()}>
+                    <SelectItem key={category} value={category}>
                       {category}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+
               <Select>
                 <SelectTrigger className="w-full md:w-48">
-                  <SelectValue placeholder="Location" />
+                  <SelectValue placeholder="Khu vực" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Locations</SelectItem>
-                  <SelectItem value="hcm">Ho Chi Minh City</SelectItem>
-                  <SelectItem value="hanoi">Hanoi</SelectItem>
-                  <SelectItem value="danang">Da Nang</SelectItem>
+                  <SelectItem value="all">Tất cả</SelectItem>
+                  <SelectItem value="csc">Cơ sở chính</SelectItem>
+                  <SelectItem value="tb">Tân Bình</SelectItem>
+                  <SelectItem value="q9">Quận 9</SelectItem>
                   <SelectItem value="online">Online</SelectItem>
                 </SelectContent>
               </Select>
-              <Button className="px-8">Search</Button>
+
+              <Button className="px-8">Tìm kiếm</Button>
             </div>
           </div>
         </div>
@@ -171,42 +177,46 @@ export default function EventsPage() {
       <section className="py-20 px-4">
         <div className="container mx-auto">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl font-bold">Upcoming Events</h2>
-            <Button variant="outline">Create Event</Button>
+            <h2 className="text-2xl font-bold">Sự kiện sắp diễn ra</h2>
+            <Button variant="outline">Tạo sự kiện</Button>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 grid-rows-[auto_1fr_auto]">
             {upcomingEvents.map((event) => (
               <Card
                 key={event.id}
-                className="overflow-hidden hover:shadow-lg transition-all hover:-translate-y-1"
+                className="grid grid-rows-subgrid row-span-3 overflow-hidden hover:shadow-lg transition-all hover:-translate-y-1
+      "
               >
-                <div className="relative">
+                {/* 1. IMAGE */}
+                <div className="relative w-full h-48">
                   <Image
+                    src={event.image}
                     width={600}
                     height={400}
-                    src={event.image || "/placeholder.svg"}
                     alt={event.title}
-                    className="w-full h-48 object-cover"
+                    className="w-full h-full object-cover"
                   />
-                  <Badge className="absolute top-4 left-4 bg-primary">
+                  <Badge className="absolute top-4 left-4">
                     {event.category}
                   </Badge>
                 </div>
 
-                <CardHeader className="pb-3">
+                {/* 2. CONTENT */}
+                <CardHeader>
                   <h3 className="font-semibold text-lg line-clamp-2">
                     {event.title}
                   </h3>
-                  <p className="text-sm text-muted-foreground line-clamp-2">
+                  <p className="text-sm text-muted-foreground line-clamp-3">
                     {event.description}
                   </p>
                 </CardHeader>
 
+                {/* 3. FOOTER */}
                 <CardContent className="space-y-3">
                   <div className="flex items-center text-sm text-muted-foreground">
                     <Calendar className="h-4 w-4 mr-2" />
-                    {new Date(event.date).toLocaleDateString("vi-VN")} at{" "}
+                    {new Date(event.date).toLocaleDateString("vi-VN")} –{" "}
                     {event.time}
                   </div>
 
@@ -217,7 +227,7 @@ export default function EventsPage() {
 
                   <div className="flex items-center text-sm text-muted-foreground">
                     <Users className="h-4 w-4 mr-2" />
-                    {event.attendees}/{event.maxAttendees} attendees
+                    {event.attendees}/{event.maxAttendees} người tham gia
                   </div>
 
                   <div className="w-full bg-muted rounded-full h-2">
@@ -228,19 +238,13 @@ export default function EventsPage() {
                           (event.attendees / event.maxAttendees) * 100
                         }%`,
                       }}
-                    ></div>
+                    />
                   </div>
 
-                  <Button className="w-full mt-4">Register Now</Button>
+                  <Button className="w-full mt-4">Đăng ký tham gia</Button>
                 </CardContent>
               </Card>
             ))}
-          </div>
-
-          <div className="text-center mt-12">
-            <Button variant="outline" size="lg">
-              Load More Events
-            </Button>
           </div>
         </div>
       </section>
@@ -252,44 +256,48 @@ export default function EventsPage() {
             <div>
               <Badge
                 variant="secondary"
-                className="mb-4 bg-orange-100 text-orange-600"
+                className="mb-4 bg-emerald-100 text-emerald-600"
               >
-                Featured Event
+                Sự kiện nổi bật
               </Badge>
+
               <h2 className="text-3xl font-bold mb-4">
-                Flamee Annual Summit 2024
+                Ngày hội Việc làm HUIT 2025
               </h2>
+
               <p className="text-muted-foreground mb-6 leading-relaxed">
-                Join us for our biggest event of the year! Connect with
-                thousands of Flamee users, attend inspiring talks, participate
-                in workshops, and celebrate our amazing community.
+                Hơn 50 doanh nghiệp – 2.000+ vị trí tuyển dụng – cơ hội thực tập
+                và việc làm hấp dẫn dành cho sinh viên HUIT.
               </p>
 
               <div className="space-y-3 mb-6">
                 <div className="flex items-center">
                   <Calendar className="h-5 w-5 mr-3 text-primary" />
-                  <span>April 15-16, 2024</span>
+                  <span>15 Tháng 3, 2025</span>
                 </div>
+
                 <div className="flex items-center">
                   <MapPin className="h-5 w-5 mr-3 text-primary" />
-                  <span>Saigon Convention Center, Ho Chi Minh City</span>
+                  <span>Cơ sở chính – Sân trường</span>
                 </div>
+
                 <div className="flex items-center">
                   <Users className="h-5 w-5 mr-3 text-primary" />
-                  <span>2,000+ Expected Attendees</span>
+                  <span>2.000+ sinh viên tham dự</span>
                 </div>
+
                 <div className="flex items-center">
                   <Clock className="h-5 w-5 mr-3 text-primary" />
-                  <span>2 Days of Amazing Content</span>
+                  <span>07:30 – 16:00</span>
                 </div>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button size="lg" className="px-8">
-                  Register Now
+                  Đăng ký ngay
                 </Button>
                 <Button size="lg" variant="outline" className="px-8">
-                  Learn More
+                  Xem chi tiết
                 </Button>
               </div>
             </div>
@@ -298,16 +306,14 @@ export default function EventsPage() {
               <Image
                 width={600}
                 height={400}
-                src="/placeholder.svg?height=500&width=600"
-                alt="Flamee Annual Summit"
+                src="https://huit.edu.vn/images/bgr-nhvl2025.jpg"
+                alt="Ngày hội việc làm HUIT 2025"
                 className="rounded-2xl shadow-lg"
               />
             </div>
           </div>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 }

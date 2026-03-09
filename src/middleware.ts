@@ -4,7 +4,7 @@ import authMiddleware from "./middlewares/authMiddleware";
 import { i18nMiddleware } from "./middlewares/i18nMiddleware";
 import { routing } from "./i18n/routing";
 
-const AUTH_PATHS = ["/app", "/onboarding", "/auth"];
+const AUTH_PATHS = ["/app", "/onboarding", "/auth", "/admin"];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

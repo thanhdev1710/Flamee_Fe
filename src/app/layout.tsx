@@ -16,21 +16,21 @@ const geistInter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://flamee-fe.vercel.app"),
+  metadataBase: new URL("https://flame.id.vn"),
 
   title: {
-    default: "Flamee",
-    template: "%s | Flamee",
+    default: "Flame",
+    template: "%s | Flame",
   },
 
   abstract:
-    "Flamee - Mạng xã hội ảnh, video dành cho người Việt kết nối và chia sẻ.",
+    "Flame - Mạng xã hội ảnh, video dành cho người Việt kết nối và chia sẻ.",
 
   description:
-    "Flamee là mạng xã hội thế hệ mới dành cho người Việt, nơi bạn có thể kết nối bạn bè, chia sẻ hình ảnh, video và khám phá những khoảnh khắc đáng nhớ.",
+    "Flame là mạng xã hội thế hệ mới dành cho người Việt, nơi bạn có thể kết nối bạn bè, chia sẻ hình ảnh, video và khám phá những khoảnh khắc đáng nhớ.",
 
   keywords: [
-    "Flamee",
+    "Flame",
     "mạng xã hội",
     "social network",
     "kết nối bạn bè",
@@ -46,26 +46,26 @@ export const metadata: Metadata = {
     "social interaction",
     "social feed",
     "trang cá nhân",
-    "flamee-fe.vercel.app",
+    "flame-fe.vercel.app",
     "ứng dụng chia sẻ",
-    "Flamee app",
-    "Flamee social media",
+    "Flame app",
+    "Flame social media",
     "startup Việt Nam",
     "cộng đồng số",
     "kết nối trực tuyến",
     "khoảnh khắc cuộc sống",
-    "Flamee mạng xã hội",
+    "Flame mạng xã hội",
     "ứng dụng chia sẻ ảnh",
     "ứng dụng chia sẻ video",
-    "Flamee chính thức",
+    "Flame chính thức",
     "app mạng xã hội mới",
   ],
 
-  applicationName: "Flamee",
+  applicationName: "Flame",
   generator: "Next.js",
   creator: "@Chiithanh1",
   authors: [{ name: "ThanhDev", url: "https://thanhdev.io.vn" }],
-  publisher: "Flamee Team",
+  publisher: "Flame Team",
 
   referrer: "origin-when-cross-origin",
   robots: {
@@ -83,17 +83,17 @@ export const metadata: Metadata = {
   classification: "Networking and Communication",
 
   openGraph: {
-    title: "Flamee - Mạng xã hội kết nối thời đại số",
+    title: "Flame - Mạng xã hội kết nối thời đại số",
     description:
-      "Tham gia Flamee để chia sẻ hình ảnh, video và kết nối với cộng đồng người Việt năng động. Nền tảng mạng xã hội hiện đại, đơn giản và an toàn.",
-    url: "https://flamee-fe.vercel.app",
-    siteName: "Flamee",
+      "Tham gia Flame để chia sẻ hình ảnh, video và kết nối với cộng đồng người Việt năng động. Nền tảng mạng xã hội hiện đại, đơn giản và an toàn.",
+    url: "https://flame.id.vn",
+    siteName: "Flame",
     images: [
       {
-        url: "https://flamee-fe.vercel.app/og-image.png",
+        url: "https://flame.id.vn/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Giao diện mạng xã hội Flamee",
+        alt: "Giao diện mạng xã hội Flame",
       },
     ],
     locale: "vi_VN",
@@ -102,11 +102,11 @@ export const metadata: Metadata = {
 
   twitter: {
     card: "summary_large_image",
-    title: "Flamee - Kết nối và chia sẻ khoảnh khắc của bạn",
+    title: "Flame - Kết nối và chia sẻ khoảnh khắc của bạn",
     description:
-      "Khám phá Flamee – ứng dụng mạng xã hội dành cho người Việt để kết nối, chia sẻ và tương tác mỗi ngày.",
+      "Khám phá Flame – ứng dụng mạng xã hội dành cho người Việt để kết nối, chia sẻ và tương tác mỗi ngày.",
     creator: "@Chiithanh1",
-    images: ["https://flamee-fe.vercel.app/og-image.png"],
+    images: ["https://flame.id.vn/og-image.png"],
   },
 
   icons: {
@@ -123,9 +123,9 @@ export const metadata: Metadata = {
   },
 
   alternates: {
-    canonical: "https://flamee-fe.vercel.app",
+    canonical: "https://flame.id.vn",
     languages: {
-      vi: "https://flamee-fe.vercel.app",
+      vi: "https://flame.id.vn",
     },
   },
 
@@ -133,7 +133,7 @@ export const metadata: Metadata = {
 
   appleWebApp: {
     capable: true,
-    title: "Flamee",
+    title: "Flame",
     statusBarStyle: "default",
   },
 
@@ -175,6 +175,10 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <div className="w-full bg-yellow-100 text-yellow-800 text-center py-2 text-sm">
+            ⚠️ Dự án Flame hiện tại chỉ chạy bản Frontend demo vì chưa có kinh
+            phí vận hành toàn bộ hệ thống backend.
+          </div>
           {children}
         </ThemeProvider>
       </body>

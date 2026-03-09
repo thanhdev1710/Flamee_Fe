@@ -46,7 +46,7 @@ export default function AsideMenuApp() {
               variant={pathname.includes(item.href) ? "default" : "ghost"}
               className={`w-full justify-start gap-3 ${
                 pathname.includes(item.href)
-                  ? "hover:bg-flamee-primary bg-flamee-primary text-white"
+                  ? "hover:bg-flame-primary bg-flame-primary text-white"
                   : ""
               }`}
               asChild

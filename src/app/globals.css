@@ -126,22 +126,30 @@
   }
 }
 
-@utility text-flamee-primary {
+@utility text-flame-primary {
   color: var(--color-primary);
 }
 
-@utility fill-flamee-primary {
+@utility fill-flame-primary {
   fill: var(--color-primary);
 }
 
-@utility bg-flamee-primary {
+@utility bg-flame-primary {
   background-color: var(--color-primary);
 }
 
-@utility border-flamee-primary {
+@utility border-flame-primary {
   border-color: var(--color-primary);
 }
 
 @utility padding-flame {
   @apply p-3 min-[400px]:p-6;
+}
+
+.toxic-word {
+  background-color: #ff4d4f;
+  padding: 2px 4px;
+  border-radius: 4px;
+  color: white;
+  font-weight: bold;
 }

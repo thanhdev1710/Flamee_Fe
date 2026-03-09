@@ -3,6 +3,7 @@ import type React from "react";
 import { useState } from "react";
 import Image from "next/image";
 import parse from "html-react-parser";
+import { useSWRConfig } from "swr";
 
 import {
   Heart,
@@ -15,10 +16,10 @@ import {
   MoreHorizontal,
   ChevronDown,
   Loader2,
+  Play,
 } from "lucide-react";
 
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
@@ -36,16 +37,19 @@ import {
 import { toast } from "sonner";
 import type { Interaction } from "@/types/interaction.type";
 import Link from "next/link";
+import { useProfile } from "@/services/user.hook";
+import { Button } from "@/components/ui/button";
+import { notify } from "@/actions/notify.action";
+import { handleToxicCheck } from "@/actions/check.handle";
+import { keySWRPost } from "@/services/post.hook";
 
 export default function PostCardDetail({
   post,
   interactions,
-  mutateAll,
   openComment,
 }: {
   post: Post;
   interactions?: Interaction;
-  mutateAll: () => Promise<void>;
   openComment?: boolean;
 }) {
   const {
@@ -56,16 +60,13 @@ export default function PostCardDetail({
     videos = [],
     author_avatar,
     author_username,
-    comment_count,
     content,
     created_at,
-    isShared,
     hashtags,
-    isLiked,
-    like_count,
-    share_count,
+    author_id,
   } = post;
 
+  const { mutate } = useSWRConfig();
   const [replyId, setReplyId] = useState({ id: "", username: "" });
   const [newComment, setNewComment] = useState("");
   const [imageLoadStates, setImageLoadStates] = useState<
@@ -80,17 +81,43 @@ export default function PostCardDetail({
   const [loadingShare, setLoadingShare] = useState(false);
   const [loadingComment, setLoadingComment] = useState(false);
 
-  const hasImages = images.length > 0;
-  const hasFiles = files.length > 0;
-  const hasVideos = videos.length > 0;
-  // const hasAnyMedia = hasImages || hasFiles || hasVideos;
+  const { data: currentUser } = useProfile();
+
+  const isLiked =
+    interactions?.likes.findIndex(
+      (like) => like.userId === currentUser?.user_id
+    ) !== -1;
+  const isShared =
+    interactions?.shares.findIndex(
+      (share) => share.userId === currentUser?.user_id
+    ) !== -1;
+
+  const like_count = interactions?.likes.length || 0;
+  const share_count = interactions?.shares.length || 0;
+  const comment_count =
+    interactions?.comments.reduce(
+      (total, c) => total + 1 + (c.replies?.length || 0),
+      0
+    ) || 0;
 
   const handleLike = async () => {
     setLoadingLike(true);
     try {
       const err = await likeOrDislikePostById(id);
       if (!err) {
-        await mutateAll();
+        if (currentUser?.user_id !== author_id) {
+          await notify({
+            title: "Ai đó đã tương tác với bài viết",
+            message: `${currentUser?.username} đã ${
+              isLiked ? "bỏ thích" : "thích"
+            } bài viết của bạn`,
+            type: "like",
+            userId: author_id,
+            entityType: "post",
+            entityId: id,
+          });
+        }
+        await mutate([keySWRPost.interaction, id]);
       } else {
         toast.error(err, { richColors: true });
       }
@@ -104,7 +131,19 @@ export default function PostCardDetail({
     try {
       const err = await sharePost(id);
       if (!err) {
-        await mutateAll();
+        if (currentUser?.user_id !== author_id) {
+          await notify({
+            title: "Ai đó đã tương tác với bài viết",
+            message: `${currentUser?.username} đã ${
+              isShared ? "bỏ chia sẽ" : "chia sẽ"
+            } bài viết của bạn`,
+            type: "share",
+            userId: author_id,
+            entityType: "post",
+            entityId: id,
+          });
+        }
+        await mutate([keySWRPost.interaction, id]);
       } else {
         toast.error(err, { richColors: true });
       }
@@ -117,12 +156,26 @@ export default function PostCardDetail({
     if (!newComment.trim()) return;
     setLoadingComment(true);
     try {
+      if (!(await handleToxicCheck(newComment))) {
+        setLoadingComment(false);
+        return;
+      }
       const err = await commentPost(id, {
         content: newComment,
         parent_id: replyId.id || null,
       });
       if (!err) {
-        await mutateAll();
+        if (currentUser?.user_id !== author_id) {
+          await notify({
+            title: "Ai đó đã tương tác với bài viết",
+            message: `${currentUser?.username} đã bình luận bài viết của bạn`,
+            type: "comment",
+            userId: author_id,
+            entityType: "post",
+            entityId: id,
+          });
+        }
+        await mutate([keySWRPost.interaction, id]);
       } else {
         toast.error(err, { richColors: true });
       }
@@ -153,7 +206,7 @@ export default function PostCardDetail({
 
   return (
     <>
-      <Card className="flex flex-col w-full h-full bg-card border-border shadow-sm">
+      <Card className="flex flex-col w-full h-full min-h-[80vh] bg-card border-border shadow-sm">
         {/* HEADER - Enhanced with more professional styling */}
         <CardContent className="flex items-center justify-between px-6 py-5 border-b border-border">
           <div className="flex items-center gap-4">
@@ -205,44 +258,75 @@ export default function PostCardDetail({
               </div>
             )}
 
-            {/* MEDIA */}
-            {hasImages && (
-              <div className="mt-4">
+            {/* MEDIA FULL PREVIEW */}
+            <div className="space-y-4 mt-4">
+              {/* IMAGE GRID */}
+              {images.length > 0 && (
                 <PostImageGrid
                   images={images}
                   imageLoadStates={imageLoadStates}
                   onImageLoad={handleImageLoad}
                   onImageClick={handleImageClickForLightbox}
                   onShowAllFiles={() => setShowMediaModal(true)}
-                  aspectRatio="16/10"
                 />
-              </div>
-            )}
+              )}
 
-            {hasVideos && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground bg-transparent"
-                onClick={() => setShowMediaModal(true)}
-              >
-                <FileText className="w-4 h-4" />
-                {videos.length} video{videos.length > 1 ? "s" : ""} - Click to
-                view
-              </Button>
-            )}
+              {/* ========= VIDEO GRID (NEW) ========= */}
+              {videos.length > 0 && (
+                <div className="grid grid-cols-2 gap-3 rounded-lg overflow-hidden">
+                  {videos.map((video, idx) => (
+                    <div
+                      key={idx}
+                      className="relative group cursor-pointer rounded-lg bg-black"
+                      onClick={() => setShowMediaModal(true)}
+                    >
+                      <video
+                        src={video.mediaUrl}
+                        className="w-full h-40 object-cover opacity-70 group-hover:opacity-100 transition"
+                        muted
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="bg-black/60 p-2 rounded-full">
+                          <Play className="w-6 h-6 text-white" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
 
-            {hasFiles && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowMediaModal(true)}
-                className="w-full text-left justify-start text-muted-foreground hover:text-foreground"
-              >
-                <FileText className="w-4 h-4 mr-2" />
-                {files.length} file{files.length > 1 ? "s" : ""}
-              </Button>
-            )}
+              {/* ========= FILE LIST (NEW) ========= */}
+              {files.length > 0 && (
+                <div className="space-y-2">
+                  {files.map((file, idx) => (
+                    <a
+                      key={idx}
+                      href={file.mediaUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 p-2 rounded-md border hover:bg-muted transition"
+                    >
+                      <FileText className="w-5 h-5 text-primary" />
+                      <span className="text-sm font-medium truncate">
+                        {file.name}
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              )}
+
+              {/* BUTTON: SEE ALL MEDIA */}
+              {(images.length > 0 || videos.length > 0 || files.length > 0) && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs text-muted-foreground"
+                  onClick={() => setShowMediaModal(true)}
+                >
+                  Xem tất cả media & files
+                </Button>
+              )}
+            </div>
 
             {/* TAGS - Enhanced styling */}
             {hashtags.length > 0 && (
@@ -346,7 +430,7 @@ export default function PostCardDetail({
                   <div key={idx} className="space-y-3">
                     {/* Parent Comment */}
                     <div className="flex gap-3">
-                      <Avatar className="h-8 w-8 flex-shrink-0">
+                      <Avatar className="h-8 w-8 shrink-0">
                         <AvatarImage
                           src={c.user.avatarUrl || "/placeholder.svg"}
                           alt={c.user.username}
@@ -388,7 +472,7 @@ export default function PostCardDetail({
                       <div className="ml-10 space-y-3 border-l border-border pl-3">
                         {c.replies.map((reply, replyIdx) => (
                           <div key={replyIdx} className="flex gap-3">
-                            <Avatar className="h-7 w-7 flex-shrink-0">
+                            <Avatar className="h-7 w-7 shrink-0">
                               <AvatarImage
                                 src={reply.user.avatarUrl || "/placeholder.svg"}
                                 alt={reply.user.username}
@@ -430,13 +514,14 @@ export default function PostCardDetail({
                     )}
                   </div>
                 ))}
+                <div className="h-5"></div>
               </div>
             )}
           </div>
 
           {/* COMMENT INPUT */}
           <div className="h-10"></div>
-          <div className="flex-shrink-0 border-t border-border bg-card px-6 py-4 space-y-3 w-full absolute bottom-0 left-0">
+          <div className="shrink-0 border-t border-border bg-card px-6 py-4 space-y-3 w-full absolute bottom-0 left-0">
             {replyId.username && (
               <div className="text-xs text-muted-foreground bg-muted/30 rounded px-3 py-2 flex items-center justify-between">
                 <span>
@@ -452,7 +537,7 @@ export default function PostCardDetail({
               </div>
             )}
             <div className="flex items-end gap-3">
-              <Avatar className="h-8 w-8 flex-shrink-0">
+              <Avatar className="h-8 w-8 shrink-0">
                 <AvatarImage
                   src="/placeholder.svg?height=32&width=32"
                   alt="You"

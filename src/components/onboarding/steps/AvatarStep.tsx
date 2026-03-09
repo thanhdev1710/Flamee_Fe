@@ -24,7 +24,7 @@ export default function AvatarUploader() {
       formData.append("file", file);
 
       try {
-        const res = await fetch("/api/upload-file", {
+        const res = await fetch("/api/upload-local", {
           method: "POST",
           body: formData,
         });
@@ -56,7 +56,7 @@ export default function AvatarUploader() {
   return (
     <LayoutStep onClickNext={handleNext} onClickPrev={prevStep}>
       <div className="max-w-md mx-auto text-center space-y-6 p-6">
-        <h2 className="text-3xl font-bold text-flamee-primary">
+        <h2 className="text-3xl font-bold text-flame-primary">
           Chọn ảnh đại diện
         </h2>
         <p className="text-gray-600">

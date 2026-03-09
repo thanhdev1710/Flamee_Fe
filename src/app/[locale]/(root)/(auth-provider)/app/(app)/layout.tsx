@@ -4,7 +4,7 @@ import React, { ReactNode } from "react";
 
 export default function layout({ children }: { children: ReactNode }) {
   return (
-    <div className="max-h-screen h-screen overflow-hidden">
+    <div className="max-h-svh h-svh overflow-hidden">
       <HeaderApp />
 
       <div className="flex h-full">

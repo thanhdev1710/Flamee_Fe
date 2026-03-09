@@ -14,14 +14,14 @@ export function Logo({
     <Link href="/app/feeds" className={classname + " flex gap-1"}>
       {isText && (
         <span
-          className="text-flamee-primary font-semibold"
+          className="text-flame-primary font-semibold"
           style={{ fontSize: size }}
         >
           Flame
         </span>
       )}
       <Image
-        alt="Flamee Logo"
+        alt="Flame Logo"
         src="/assets/images/logo.svg"
         width={300}
         height={300}

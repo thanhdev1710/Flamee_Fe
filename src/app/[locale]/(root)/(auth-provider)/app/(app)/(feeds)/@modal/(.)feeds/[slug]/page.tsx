@@ -5,8 +5,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { use, useState } from "react";
 import PostCardDetail from "@/components/shared/PostCard/PostCardDetail";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { getInteractionsPostById, getPostById } from "@/services/post.service";
-import useSWR from "swr";
+import { useInteractions, usePostDetail } from "@/services/post.hook";
 
 export default function PostModalPage({
   params,
@@ -14,18 +13,8 @@ export default function PostModalPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = use(params);
-  const { data: post, mutate: mutatePost } = useSWR("post" + slug, () =>
-    getPostById(slug)
-  );
-  const { data: interactions, mutate: mutateInteractions } = useSWR(
-    "comment" + slug,
-    () => getInteractionsPostById(slug)
-  );
-
-  const mutateAll = async () => {
-    await mutatePost();
-    await mutateInteractions();
-  };
+  const { data: post } = usePostDetail(slug);
+  const { data: interactions } = useInteractions(slug);
 
   const router = useRouter();
   const [open, setOpen] = useState(true);
@@ -36,7 +25,7 @@ export default function PostModalPage({
   };
 
   if (!post) {
-    return;
+    return null;
   }
 
   return (
@@ -49,11 +38,7 @@ export default function PostModalPage({
         <DialogContent className="p-0 max-w-xl w-full overflow-hidden rounded-2xl">
           <DialogTitle className="sr-only">Post Details</DialogTitle>
           <ScrollArea className="max-h-[80vh] z-10">
-            <PostCardDetail
-              post={post}
-              interactions={interactions}
-              mutateAll={mutateAll}
-            />
+            <PostCardDetail post={post} interactions={interactions} />
           </ScrollArea>
         </DialogContent>
       </Dialog>

@@ -1,7 +1,5 @@
 "use client";
 
-import type React from "react";
-
 import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";

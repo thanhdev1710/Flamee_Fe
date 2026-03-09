@@ -8,6 +8,7 @@ export interface SearchUsername {
 }
 
 export const createUserSchema = z.object({
+  user_id: z.string().optional(),
   username: z
     .string()
     .min(3, "Username phải có ít nhất 3 ký tự")
@@ -16,6 +17,8 @@ export const createUserSchema = z.object({
       /^(?!.*[_.]{2})(?![_.])[a-zA-Z0-9._]+(?<![_.])$/,
       "Username chỉ được chứa chữ cái, số, dấu _ và ., không được bắt đầu/kết thúc bằng _ hoặc ., và không có dấu liên tiếp"
     ),
+
+  email: z.string().optional(),
   firstName: z
     .string()
     .min(2, "Tên phải có ít nhất 2 ký tự")
@@ -67,6 +70,8 @@ export const createUserSchema = z.object({
     .string()
     .min(2, "Ngành học phải có ít nhất 2 ký tự")
     .max(100, "Ngành học tối đa 100 ký tự"),
+  created_at: z.string().optional(),
+  updated_at: z.string().optional(),
 });
 
 export type CreateUserType = z.infer<typeof createUserSchema>;

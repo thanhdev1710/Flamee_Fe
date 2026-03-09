@@ -61,7 +61,7 @@ export default function FavoriteStep() {
   return (
     <LayoutStep onClickNext={handleNext} onClickPrev={handlePrev}>
       <div className="space-y-6">
-        <h1 className="text-3xl font-semibold text-flamee-primary">
+        <h1 className="text-3xl font-semibold text-flame-primary">
           Sở thích của bạn
         </h1>
         <p className="text-gray-500">
@@ -78,14 +78,14 @@ export default function FavoriteStep() {
                 onClick={() => toggleFavorite(label)}
                 className={`flex flex-col items-center justify-center p-2 rounded-lg border text-sm font-medium transition hover:shadow-md ${
                   isSelected
-                    ? "bg-flamee-primary text-white border-flamee-primary"
-                    : "hover:bg-flamee-primary/10"
+                    ? "bg-flame-primary text-white border-flame-primary"
+                    : "hover:bg-flame-primary/10"
                 }`}
               >
                 <Icon
                   size={18}
                   className={`${
-                    isSelected ? "text-white" : "text-flamee-primary"
+                    isSelected ? "text-white" : "text-flame-primary"
                   }`}
                 />
 

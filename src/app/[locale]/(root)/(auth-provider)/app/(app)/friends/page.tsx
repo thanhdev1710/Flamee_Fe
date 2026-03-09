@@ -5,13 +5,15 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { UserPlus } from "lucide-react";
+import { UserMinus, UserPlus } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import useSWR, { mutate } from "swr";
 import { ProfileSummary } from "@/types/follow.type";
 import { getFriendSuggestions } from "@/services/follow.service";
 import { addOrUnFollowById } from "@/actions/follow.actions";
 import { toast } from "sonner";
+import { notify } from "@/actions/notify.action";
+import { useProfile } from "@/services/user.hook";
 
 type UserSectionVariant = "followers" | "suggestions" | "following" | "mutual";
 
@@ -22,21 +24,65 @@ function UserCard({
   user: ProfileSummary;
   variant: UserSectionVariant;
 }) {
-  const handleFollow = async () => {
-    const err = await addOrUnFollowById(user.user_id);
-    if (!err) {
-      await mutate("invitationUsers");
-      toast.success("Thành công", { richColors: true });
-    } else {
-      toast.error("Đã xảy ra lỗi", { richColors: true });
-    }
+  const { data: currentUser } = useProfile();
+  const handleFollow = () => {
+    const followPromise = addOrUnFollowById(user.user_id).then(async (err) => {
+      if (!err) {
+        // tuỳ biến thông báo theo variant
+        let successMessage = "Thao tác thành công";
+
+        switch (variant) {
+          case "followers":
+            successMessage = "Bạn đã follow back";
+            break;
+          case "following":
+            successMessage = "Bạn đã unfollow người này";
+            break;
+          case "suggestions":
+            successMessage = "Bạn đã theo dõi người này";
+            break;
+          case "mutual":
+            successMessage = "Đã cập nhật kết nối";
+            break;
+        }
+
+        // 🔔 chỉ gửi notify khi FOLLOW, không gửi khi UNFOLLOW
+        if (variant !== "following") {
+          await notify({
+            title: "Ai đó đã theo dõi bạn",
+            message: `${currentUser?.username} đã theo dõi bạn`,
+            type: "follow",
+            userId: user.user_id,
+            entityType: "user",
+            entityId: currentUser?.user_id,
+          });
+        }
+
+        await mutate("invitationUsers");
+        return successMessage;
+      } else {
+        throw new Error("Đã xảy ra lỗi, vui lòng thử lại!");
+      }
+    });
+
+    // 🎉 hiển thị toast theo variant
+    toast.promise(followPromise, {
+      loading: "Đang xử lý...",
+      success: (msg) => msg,
+      error: (err) => err.message || "Đã xảy ra lỗi",
+      // ✔ màu toast đẹp hơn dựa trên variant
+      className:
+        variant === "following"
+          ? "bg-red-600 text-white"
+          : variant === "followers"
+          ? "bg-blue-600 text-white"
+          : variant === "suggestions"
+          ? "bg-green-600 text-white"
+          : "bg-primary text-white",
+    });
   };
 
   const isFollowerSection = variant === "followers";
-
-  // Chuẩn hoá username nếu bạn muốn bỏ @ trên URL,
-  // còn nếu backend xử lý được @ thì có thể dùng luôn user.username
-  const usernameSlug = user.username?.replace(/^@/, "") || user.user_id;
 
   return (
     <Card className="flex flex-col items-center p-5 gap-4 hover:shadow-xl hover:border-primary/50 transition-all duration-300 border border-border">
@@ -69,7 +115,16 @@ function UserCard({
             size="sm"
             variant="outline"
           >
-            <Link href={`/app/users/${usernameSlug}`}>View profile</Link>
+            <Link href={`/app/users/${user.username}`}>View profile</Link>
+          </Button>
+        ) : variant === "following" ? (
+          <Button
+            onClick={handleFollow}
+            className="w-full transition-all duration-200 font-medium flex items-center justify-center gap-2"
+            size="sm"
+          >
+            <UserMinus className="h-4 w-4" />
+            Unfollow
           </Button>
         ) : (
           // 👉 Các case còn lại: Follow / Follow back
@@ -142,8 +197,8 @@ export default function FriendsPage() {
   const { data } = useSWR("invitationUsers", getFriendSuggestions);
 
   return (
-    <ScrollArea className="h-full py-8">
-      <div className="px-4 space-y-8">
+    <ScrollArea className="h-full">
+      <div className="px-4 py-8 space-y-8">
         <UserSection
           title="Followers (Follow You)"
           subtitle="These people are already following you. Follow them back to connect."

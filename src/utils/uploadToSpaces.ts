@@ -1,4 +1,4 @@
-import { CONFIG } from "@/global/config";
+import { SERVER_CONFIG } from "@/global/config";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { s3 } from "@/lib/spaces";
 
@@ -6,7 +6,7 @@ export async function uploadToSpaces({
   fileBuffer,
   fileName,
   contentType,
-  bucket = CONFIG.DIGITALOCEAN.BUCKET,
+  bucket = SERVER_CONFIG.DIGITALOCEAN.BUCKET,
 }: {
   fileBuffer: Buffer;
   fileName: string;
@@ -23,6 +23,9 @@ export async function uploadToSpaces({
 
   await s3.send(command);
 
-  const endpoint = CONFIG.DIGITALOCEAN.ENDPOINT.replace(/^https?:\/\//, "");
+  const endpoint = SERVER_CONFIG.DIGITALOCEAN.ENDPOINT.replace(
+    /^https?:\/\//,
+    ""
+  );
   return `https://${bucket}.${endpoint}/${fileName}`;
 }
